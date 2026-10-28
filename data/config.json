@@ -47,13 +47,7 @@
   "points": {
     "title": ""
   },
-  "notices": [
-    {
-      "visible": true,
-      "position": "shippingInfo",
-      "html": "평일 12시 이전 주문 시 <b>당일 출고</b>"
-    }
-  ],
+  "notices": [],
   "promotion": {
     "type": "text",
     "position": "default",
@@ -67,5 +61,5 @@
     "showNextDay": true,
     "accentColor": "#F51A1A"
   },
-  "updatedAt": "2026-10-28T12:39:55.367Z"
+  "updatedAt": "2026-10-28T12:43:24.880Z"
 }

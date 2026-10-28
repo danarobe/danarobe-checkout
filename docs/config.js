@@ -1,4 +1,4 @@
-/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-10-28T12:39:55.367Z) */
+/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-10-28T12:43:24.880Z) */
 window.DNRB_PAY_CONFIG = {
   "version": 1,
   "theme": {
@@ -48,13 +48,7 @@ window.DNRB_PAY_CONFIG = {
   "points": {
     "title": ""
   },
-  "notices": [
-    {
-      "visible": true,
-      "position": "shippingInfo",
-      "html": "평일 12시 이전 주문 시 <b>당일 출고</b>"
-    }
-  ],
+  "notices": [],
   "promotion": {
     "type": "text",
     "position": "default",
