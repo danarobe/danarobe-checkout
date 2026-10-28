@@ -23,6 +23,8 @@
     if (html != null) e.innerHTML = html;
     return e;
   }
+  function safeUrl(u) { try { var p = new URL(String(u || ''), location.href); return /^https?:$/.test(p.protocol) ? p.href : ''; } catch (e) { return ''; } }
+  function safeColor(c, fallback) { return /^#[0-9a-f]{3,8}$/i.test(String(c || '')) ? c : fallback; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function isGuest() { return !!doc.getElementById('order_password'); }
   function isMobile() { return window.matchMedia('(max-width: 899px)').matches; }
@@ -41,8 +43,8 @@
     html.classList.add('dnrb');
     if (t.round === false) html.classList.add('dnrb-square');
     var st = html.style;
-    if (t.mainColor) st.setProperty('--dnrb-main', t.mainColor);
-    if (t.subColor) st.setProperty('--dnrb-sub', t.subColor);
+    if (safeColor(t.mainColor)) st.setProperty('--dnrb-main', t.mainColor);
+    if (safeColor(t.subColor)) st.setProperty('--dnrb-sub', t.subColor);
     var lg = cfg.logo || {};
     st.setProperty('--dnrb-logo-h', (parseInt(lg.heightMo, 10) || 24) + 'px');
     st.setProperty('--dnrb-logo-h-pc', (parseInt(lg.heightPc, 10) || 24) + 'px');
@@ -56,11 +58,12 @@
     var lg = cfg.logo || {};
     var h1 = $('#header h1');
     if (!h1) return;
-    if (!lg.visible || !lg.url) return;
+    var logoUrl = safeUrl(lg.url);
+    if (!lg.visible || !logoUrl) return;
     var a = $('a', h1) || h1;
     var name = (a.textContent || '').trim();
     a.innerHTML = '';
-    a.appendChild(el('img', { 'class': 'dnrb-logo', src: lg.url, alt: name || 'logo' }));
+    a.appendChild(el('img', { 'class': 'dnrb-logo', src: logoUrl, alt: name || 'logo' }));
   }
 
   /* 3) 결제수단 모양/순서/뱃지 ------------------------------------------ */
@@ -95,7 +98,8 @@
       // 뱃지
       badges.forEach(function (b) {
         if (String(b.method).toLowerCase() !== code) return;
-        var badge = el('span', { 'class': 'dnrb-badge', style: '--badge-color:' + (b.color || 'var(--dnrb-main)') }, esc(b.text));
+        var badge = el('span', { 'class': 'dnrb-badge' }, esc(b.text));
+        badge.style.setProperty('--badge-color', safeColor(b.color, 'var(--dnrb-main)'));
         wrap.appendChild(badge);
       });
 
@@ -175,16 +179,18 @@
     items.forEach(function (i) {
       var inner;
       if (p.type === 'image') {
-        inner = el('img', { 'class': 'dnrb-promo-img', src: i.src, alt: i.alt || '' });
+        inner = el('img', { 'class': 'dnrb-promo-img', src: safeUrl(i.src), alt: i.alt || '' });
       } else {
-        inner = el('div', { 'class': 'dnrb-promo-text', style: '--promo-color:' + (i.color || 'var(--dnrb-main)') });
-        if (i.icon) inner.appendChild(el('div', { 'class': 'dnrb-promo-icon' }, /^https?:\/\//.test(i.icon) ? '<img src="' + esc(i.icon) + '" alt="">' : esc(i.icon)));
+        inner = el('div', { 'class': 'dnrb-promo-text' });
+        inner.style.setProperty('--promo-color', safeColor(i.color, 'var(--dnrb-main)'));
+        if (i.icon) inner.appendChild(el('div', { 'class': 'dnrb-promo-icon' }, /^https?:\/\//.test(i.icon) ? '<img src="' + esc(safeUrl(i.icon)) + '" alt="">' : esc(i.icon)));
         var body = el('div');
         if (i.title) body.appendChild(el('strong', null, esc(i.title)));
         if (i.body) body.appendChild(el('p', null, i.body));
         inner.appendChild(body);
       }
-      if (i.url) { var a = el('a', { href: i.url }); a.appendChild(inner); box.appendChild(a); }
+      var href = safeUrl(i.url);
+      if (href) { var a = el('a', { href: href }); a.appendChild(inner); box.appendChild(a); }
       else { var d = el('div'); d.appendChild(inner); box.appendChild(d); }
     });
     var order = $('#mCafe24Order');
@@ -262,7 +268,8 @@
     var t = cfg.deliveryTimer || {};
     if (!t.visible || !t.cutoff) return;
     var order = $('#mCafe24Order'); if (!order) return;
-    var box = el('div', { 'class': 'dnrb-timer', style: '--timer-color:' + (t.accentColor || '#F51A1A') });
+    var box = el('div', { 'class': 'dnrb-timer' });
+    box.style.setProperty('--timer-color', safeColor(t.accentColor, '#F51A1A'));
     order.insertBefore(box, order.firstElementChild);
     var holidays = (t.holidays || []).map(String);
     var weekly = t.weeklyOff || [0, 6]; // 일(0), 토(6)

@@ -63,6 +63,7 @@ export function withDefaults(cfg) {
   const merge = (dst, src) => {
     if (!src || typeof src !== 'object') return;
     for (const k of Object.keys(src)) {
+      if (k === '__proto__' || k === 'constructor' || k === 'prototype') continue;
       if (Array.isArray(src[k])) dst[k] = structuredClone(src[k]);
       else if (src[k] && typeof src[k] === 'object') { dst[k] = dst[k] && typeof dst[k] === 'object' ? dst[k] : {}; merge(dst[k], src[k]); }
       else dst[k] = src[k];

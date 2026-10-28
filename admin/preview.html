@@ -17,6 +17,7 @@
   (function () {
     try { window.DNRB_PAY_CONFIG = JSON.parse(sessionStorage.getItem('dnrb-preview-config') || 'null') || undefined; } catch (e) {}
     window.addEventListener('message', function (e) {
+      if (e.source !== window.parent || e.origin !== window.location.origin) return;
       if (!e.data || e.data.type !== 'dnrb-config') return;
       var next = JSON.stringify(e.data.config);
       if (next === sessionStorage.getItem('dnrb-preview-config') && window.DNRB_PAY_CONFIG) return;

@@ -33,6 +33,15 @@ function writeConfig(cfg) {
 
 const app = express();
 app.use(express.json({ limit: '2mb' }));
+// 이 컴퓨터의 브라우저에서 연 관리 화면만 받는다 (다른 사이트/외부에서 보낸 요청 차단)
+app.use((req, res, next) => {
+  const host = String(req.headers.host || '');
+  const okHost = host === `localhost:${PORT}` || host === `127.0.0.1:${PORT}`;
+  const origin = req.headers.origin;
+  const okOrigin = !origin || origin === `http://localhost:${PORT}` || origin === `http://127.0.0.1:${PORT}`;
+  if (!okHost || !okOrigin) return res.status(403).send('허용되지 않은 접근');
+  next();
+});
 app.use('/skin', express.static(path.join(ROOT, 'skin')));
 app.use(express.static(path.join(ROOT, 'admin')));
 
