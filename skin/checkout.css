@@ -181,6 +181,62 @@ html.dnrb #mCafe24Order .totalPay .txtEm,
 html.dnrb #mCafe24Order .totalPay .txtStrong { font-size: 18px; font-weight: 800; color: var(--dnrb-text); }
 html.dnrb #mCafe24Order .totalPay .refer { font-size: 12px; font-weight: 400; color: var(--dnrb-muted); }
 
+/* ---------- 할인/부가결제: 자동할인 줄 + 쿠폰 패널 ---------- */
+html.dnrb #mCafe24Order .discountDetail.dnrb-auto {
+  display: flex; align-items: center; gap: 8px; padding: 12px 14px; margin: 0 0 10px;
+  background: #f7f6f4; border: 0; border-radius: var(--dnrb-radius-sm); cursor: pointer;
+}
+html.dnrb #mCafe24Order .discountDetail.dnrb-auto .heading { font-size: 14px; font-weight: 600; }
+html.dnrb #mCafe24Order .discountDetail.dnrb-auto .summary { display: none; }
+html.dnrb #mCafe24Order .discountDetail.dnrb-auto .control { flex: 1 1 auto; margin-left: auto; justify-content: flex-end; gap: 6px; }
+html.dnrb #mCafe24Order .discountDetail.dnrb-auto .control .txtEm { margin: 0; color: var(--dnrb-text); font-weight: 700; order: 2; }
+html.dnrb #mCafe24Order .discountDetail.dnrb-auto .control .txtEm::before { content: "-"; }
+html.dnrb #mCafe24Order .discountDetail.dnrb-auto .control a.btnNormal {
+  order: 1; margin-right: auto; height: 20px; width: 20px; padding: 0; border: 0; background: transparent; font-size: 0; color: transparent;
+}
+html.dnrb #mCafe24Order .discountDetail.dnrb-auto .control a.btnNormal::after {
+  content: ""; display: block; width: 20px; height: 20px;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23767676' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>") center/20px no-repeat;
+}
+/* 원래 쿠폰 줄은 숨기고(카페24가 값은 계속 갱신) 우리 패널로 보여준다 */
+html.dnrb #mCafe24Order .discountDetail.dnrb-coupon-src { display: none !important; }
+html.dnrb #mCafe24Order .dnrb-coupon {
+  border: 1px solid var(--dnrb-line); border-radius: var(--dnrb-radius); overflow: hidden; margin: 0 0 10px;
+}
+html.dnrb #mCafe24Order .dnrb-coupon-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px;
+  background: #fff; border-bottom: 1px solid var(--dnrb-line); font-size: 14px; font-weight: 600;
+}
+html.dnrb #mCafe24Order .dnrb-coupon-head .dnrb-switch { position: relative; width: 42px; height: 24px; flex: 0 0 42px; }
+html.dnrb #mCafe24Order .dnrb-coupon-head .dnrb-switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+html.dnrb #mCafe24Order .dnrb-coupon-head .dnrb-switch span { position: absolute; inset: 0; border-radius: 24px; background: #d6d2cd; transition: .2s; pointer-events: none; }
+html.dnrb #mCafe24Order .dnrb-coupon-head .dnrb-switch span::before { content: ""; position: absolute; left: 3px; top: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: .2s; }
+html.dnrb #mCafe24Order .dnrb-coupon-head .dnrb-switch input:checked + span { background: var(--dnrb-main); }
+html.dnrb #mCafe24Order .dnrb-coupon-head .dnrb-switch input:checked + span::before { transform: translateX(18px); }
+html.dnrb #mCafe24Order .dnrb-coupon-body { padding: 14px; background: #f7f6f4; }
+html.dnrb #mCafe24Order .dnrb-coupon-applied { font-size: 13px; color: var(--dnrb-muted); display: flex; align-items: center; gap: 6px; }
+html.dnrb #mCafe24Order .dnrb-coupon-applied b { color: var(--dnrb-text); }
+html.dnrb #mCafe24Order .dnrb-coupon-amount { font-size: 22px; font-weight: 800; margin: 2px 0 12px; letter-spacing: -0.02em; }
+html.dnrb #mCafe24Order .dnrb-coupon-btn {
+  position: relative; display: flex; align-items: center; gap: 8px; width: 100%; height: 50px; padding: 0 16px;
+  border: 1px solid var(--dnrb-main); border-radius: var(--dnrb-radius-sm); background: #fff;
+  font: inherit; font-size: 14px; font-weight: 600; color: var(--dnrb-text); cursor: pointer; text-align: left;
+}
+html.dnrb #mCafe24Order .dnrb-coupon-btn .dnrb-coupon-own { margin-left: auto; font-weight: 500; color: var(--dnrb-muted); }
+html.dnrb #mCafe24Order .dnrb-coupon-btn .dnrb-coupon-own b { color: var(--dnrb-text); font-weight: 700; }
+html.dnrb #mCafe24Order .dnrb-coupon-btn::after {
+  content: ""; width: 18px; height: 18px;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23171717' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 18l6-6-6-6'/></svg>") center/18px no-repeat;
+}
+html.dnrb #mCafe24Order .dnrb-coupon-tip {
+  position: absolute; right: 10px; top: -16px; padding: 5px 10px; border-radius: 999px;
+  background: #fff; border: 1px solid var(--dnrb-line); box-shadow: var(--dnrb-shadow);
+  font-size: 12px; font-weight: 600; color: var(--dnrb-text); white-space: nowrap; animation: dnrb-bounce 1.6s ease-in-out infinite;
+}
+html.dnrb #mCafe24Order .dnrb-coupon-tip::after { content: ""; position: absolute; left: 50%; bottom: -5px; width: 8px; height: 8px; background: #fff; border-right: 1px solid var(--dnrb-line); border-bottom: 1px solid var(--dnrb-line); transform: translateX(-50%) rotate(45deg); }
+@keyframes dnrb-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+html.dnrb #mCafe24Order .dnrb-coupon.dnrb-none .dnrb-coupon-btn { border-color: var(--dnrb-line); color: var(--dnrb-muted); }
+
 /* ---------- 결제수단 ---------- */
 html.dnrb #mCafe24Order ul.payMethod { list-style: none; margin: 0; padding: 0; }
 html.dnrb #mCafe24Order ul.payMethod > li { margin: 0; padding: 0; }
@@ -190,7 +246,7 @@ html.dnrb #mCafe24Order ul.payMethod > li.ec-paymethod-recentArea { margin-botto
 html.dnrb #mCafe24Order ul.payMethod > li.ec-paymethod-recentArea > input.fRadio,
 html.dnrb #mCafe24Order ul.payMethod > li.ec-paymethod-recentArea > label { display: inline-block; }
 
-/* 결제수단 버튼 묶음 (혼합형 기본) */
+/* 결제수단 버튼 묶음 */
 html.dnrb #mCafe24Order .ec-paymethod-newArea .inner { display: flex; flex-wrap: wrap; gap: 8px; }
 html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label {
   position: relative; flex: 1 1 calc(50% - 4px); min-width: calc(50% - 4px);
@@ -212,28 +268,52 @@ html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label input:checked + lab
 html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-checked label {
   border-color: var(--dnrb-main); box-shadow: inset 0 0 0 1px var(--dnrb-main); color: var(--dnrb-main);
 }
-/* 간편결제는 한 줄 전체 */
-html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-simple { flex-basis: 100%; min-width: 100%; }
 /* 순서: 간편결제 먼저(기본) / 일반결제 먼저 */
 html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-simple { order: 1; }
-html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-normal { order: 2; }
-html.dnrb.dnrb-normal-first #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-simple { order: 2; }
-html.dnrb.dnrb-normal-first #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-normal { order: 1; }
-/* 카드형: 전부 큰 버튼 */
-html.dnrb.dnrb-pm-card #mCafe24Order .ec-paymethod-newArea .ec-base-label { flex-basis: 100%; min-width: 100%; }
-/* 목록형: 라디오 목록 */
-html.dnrb.dnrb-pm-list #mCafe24Order .ec-paymethod-newArea .inner { flex-direction: column; gap: 0; }
-html.dnrb.dnrb-pm-list #mCafe24Order .ec-paymethod-newArea .ec-base-label { flex-basis: 100%; min-width: 100%; }
-html.dnrb.dnrb-pm-list #mCafe24Order .ec-paymethod-newArea .ec-base-label label {
-  justify-content: flex-start; height: 46px; border: 0; border-bottom: 1px solid var(--dnrb-line); border-radius: 0; box-shadow: none !important; padding: 0 4px;
+html.dnrb #mCafe24Order .ec-paymethod-newArea .dnrb-normal-head { order: 2; }
+html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-normal { order: 3; }
+html.dnrb.dnrb-normal-first #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-simple { order: 3; }
+html.dnrb.dnrb-normal-first #mCafe24Order .ec-paymethod-newArea .dnrb-normal-head { order: 1; }
+html.dnrb.dnrb-normal-first #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-normal { order: 2; }
+
+/* 라디오 줄 모양 (혼합형의 간편결제·"일반결제" 제목, 목록형의 전부) */
+html.dnrb #mCafe24Order .ec-paymethod-newArea .dnrb-row { flex-basis: 100%; min-width: 100%; }
+html.dnrb #mCafe24Order .ec-paymethod-newArea .dnrb-row label,
+html.dnrb #mCafe24Order .ec-paymethod-newArea .dnrb-normal-head {
+  display: flex; align-items: center; justify-content: flex-start; gap: 10px;
+  height: 44px; padding: 0 2px; border: 0; border-radius: 0; background: transparent; box-shadow: none !important;
+  font-size: 15px; font-weight: 500; color: var(--dnrb-text); cursor: pointer; text-align: left;
 }
-html.dnrb.dnrb-pm-list #mCafe24Order .ec-paymethod-newArea .ec-base-label label::before {
-  content: ""; width: 18px; height: 18px; border: 2px solid #c9c9c9; border-radius: 50%; margin-right: 4px; flex: 0 0 18px;
+html.dnrb #mCafe24Order .ec-paymethod-newArea .dnrb-row label::before,
+html.dnrb #mCafe24Order .ec-paymethod-newArea .dnrb-normal-head::before {
+  content: ""; flex: 0 0 20px; width: 20px; height: 20px; box-sizing: border-box;
+  border: 2px solid #cfcac4; border-radius: 50%; background: #fff; transition: box-shadow .15s, border-color .15s;
 }
-html.dnrb.dnrb-pm-list #mCafe24Order .ec-paymethod-newArea .ec-base-label input:checked + label::before,
-html.dnrb.dnrb-pm-list #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-checked label::before {
+html.dnrb #mCafe24Order .ec-paymethod-newArea .dnrb-row input:checked + label::before,
+html.dnrb #mCafe24Order .ec-paymethod-newArea .dnrb-row.dnrb-checked label::before,
+html.dnrb #mCafe24Order .ec-paymethod-newArea .dnrb-normal-head.dnrb-checked::before {
   border-color: var(--dnrb-main); box-shadow: inset 0 0 0 4px var(--dnrb-main);
 }
+html.dnrb #mCafe24Order .ec-paymethod-newArea .dnrb-row label img { max-height: 20px; }
+html.dnrb #mCafe24Order .ec-paymethod-newArea .dnrb-row .dnrb-badge { position: static; margin-left: 4px; }
+/* 혼합형: 간편결제는 라디오 줄, 일반결제는 "일반결제" 제목 아래 2열 버튼 */
+html.dnrb.dnrb-pm-mixed #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-simple { flex-basis: 100%; min-width: 100%; }
+html.dnrb.dnrb-pm-mixed #mCafe24Order .ec-paymethod-newArea .dnrb-normal-head { flex-basis: 100%; min-width: 100%; }
+/* 카드형: 전부 큰 버튼, 제목 줄 없음 */
+html.dnrb.dnrb-pm-card #mCafe24Order .ec-paymethod-newArea .ec-base-label { flex-basis: 100%; min-width: 100%; }
+html.dnrb.dnrb-pm-card #mCafe24Order .ec-paymethod-newArea .dnrb-normal-head { display: none; }
+/* 목록형: 전부 라디오 줄, 제목 줄 없음 */
+html.dnrb.dnrb-pm-list #mCafe24Order .ec-paymethod-newArea .inner { gap: 0; }
+html.dnrb.dnrb-pm-list #mCafe24Order .ec-paymethod-newArea .dnrb-normal-head { display: none; }
+html.dnrb.dnrb-pm-list #mCafe24Order .ec-paymethod-newArea .ec-base-label label { border-bottom: 1px solid var(--dnrb-line); border-radius: 0; }
+
+/* 결제수단 저장 ("다음에도 위 결제수단과 입력정보 사용") */
+html.dnrb #mCafe24Order #ec-jigsaw-area-paymethod .saveArea {
+  display: flex; align-items: center; gap: 8px; margin: 14px 0 0; padding: 0; border: 0; background: transparent;
+  font-size: 13.5px; color: #444;
+}
+html.dnrb #mCafe24Order #ec-jigsaw-area-paymethod .saveArea.displaynone { display: none; }
+html.dnrb #mCafe24Order #ec-jigsaw-area-paymethod .saveArea label { cursor: pointer; }
 
 /* 결제혜택 뱃지 */
 html.dnrb #mCafe24Order .dnrb-badge {
@@ -291,6 +371,41 @@ html.dnrb #mCafe24Order .dnrb-timer {
 }
 html.dnrb #mCafe24Order .dnrb-timer b { color: var(--timer-color, #F51A1A); font-variant-numeric: tabular-nums; }
 
+/* ---------- 이용약관 동의 ---------- */
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement {
+  background: var(--dnrb-card); border-radius: var(--dnrb-radius); box-shadow: var(--dnrb-shadow);
+  margin: 0 0 12px; padding: 0 20px 8px; overflow: hidden;
+}
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement > .title { padding: 18px 0 10px; }
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement > .title h2 { margin: 0; font-size: 16px; font-weight: 700; }
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agreeArea { border: 0; padding: 0; margin: 0; background: transparent; }
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .allAgree {
+  display: flex; align-items: flex-start; gap: 8px; padding: 6px 0 12px; margin: 0; border: 0; border-bottom: 1px solid var(--dnrb-line);
+}
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .allAgree label { font-size: 15px; font-weight: 700; line-height: 1.4; }
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .allAgree strong { font-weight: 700; }
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agreement { padding: 0; margin: 0; border: 0; }
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agreement ul,
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agreement li { list-style: none; margin: 0; padding: 0; }
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agreement li::before { display: none; }
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agreement li.displaynone { display: none; }
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agree {
+  display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 2px 0; margin: 0; background: transparent; border: 0;
+}
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agree .check { flex: 1 1 auto; display: flex; align-items: center; gap: 8px; min-width: 0; }
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agree input[type="checkbox"] { flex: 0 0 20px; margin: 0; }
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agree label { font-size: 14px; color: #333; line-height: 1.4; }
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agree label .txtEm { color: var(--dnrb-muted); font-weight: 500; }
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agree .btnAgree,
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agree .btnNormal {
+  flex: 0 0 auto; height: auto; padding: 0; border: 0; background: none; box-shadow: none;
+  font-size: 12.5px; color: var(--dnrb-muted); text-decoration: none; cursor: pointer; white-space: nowrap;
+}
+/* 약관 안의 안내 문장(선택 동의 설명 등) */
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agreement li p,
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agreement .ec-base-help { margin: 0 0 6px 28px; font-size: 12px; color: var(--dnrb-muted); }
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agreement .ec-base-help li::before { display: inline; }
+
 /* ---------- 하단 결제 버튼 ---------- */
 html.dnrb #mCafe24Order #orderFixItem {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
@@ -329,8 +444,7 @@ html.dnrb .dnrb-toast.show { opacity: 1; }
   }
   html.dnrb #header .header { height: 64px; }
   html.dnrb #header .header h1 img.dnrb-logo { height: var(--dnrb-logo-h-pc, 24px); }
-  html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label { flex-basis: calc(33.333% - 6px); min-width: calc(33.333% - 6px); }
-  html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-simple { flex-basis: calc(50% - 4px); min-width: calc(50% - 4px); }
+  html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-normal { flex-basis: calc(33.333% - 6px); min-width: calc(33.333% - 6px); }
   html.dnrb #mCafe24Order .ec-base-table.typeWrite tr { display: table-row; }
   html.dnrb #mCafe24Order .ec-base-table.typeWrite th { display: table-cell; width: 120px; padding: 8px 12px 8px 0; }
   html.dnrb #mCafe24Order .ec-base-table.typeWrite td { display: table-cell; padding: 6px 0; }

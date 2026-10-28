@@ -42,8 +42,9 @@ app.use((req, res, next) => {
   if (!okHost || !okOrigin) return res.status(403).send('허용되지 않은 접근');
   next();
 });
-app.use('/skin', express.static(path.join(ROOT, 'skin')));
-app.use(express.static(path.join(ROOT, 'admin')));
+const noCache = { etag: false, lastModified: false, setHeaders: (res) => res.setHeader('Cache-Control', 'no-store') };
+app.use('/skin', express.static(path.join(ROOT, 'skin'), noCache));
+app.use(express.static(path.join(ROOT, 'admin'), noCache));
 
 app.get('/api/meta', (req, res) => {
   res.json({ PAYMETHODS, NOTICE_POSITIONS, PROMOTION_POSITIONS, PAYMETHOD_MODES, SITE_BASE, port: PORT });

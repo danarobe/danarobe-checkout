@@ -61,9 +61,10 @@
 
   <div class="ec-jigsawWrapper">
     <div id="ec-jigsaw-area-discount" class="ec-base-fold eToggle selected">
-      <div id="ec-jigsaw-title-discount" class="title"><h2>할인/부가결제</h2><span class="txtStrong gRight">-0원</span></div>
+      <div id="ec-jigsaw-title-discount" class="title"><h2>할인/부가결제</h2><span class="txtStrong gRight">-13,700원</span></div>
       <div class="contents">
-        <div class="discountDetail displaynone"><strong class="heading">쿠폰 할인</strong><span class="summary">(보유쿠폰 <span class="txtEm">0개</span>)</span><div class="control"><span class="txtEm">0원</span><a href="#none" id="btn_coupon_select" class="btnNormal">쿠폰 적용</a></div></div>
+        <div class="discountDetail"><strong class="heading">자동 할인</strong><span class="summary"></span><div class="control"><span class="txtEm">2,200원</span><a href="#none" class="btnNormal ec-jigsaw-eLayer" onclick="alert('할인 내역 레이어 (미리보기)');return false;">할인 내역</a></div></div>
+        <div class="discountDetail"><strong class="heading">쿠폰 할인</strong><span class="summary">(보유쿠폰 <span class="txtEm">2개</span>)</span><div class="control"><span class="txtEm"><span id="mProductCouponDiscount">11,500원</span><span id="mDeliveryCouponDiscount" class="displaynone">0원</span></span><span id="appliedCouponCount" class="displaynone">2</span><a href="#none" id="btn_coupon_select" class="btnNormal" onclick="alert('카페24 쿠폰 선택 창이 열립니다 (미리보기)');return false;">쿠폰 적용</a></div></div>
         <div class="discountDetail"><strong class="heading">적립금</strong><span class="summary">(사용 가능 <span class="txtEm">2,000원</span>)</span><div class="control"><input type="text" value="0" class="inputTypeText" style="width:120px"><button type="button" class="btnNormal">전액 사용</button></div></div>
         <div class="totalPay"><h3 class="heading">적용금액</h3><strong class="txtEm">-0원</strong></div>
       </div>
@@ -91,7 +92,7 @@
             <input type="radio" name="paymethod" id="paymethod-new" class="fRadio displaynone" checked><label for="paymethod-new">결제수단 선택</label>
             <div class="inner">
               <span class="ec-base-label"><input type="radio" name="addr_paymethod" id="addr_paymethod0" value="card" checked><label for="addr_paymethod0"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" pay_name="신용카드" alt="신용카드"></label></span>
-              <span class="ec-base-label"><input type="radio" name="addr_paymethod" id="addr_paymethod1" value="naverpay"><label for="addr_paymethod1"><span class="dnrb-paylabel" style="color:#03c75a;font-weight:800">N 네이버페이</span></label></span>
+              <span class="ec-base-label"><input type="radio" name="addr_paymethod" id="addr_paymethod1" value="naverpay"><label for="addr_paymethod1"><span class="dnrb-paylabel"><span style="display:inline-block;padding:1px 5px;border-radius:4px;background:#03c75a;color:#fff;font-size:10px;font-weight:800;margin-right:6px;vertical-align:1px">N pay</span>네이버페이</span></label></span>
               <span class="ec-base-label"><input type="radio" name="addr_paymethod" id="addr_paymethod2" value="tcash"><label for="addr_paymethod2"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" pay_name="토스 퀵계좌이체" alt=""></label></span>
               <span class="ec-base-label"><input type="radio" name="addr_paymethod" id="addr_paymethod3" value="cash"><label for="addr_paymethod3"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" pay_name="무통장입금" alt=""></label></span>
               <span class="ec-base-label"><input type="radio" name="addr_paymethod" id="addr_paymethod4" value="icash"><label for="addr_paymethod4"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" pay_name="가상계좌" alt=""></label></span>
@@ -101,6 +102,10 @@
       </div>
       <div class="ec-paymethod-input-detail">
         <div class="helpArea"><ul id="pg_paymethod_info" class="ec-base-help typeDash"><li>소액 결제의 경우 PG사 정책에 따라 결제 금액 제한이 있을 수 있습니다.</li></ul></div>
+      </div>
+      <!-- 결제수단 저장 (카페24: 쇼핑몰 설정 → 결제 설정 → 결제수단 저장 사용 시 노출) -->
+      <div class="saveArea segment unique">
+        <input type="checkbox" id="save_paymethod" checked><label for="save_paymethod">다음에도 위 결제수단과 입력정보 사용</label>
       </div>
     </div>
   </div>
@@ -112,11 +117,19 @@
     </tbody></table></div></div>
   </div>
 
-  <div id="ec-jigsaw-area-agreement" class="ec-base-fold eToggle selected">
-    <div id="ec-jigsaw-title-agreement" class="title"><h2>이용약관동의</h2></div>
-    <div class="contents">
-      <p style="margin:0 0 10px"><label><input type="checkbox" checked> 위 주문 내용을 확인하였으며, 아래 모든 약관에 동의합니다.</label></p>
-      <ul class="ec-base-help"><li><label><input type="checkbox" checked> [필수] 쇼핑몰 이용약관 동의</label></li><li><label><input type="checkbox" checked> [필수] 개인정보 수집 및 이용 동의</label></li></ul>
+  <!-- 카페24 약관 조각(ec_orderform/agreement.html)과 같은 구조 -->
+  <div id="ec-jigsaw-area-agreement">
+    <div class="agreeArea" id="all_agreement_checkbox">
+      <div class="allAgree"><input type="checkbox" id="allAgree" checked><label for="allAgree"><strong>위 주문 내용을 확인하였으며, 아래 모든 약관에 동의합니다.</strong></label></div>
+      <div class="agreement">
+        <ul>
+          <li class="displaynone"><div class="agree"><span class="check"><input type="checkbox" id="chk_purchase_agreement" checked><label for="chk_purchase_agreement">구매조건 확인 및 결제진행 동의</label></span></div></li>
+          <li><div class="agree"><span class="check"><input type="checkbox" id="mallAgree" checked><label for="mallAgree"><span class="txtEm">[필수]</span> 쇼핑몰 이용약관 동의</label></span><button type="button" class="btnAgree">내용보기</button></div></li>
+          <li id="ec-orderform-PrivacyAgreementRow"><div class="agree"><span class="check"><input type="checkbox" id="privacy_agreement_check_box0" checked><label for="privacy_agreement_check_box0"><span class="txtEm">[필수]</span> 개인정보 수집 및 이용 동의</label></span><button type="button" class="btnAgree">내용보기</button></div></li>
+          <li><div class="agree"><span class="check"><input type="checkbox" id="delivery_info_offer_check_box0" checked><label for="delivery_info_offer_check_box0"><span class="txtEm">[선택]</span> 배송정보 제공방침 동의</label></span><button type="button" class="btnAgree">내용보기</button></div></li>
+          <li><div class="agree"><span class="check"><input type="checkbox" id="subscription_cancel0" checked><label for="subscription_cancel0"><span class="txtEm">[선택]</span> 청약철회방침 동의</label></span><button type="button" class="btnAgree">내용보기</button></div></li>
+        </ul>
+      </div>
     </div>
   </div>
 
