@@ -1,0 +1,337 @@
+/* =====================================================================
+ * 다나로브 주문서 꾸미기 — checkout.css
+ * 카페24 원터치 주문서(ec_orderform 조각)는 그대로 두고, 이 파일이 겉모습만 바꾼다.
+ * 색/모서리 등은 checkout.js 가 config 에 따라 CSS 변수로 넣는다.
+ * ===================================================================== */
+:root {
+  --dnrb-main: #000000;
+  --dnrb-sub: #000000;
+  --dnrb-radius: 12px;
+  --dnrb-radius-sm: 8px;
+  --dnrb-bg: #f2f2f2;
+  --dnrb-card: #ffffff;
+  --dnrb-text: #171717;
+  --dnrb-muted: #767676;
+  --dnrb-line: #e5e5e5;
+  --dnrb-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 2px 10px rgba(0, 0, 0, 0.04);
+  --dnrb-font: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+}
+html.dnrb-square { --dnrb-radius: 0; --dnrb-radius-sm: 0; }
+
+/* ---------- 바탕 ---------- */
+html.dnrb body#userStyle {
+  margin: 0;
+  background: var(--dnrb-bg);
+  color: var(--dnrb-text);
+  font-family: var(--dnrb-font);
+  font-size: 15px;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  -webkit-text-size-adjust: 100%;
+}
+html.dnrb #userStyle #mCafe24Order {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 16px 16px 110px;
+  box-sizing: border-box;
+}
+html.dnrb #userStyle #mCafe24Order *,
+html.dnrb #userStyle #mCafe24Order *::before,
+html.dnrb #userStyle #mCafe24Order *::after { box-sizing: border-box; }
+
+/* ---------- 헤더 ---------- */
+html.dnrb #header {
+  position: sticky; top: 0; z-index: 30;
+  background: var(--dnrb-bg);
+}
+html.dnrb #header .header {
+  position: relative;
+  height: 56px;
+  display: flex; align-items: center; justify-content: center;
+}
+html.dnrb #header .header h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 0.02em; }
+html.dnrb #header .header h1 a { color: var(--dnrb-text); text-decoration: none; }
+html.dnrb #header .header h1 img.dnrb-logo { display: block; height: var(--dnrb-logo-h, 24px); width: auto; }
+html.dnrb #header .headerMenu.gLeft { position: absolute; left: 4px; top: 0; height: 56px; display: flex; align-items: center; }
+html.dnrb #header .headerMenu.gRight { display: none; }
+html.dnrb #header .btnBack a {
+  display: block; width: 44px; height: 44px; text-indent: -9999px; overflow: hidden;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23171717' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M19 12H5'/><path d='M12 19l-7-7 7-7'/></svg>") center/24px no-repeat;
+}
+html.dnrb #header .titleArea { display: none; }
+
+/* ---------- 섹션 카드 ---------- */
+html.dnrb #mCafe24Order .ec-base-fold {
+  background: var(--dnrb-card);
+  border: 0;
+  border-radius: var(--dnrb-radius);
+  box-shadow: var(--dnrb-shadow);
+  margin: 0 0 12px;
+  padding: 0;
+  overflow: hidden;
+}
+html.dnrb #mCafe24Order .ec-base-fold > .title {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 18px 20px 14px;
+  background: transparent; border: 0;
+  cursor: pointer;
+}
+html.dnrb #mCafe24Order .ec-base-fold > .title h2 {
+  margin: 0; font-size: 16px; font-weight: 700; color: var(--dnrb-text);
+}
+html.dnrb #mCafe24Order .ec-base-fold > .title .txtStrong,
+html.dnrb #mCafe24Order .ec-base-fold > .title .gRight { font-weight: 700; font-size: 15px; }
+html.dnrb #mCafe24Order .ec-base-fold.eToggle > .title::after {
+  content: ""; flex: 0 0 20px; width: 20px; height: 20px; margin-left: auto;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23171717' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M18 15l-6-6-6 6'/></svg>") center/20px no-repeat;
+  transition: transform .2s;
+}
+html.dnrb #mCafe24Order .ec-base-fold.eToggle:not(.selected) > .title::after { transform: rotate(180deg); }
+html.dnrb #mCafe24Order .ec-base-fold > .contents { padding: 0 20px 20px; border: 0; }
+html.dnrb #mCafe24Order .ec-base-fold.eToggle:not(.selected) > .contents { display: none; }
+
+/* ---------- 표/입력 공통 ---------- */
+html.dnrb #mCafe24Order .ec-base-table table { width: 100%; border: 0; border-collapse: collapse; }
+html.dnrb #mCafe24Order .ec-base-table th,
+html.dnrb #mCafe24Order .ec-base-table td {
+  border: 0; padding: 7px 0; font-size: 14px; vertical-align: middle; text-align: left; background: transparent;
+}
+html.dnrb #mCafe24Order .ec-base-table th { color: var(--dnrb-muted); font-weight: 500; white-space: nowrap; padding-right: 12px; }
+html.dnrb #mCafe24Order .ec-base-table td.right { text-align: right; font-weight: 600; }
+html.dnrb #mCafe24Order .ec-base-table.typeWrite th { display: block; padding: 10px 0 4px; }
+html.dnrb #mCafe24Order .ec-base-table.typeWrite td { display: block; padding: 0 0 6px; }
+html.dnrb #mCafe24Order .ec-base-table.typeWrite tr { display: block; }
+html.dnrb #mCafe24Order .ec-base-table.typeWrite colgroup { display: none; }
+html.dnrb #mCafe24Order .icoRequired { color: #e53935; font-size: 12px; text-indent: 0; }
+
+html.dnrb #mCafe24Order input[type="text"],
+html.dnrb #mCafe24Order input[type="tel"],
+html.dnrb #mCafe24Order input[type="password"],
+html.dnrb #mCafe24Order input[type="number"],
+html.dnrb #mCafe24Order input[type="email"],
+html.dnrb #mCafe24Order select,
+html.dnrb #mCafe24Order textarea {
+  height: 44px; padding: 0 12px;
+  border: 1px solid var(--dnrb-line); border-radius: var(--dnrb-radius-sm);
+  background: #fff; font: inherit; font-size: 15px; color: var(--dnrb-text);
+  max-width: 100%;
+}
+html.dnrb #mCafe24Order input[type="text"]:focus,
+html.dnrb #mCafe24Order select:focus,
+html.dnrb #mCafe24Order textarea:focus { outline: none; border-color: var(--dnrb-main); }
+html.dnrb #mCafe24Order textarea { height: auto; padding: 10px 12px; }
+html.dnrb #mCafe24Order select {
+  -webkit-appearance: none; appearance: none; padding-right: 32px;
+  background: #fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23767676' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>") right 10px center no-repeat;
+}
+html.dnrb #mCafe24Order .inputTypeText { width: 100%; }
+html.dnrb #mCafe24Order .ec-base-table.typeWrite input[type="text"],
+html.dnrb #mCafe24Order .ec-base-table.typeWrite input[type="tel"],
+html.dnrb #mCafe24Order .ec-base-table.typeWrite input[type="password"],
+html.dnrb #mCafe24Order .ec-base-table.typeWrite select { width: 100%; }
+html.dnrb #mCafe24Order .ec-base-table.typeWrite td > input + input,
+html.dnrb #mCafe24Order .ec-base-table.typeWrite .gBlank10 { margin-top: 6px; display: block; }
+
+html.dnrb #mCafe24Order .btnNormal,
+html.dnrb #mCafe24Order .btnBasic,
+html.dnrb #mCafe24Order button.btnNormal {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 40px; padding: 0 14px;
+  border: 1px solid var(--dnrb-main); border-radius: var(--dnrb-radius-sm);
+  background: #fff; color: var(--dnrb-main); font: inherit; font-size: 14px; font-weight: 600;
+  text-decoration: none; cursor: pointer; line-height: 1;
+}
+html.dnrb #mCafe24Order .btnNormal.mini { height: 32px; padding: 0 10px; font-size: 13px; }
+html.dnrb #mCafe24Order .btnEm { background: var(--dnrb-main); color: #fff; border-color: var(--dnrb-main); }
+
+html.dnrb #mCafe24Order input[type="checkbox"],
+html.dnrb #mCafe24Order input[type="radio"] {
+  width: 20px; height: 20px; margin: 0 6px 0 0; vertical-align: middle; accent-color: var(--dnrb-main);
+}
+html.dnrb #mCafe24Order label { vertical-align: middle; }
+
+html.dnrb #mCafe24Order .ec-base-help { margin: 10px 0 0; padding: 0; list-style: none; }
+html.dnrb #mCafe24Order .ec-base-help li {
+  position: relative; padding-left: 10px; font-size: 12.5px; color: var(--dnrb-muted); line-height: 1.5;
+}
+html.dnrb #mCafe24Order .ec-base-help li::before { content: "·"; position: absolute; left: 0; }
+html.dnrb #mCafe24Order .ec-base-box { background: #fafafa; border: 1px solid var(--dnrb-line); border-radius: var(--dnrb-radius-sm); padding: 12px; }
+
+/* ---------- 할인/부가결제 ---------- */
+html.dnrb #mCafe24Order .discountDetail {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px;
+  padding: 12px 0; border-top: 1px solid var(--dnrb-line);
+}
+html.dnrb #mCafe24Order .discountDetail:first-child { border-top: 0; padding-top: 0; }
+html.dnrb #mCafe24Order .discountDetail .heading { font-size: 14px; font-weight: 600; }
+html.dnrb #mCafe24Order .discountDetail .summary { font-size: 12.5px; color: var(--dnrb-muted); }
+html.dnrb #mCafe24Order .discountDetail .control {
+  flex: 1 0 100%; display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap;
+}
+html.dnrb #mCafe24Order .discountDetail .control .txtEm { font-weight: 700; color: var(--dnrb-main); margin-right: auto; }
+html.dnrb #mCafe24Order .discountDetail .control input[type="text"] { flex: 1 1 120px; }
+html.dnrb #mCafe24Order .discountDetail .control .ec-base-help,
+html.dnrb #mCafe24Order .discountDetail > ul { flex: 1 0 100%; }
+html.dnrb #mCafe24Order .totalPay {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--dnrb-line);
+}
+html.dnrb #mCafe24Order .totalPay .heading { margin: 0; font-size: 15px; font-weight: 700; }
+html.dnrb #mCafe24Order .totalPay .txtEm,
+html.dnrb #mCafe24Order .totalPay .txtStrong { font-size: 18px; font-weight: 800; color: var(--dnrb-text); }
+html.dnrb #mCafe24Order .totalPay .refer { font-size: 12px; font-weight: 400; color: var(--dnrb-muted); }
+
+/* ---------- 결제수단 ---------- */
+html.dnrb #mCafe24Order ul.payMethod { list-style: none; margin: 0; padding: 0; }
+html.dnrb #mCafe24Order ul.payMethod > li { margin: 0; padding: 0; }
+html.dnrb #mCafe24Order ul.payMethod > li > input.fRadio,
+html.dnrb #mCafe24Order ul.payMethod > li > label { display: none; }
+html.dnrb #mCafe24Order ul.payMethod > li.ec-paymethod-recentArea { margin-bottom: 10px; }
+html.dnrb #mCafe24Order ul.payMethod > li.ec-paymethod-recentArea > input.fRadio,
+html.dnrb #mCafe24Order ul.payMethod > li.ec-paymethod-recentArea > label { display: inline-block; }
+
+/* 결제수단 버튼 묶음 (혼합형 기본) */
+html.dnrb #mCafe24Order .ec-paymethod-newArea .inner { display: flex; flex-wrap: wrap; gap: 8px; }
+html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label {
+  position: relative; flex: 1 1 calc(50% - 4px); min-width: calc(50% - 4px);
+  display: block; margin: 0; padding: 0;
+}
+html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label input[type="radio"] {
+  position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none;
+}
+html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label label {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  height: 48px; padding: 0 10px;
+  border: 1px solid var(--dnrb-line); border-radius: var(--dnrb-radius-sm);
+  background: #fff; font-size: 14px; font-weight: 600; color: var(--dnrb-text);
+  cursor: pointer; text-align: center; transition: border-color .15s, box-shadow .15s;
+}
+html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label label img { max-height: 22px; width: auto; }
+html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-textonly label img { display: none; }
+html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label input:checked + label,
+html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-checked label {
+  border-color: var(--dnrb-main); box-shadow: inset 0 0 0 1px var(--dnrb-main); color: var(--dnrb-main);
+}
+/* 간편결제는 한 줄 전체 */
+html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-simple { flex-basis: 100%; min-width: 100%; }
+/* 순서: 간편결제 먼저(기본) / 일반결제 먼저 */
+html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-simple { order: 1; }
+html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-normal { order: 2; }
+html.dnrb.dnrb-normal-first #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-simple { order: 2; }
+html.dnrb.dnrb-normal-first #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-normal { order: 1; }
+/* 카드형: 전부 큰 버튼 */
+html.dnrb.dnrb-pm-card #mCafe24Order .ec-paymethod-newArea .ec-base-label { flex-basis: 100%; min-width: 100%; }
+/* 목록형: 라디오 목록 */
+html.dnrb.dnrb-pm-list #mCafe24Order .ec-paymethod-newArea .inner { flex-direction: column; gap: 0; }
+html.dnrb.dnrb-pm-list #mCafe24Order .ec-paymethod-newArea .ec-base-label { flex-basis: 100%; min-width: 100%; }
+html.dnrb.dnrb-pm-list #mCafe24Order .ec-paymethod-newArea .ec-base-label label {
+  justify-content: flex-start; height: 46px; border: 0; border-bottom: 1px solid var(--dnrb-line); border-radius: 0; box-shadow: none !important; padding: 0 4px;
+}
+html.dnrb.dnrb-pm-list #mCafe24Order .ec-paymethod-newArea .ec-base-label label::before {
+  content: ""; width: 18px; height: 18px; border: 2px solid #c9c9c9; border-radius: 50%; margin-right: 4px; flex: 0 0 18px;
+}
+html.dnrb.dnrb-pm-list #mCafe24Order .ec-paymethod-newArea .ec-base-label input:checked + label::before,
+html.dnrb.dnrb-pm-list #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-checked label::before {
+  border-color: var(--dnrb-main); box-shadow: inset 0 0 0 4px var(--dnrb-main);
+}
+
+/* 결제혜택 뱃지 */
+html.dnrb #mCafe24Order .dnrb-badge {
+  position: absolute; top: -9px; right: 8px; z-index: 1;
+  display: inline-block; padding: 2px 8px;
+  border: 1px solid var(--badge-color, var(--dnrb-main)); border-radius: 999px;
+  background: #fff; color: var(--badge-color, var(--dnrb-main));
+  font-size: 11px; font-weight: 700; line-height: 1.4; white-space: nowrap;
+}
+/* 결제혜택 문구 상자 */
+html.dnrb #mCafe24Order .dnrb-benefit-msgs { margin: 12px 0 0; display: grid; gap: 8px; }
+html.dnrb #mCafe24Order .dnrb-benefit-msg {
+  padding: 12px 14px; border-radius: var(--dnrb-radius-sm);
+  background: #f7f6f4; border: 1px solid var(--dnrb-line); font-size: 13px; line-height: 1.5;
+}
+html.dnrb #mCafe24Order .dnrb-benefit-msg strong { display: block; margin-bottom: 2px; font-size: 13.5px; color: var(--dnrb-main); }
+
+/* 무이자 할부 */
+html.dnrb #mCafe24Order .dnrb-installment { margin-top: 14px; }
+html.dnrb #mCafe24Order .dnrb-installment > button {
+  width: 100%; height: 44px; border: 1px dashed var(--dnrb-main); border-radius: var(--dnrb-radius-sm);
+  background: #fff; color: var(--dnrb-main); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+}
+html.dnrb #mCafe24Order .dnrb-installment > ul { display: none; margin: 8px 0 0; padding: 0; list-style: none; border: 1px solid var(--dnrb-line); border-radius: var(--dnrb-radius-sm); }
+html.dnrb #mCafe24Order .dnrb-installment.open > ul { display: block; }
+html.dnrb #mCafe24Order .dnrb-installment li { display: flex; justify-content: space-between; gap: 10px; padding: 10px 14px; font-size: 13px; border-top: 1px solid var(--dnrb-line); }
+html.dnrb #mCafe24Order .dnrb-installment li:first-child { border-top: 0; }
+html.dnrb #mCafe24Order .dnrb-installment li b { font-weight: 700; }
+html.dnrb #mCafe24Order .dnrb-installment li span { color: var(--dnrb-muted); }
+
+/* ---------- 안내문구 / 프로모션 ---------- */
+html.dnrb #mCafe24Order .dnrb-notice {
+  margin: 12px 20px 0; padding: 12px 14px; border-radius: var(--dnrb-radius-sm);
+  background: #f7f6f4; font-size: 13px; line-height: 1.55; color: #444;
+}
+html.dnrb #mCafe24Order .ec-base-fold > .contents + .dnrb-notice,
+html.dnrb #mCafe24Order .dnrb-notice-inside { margin: 0 20px 20px; }
+html.dnrb #mCafe24Order .dnrb-promo { margin: 0 0 12px; display: grid; gap: 8px; }
+html.dnrb #mCafe24Order .dnrb-promo a, html.dnrb #mCafe24Order .dnrb-promo > div { display: block; text-decoration: none; color: inherit; }
+html.dnrb #mCafe24Order .dnrb-promo .dnrb-promo-text {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 14px 16px; border: 1px solid var(--promo-color, var(--dnrb-main)); border-radius: var(--dnrb-radius);
+  background: #fff;
+}
+html.dnrb #mCafe24Order .dnrb-promo .dnrb-promo-icon { font-size: 22px; line-height: 1; flex: 0 0 auto; }
+html.dnrb #mCafe24Order .dnrb-promo .dnrb-promo-icon img { width: 28px; height: 28px; object-fit: contain; display: block; }
+html.dnrb #mCafe24Order .dnrb-promo strong { display: block; font-size: 14px; color: var(--promo-color, var(--dnrb-main)); margin-bottom: 2px; }
+html.dnrb #mCafe24Order .dnrb-promo p { margin: 0; font-size: 13px; color: #444; line-height: 1.5; }
+html.dnrb #mCafe24Order .dnrb-promo img.dnrb-promo-img { display: block; width: 100%; height: auto; border-radius: var(--dnrb-radius); }
+
+/* ---------- 오늘배송 타이머 ---------- */
+html.dnrb #mCafe24Order .dnrb-timer {
+  margin: 0 0 12px; padding: 14px 16px; border-radius: var(--dnrb-radius);
+  background: #fff; border: 1px solid var(--dnrb-main); font-size: 14px; display: flex; gap: 10px; align-items: center;
+}
+html.dnrb #mCafe24Order .dnrb-timer b { color: var(--timer-color, #F51A1A); font-variant-numeric: tabular-nums; }
+
+/* ---------- 하단 결제 버튼 ---------- */
+html.dnrb #mCafe24Order #orderFixItem {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  background: rgba(242, 242, 242, 0.92); backdrop-filter: blur(8px);
+}
+html.dnrb #mCafe24Order #orderFixItem .btnSubmit {
+  display: block; width: 100%; max-width: 560px; margin: 0 auto; height: 54px;
+  border: 0; border-radius: var(--dnrb-radius);
+  background: var(--dnrb-main); color: #fff; font: inherit; font-size: 17px; font-weight: 700; cursor: pointer;
+}
+html.dnrb #mCafe24Order .helpArea { display: none; }
+
+/* ---------- 결제 진행 중 ---------- */
+html.dnrb #progressPaybarView { font-family: var(--dnrb-font); }
+
+/* ---------- 토스트 ---------- */
+html.dnrb .dnrb-toast {
+  position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%);
+  z-index: 100; padding: 10px 16px; border-radius: 999px;
+  background: rgba(23, 23, 23, 0.9); color: #fff; font-size: 13px; font-family: var(--dnrb-font);
+  opacity: 0; transition: opacity .25s; pointer-events: none; white-space: nowrap;
+}
+html.dnrb .dnrb-toast.show { opacity: 1; }
+
+/* ---------- PC (2단) ---------- */
+@media (min-width: 900px) {
+  html.dnrb #userStyle #mCafe24Order {
+    display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 0 24px; align-items: start;
+    padding-top: 24px; padding-bottom: 60px;
+  }
+  html.dnrb #userStyle #mCafe24Order > * { grid-column: 1; }
+  html.dnrb #userStyle #mCafe24Order > .dnrb-side { grid-column: 2; grid-row: 1 / span 40; position: sticky; top: 80px; }
+  html.dnrb #mCafe24Order #orderFixItem {
+    position: static; padding: 0; background: transparent; backdrop-filter: none;
+  }
+  html.dnrb #header .header { height: 64px; }
+  html.dnrb #header .header h1 img.dnrb-logo { height: var(--dnrb-logo-h-pc, 24px); }
+  html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label { flex-basis: calc(33.333% - 6px); min-width: calc(33.333% - 6px); }
+  html.dnrb #mCafe24Order .ec-paymethod-newArea .ec-base-label.dnrb-simple { flex-basis: calc(50% - 4px); min-width: calc(50% - 4px); }
+  html.dnrb #mCafe24Order .ec-base-table.typeWrite tr { display: table-row; }
+  html.dnrb #mCafe24Order .ec-base-table.typeWrite th { display: table-cell; width: 120px; padding: 8px 12px 8px 0; }
+  html.dnrb #mCafe24Order .ec-base-table.typeWrite td { display: table-cell; padding: 6px 0; }
+}

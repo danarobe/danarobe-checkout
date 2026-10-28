@@ -1,0 +1,13 @@
+{
+  "name": "danarobe-checkout",
+  "version": "0.1.0",
+  "description": "다나로브 카페24 주문서 꾸미기 (결제슉 대체) — 관리 화면 + 스킨 파일",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

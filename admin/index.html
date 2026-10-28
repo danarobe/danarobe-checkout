@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>다나로브 주문서 꾸미기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">주문서 꾸미기 <span class="sub">다나로브 · 결제슉 대체</span></div>
+  <div class="top-actions">
+    <span id="dirty" class="dirty" hidden>저장 안 됨</span>
+    <button id="btnSave" class="btn">저장</button>
+    <button id="btnPublish" class="btn primary">저장 후 적용</button>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="nav">
+    <div class="nav-group">결제화면</div>
+    <a href="#theme" class="nav-item active" data-sec="theme">로고 · 테마</a>
+    <a href="#paymethod" class="nav-item" data-sec="paymethod">결제수단</a>
+    <a href="#decor" class="nav-item" data-sec="decor">결제수단 꾸미기</a>
+    <div class="nav-group">기능관리</div>
+    <a href="#couponWindow" class="nav-item" data-sec="couponWindow">쿠폰 팝업창</a>
+    <a href="#coupon" class="nav-item" data-sec="coupon">쿠폰 · 적립금</a>
+    <a href="#notices" class="nav-item" data-sec="notices">안내문구</a>
+    <a href="#installment" class="nav-item" data-sec="installment">무이자할부</a>
+    <a href="#promotion" class="nav-item" data-sec="promotion">프로모션</a>
+    <a href="#timer" class="nav-item" data-sec="timer">오늘배송 타이머</a>
+    <div class="nav-group">설치 · 적용</div>
+    <a href="#deploy" class="nav-item" data-sec="deploy">적용 상태 · 설치</a>
+  </nav>
+
+  <main class="main">
+    <!-- 로고 · 테마 -->
+    <section class="sec" data-sec="theme">
+      <h2>로고 · 테마</h2>
+      <div class="card">
+        <h3>테마 색상</h3>
+        <div class="row">
+          <label>메인 색상 <span class="hint">버튼, 선택 테두리, 강조 글자</span></label>
+          <div class="color"><input type="color" data-bind="theme.mainColor"><input type="text" data-bind="theme.mainColor" class="w120"></div>
+        </div>
+        <div class="row">
+          <label>서브 색상 <span class="hint">보조 강조 (보통 메인과 같게)</span></label>
+          <div class="color"><input type="color" data-bind="theme.subColor"><input type="text" data-bind="theme.subColor" class="w120"></div>
+        </div>
+        <div class="row">
+          <label>둥근 모서리</label>
+          <label class="switch"><input type="checkbox" data-bind="theme.round"><span></span></label>
+        </div>
+      </div>
+      <div class="card">
+        <h3>로고</h3>
+        <div class="row">
+          <label>로고 표시</label>
+          <label class="switch"><input type="checkbox" data-bind="logo.visible"><span></span></label>
+        </div>
+        <div class="row">
+          <label>로고 이미지 주소 <span class="hint">카페24 웹FTP/에디터에 올린 이미지 URL</span></label>
+          <input type="text" data-bind="logo.url" placeholder="https://...png">
+        </div>
+        <div class="row">
+          <label>높이 (px)</label>
+          <div class="inline">
+            PC <input type="number" data-bind="logo.heightPc" class="w80" min="12" max="80">
+            모바일 <input type="number" data-bind="logo.heightMo" class="w80" min="12" max="80">
+          </div>
+        </div>
+        <div class="row"><label>미리보기</label><div id="logoPreview" class="logo-preview"></div></div>
+      </div>
+    </section>
+
+    <!-- 결제수단 -->
+    <section class="sec" data-sec="paymethod" hidden>
+      <h2>결제수단</h2>
+      <div class="card">
+        <h3>버튼 모양</h3>
+        <div id="pmModes" class="choices"></div>
+      </div>
+      <div class="card">
+        <h3>순서 <span class="hint">혼합형에서만 의미가 있어요</span></h3>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="pmOrder" value="simple_first" data-bind="paymethod.order"><span><b>간편결제 먼저</b><small>네이버페이·카카오페이 등을 위에</small></span></label>
+          <label class="choice"><input type="radio" name="pmOrder" value="normal_first" data-bind="paymethod.order"><span><b>일반결제 먼저</b><small>신용카드·계좌이체 등을 위에</small></span></label>
+        </div>
+        <p class="help">개별 결제수단의 순서와 이름은 카페24 관리자 → 쇼핑몰 설정 → 결제 설정 → 결제 방식 설정에서 바꿔요. 여기 설정은 그 결과 위에 "간편/일반 묶음" 순서만 정합니다.</p>
+      </div>
+    </section>
+
+    <!-- 결제수단 꾸미기 -->
+    <section class="sec" data-sec="decor" hidden>
+      <h2>결제수단 꾸미기</h2>
+      <div class="card">
+        <h3>결제혜택 뱃지 <span class="hint">결제수단 버튼 위에 뜨는 작은 말풍선. 결제수단마다 1개</span></h3>
+        <div id="badges" class="list"></div>
+        <button class="btn small" data-add="badges">+ 뱃지 추가</button>
+      </div>
+      <div class="card">
+        <h3>결제혜택 문구 <span class="hint">결제수단 영역 아래 상자 형태로 자세히 설명</span></h3>
+        <div id="benefitMsgs" class="list"></div>
+        <button class="btn small" data-add="benefitMsgs">+ 문구 추가</button>
+        <p class="help">카드사·PG사와 협의된 혜택만 적어주세요.</p>
+      </div>
+    </section>
+
+    <!-- 쿠폰 팝업창 -->
+    <section class="sec" data-sec="couponWindow" hidden>
+      <h2>쿠폰 팝업창</h2>
+      <div class="card">
+        <div class="row">
+          <label>처음 보여줄 탭</label>
+          <select data-bind="couponWindow.defaultTab"><option value="available">사용 가능 쿠폰</option><option value="unavailable">전체 (사용불가 포함)</option></select>
+        </div>
+        <div class="row">
+          <label>사용불가 쿠폰도 표시</label>
+          <label class="switch"><input type="checkbox" data-bind="couponWindow.showUnavailable"><span></span></label>
+        </div>
+        <div class="row">
+          <label>안내문구 표시</label>
+          <label class="switch"><input type="checkbox" data-bind="couponWindow.showNotices"><span></span></label>
+        </div>
+        <div class="row">
+          <label>안내문구 <span class="hint">한 줄에 하나씩</span></label>
+          <textarea data-bind-lines="couponWindow.notices" rows="6"></textarea>
+        </div>
+        <p class="help warn">쿠폰 팝업창은 카페24가 띄우는 별도 창이라, 이 설정은 실제 주문서에서 쿠폰 팝업 구조를 확인한 뒤 마지막 단계에서 연결됩니다. (지금은 저장만 됩니다)</p>
+      </div>
+    </section>
+
+    <!-- 쿠폰 · 적립금 -->
+    <section class="sec" data-sec="coupon" hidden>
+      <h2>쿠폰 · 적립금 기능</h2>
+      <div class="card">
+        <div class="row">
+          <label>최대 혜택 쿠폰 자동 적용 <span class="hint">쿠폰 팝업이 열리면 할인 금액이 가장 큰 쿠폰을 자동 선택</span></label>
+          <label class="switch"><input type="checkbox" data-bind="coupon.autoSelect"><span></span></label>
+        </div>
+        <div class="row">
+          <label>보유 쿠폰 0장일 때도 쿠폰 영역 노출</label>
+          <label class="switch"><input type="checkbox" data-bind="coupon.showNoCoupon"><span></span></label>
+        </div>
+        <div class="row">
+          <label>쿠폰 안내문구를 주문서에도 표시</label>
+          <label class="switch"><input type="checkbox" data-bind="coupon.showCouponNoticeOnForm"><span></span></label>
+        </div>
+        <div class="row">
+          <label>적립 혜택 제목 바꾸기 <span class="hint">비우면 카페24 기본 "적립 혜택"</span></label>
+          <input type="text" data-bind="points.title" placeholder="예: 이번 주문으로 쌓이는 적립금">
+        </div>
+      </div>
+    </section>
+
+    <!-- 안내문구 -->
+    <section class="sec" data-sec="notices" hidden>
+      <h2>쇼핑몰 안내문구</h2>
+      <div class="card">
+        <p class="help">각 영역 아래에 유의사항을 붙여요. 여러 개 등록할 수 있고, 간단한 HTML(굵게 &lt;b&gt;, 줄바꿈 &lt;br&gt;, 링크 &lt;a&gt;)을 쓸 수 있어요.</p>
+        <div id="notices" class="list"></div>
+        <button class="btn small" data-add="notices">+ 안내문구 추가</button>
+      </div>
+    </section>
+
+    <!-- 무이자할부 -->
+    <section class="sec" data-sec="installment" hidden>
+      <h2>무이자 할부 안내</h2>
+      <div class="card">
+        <div class="row"><label>표시</label><label class="switch"><input type="checkbox" data-bind="installment.visible"><span></span></label></div>
+        <div class="row"><label>버튼 제목</label><input type="text" data-bind="installment.title"></div>
+        <h3>카드사별 조건</h3>
+        <div id="installmentItems" class="list"></div>
+        <button class="btn small" data-add="installmentItems">+ 카드사 추가</button>
+        <p class="help warn">실제 무이자 할부는 PG사/카드사와 협의된 내용만 적어주세요. 이 기능은 "안내"만 하고 실제 할부 조건을 바꾸지 않아요.</p>
+      </div>
+    </section>
+
+    <!-- 프로모션 -->
+    <section class="sec" data-sec="promotion" hidden>
+      <h2>프로모션 배너</h2>
+      <div class="card">
+        <div class="row">
+          <label>종류</label>
+          <div class="choices small">
+            <label class="choice"><input type="radio" name="promoType" value="text" data-bind="promotion.type"><span><b>텍스트형</b><small>아이콘 + 제목 + 설명</small></span></label>
+            <label class="choice"><input type="radio" name="promoType" value="image" data-bind="promotion.type"><span><b>이미지형</b><small>배너 이미지</small></span></label>
+          </div>
+        </div>
+        <div class="row"><label>위치</label><select id="promoPosition" data-bind="promotion.position"></select></div>
+      </div>
+      <div class="card" data-promo="text">
+        <h3>텍스트 배너</h3>
+        <div id="promoItems" class="list"></div>
+        <button class="btn small" data-add="promoItems">+ 배너 추가</button>
+      </div>
+      <div class="card" data-promo="image">
+        <h3>이미지 배너</h3>
+        <div id="promoImages" class="list"></div>
+        <button class="btn small" data-add="promoImages">+ 이미지 추가</button>
+      </div>
+      <p class="help">링크를 걸면 배너 클릭 시 이동해요. (카페24 보안상 다른 페이지로 갔다가 결제페이지로 자동 복귀는 안 돼요)</p>
+    </section>
+
+    <!-- 오늘배송 타이머 -->
+    <section class="sec" data-sec="timer" hidden>
+      <h2>오늘배송 타이머</h2>
+      <div class="card">
+        <div class="row"><label>표시</label><label class="switch"><input type="checkbox" data-bind="deliveryTimer.visible"><span></span></label></div>
+        <div class="row"><label>배송 마감 시간</label><input type="time" data-bind="deliveryTimer.cutoff" class="w120"></div>
+        <div class="row"><label>마감 후 다음 출발일 안내</label><label class="switch"><input type="checkbox" data-bind="deliveryTimer.showNextDay"><span></span></label></div>
+        <div class="row"><label>강조 색상</label><div class="color"><input type="color" data-bind="deliveryTimer.accentColor"><input type="text" data-bind="deliveryTimer.accentColor" class="w120"></div></div>
+        <div class="row">
+          <label>쉬는 날 <span class="hint">주말은 자동 제외. 공휴일/휴무일을 한 줄에 하나씩 (예: 2026-12-25)</span></label>
+          <textarea data-bind-lines="deliveryTimer.holidays" rows="4"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- 적용 상태 · 설치 -->
+    <section class="sec" data-sec="deploy" hidden>
+      <h2>적용 상태 · 설치</h2>
+      <div class="card">
+        <h3>지금 상태</h3>
+        <div id="statusBox" class="status">불러오는 중…</div>
+        <button id="btnRefreshStatus" class="btn small">새로고침</button>
+      </div>
+      <div class="card">
+        <h3>어떻게 반영되나요?</h3>
+        <ol class="steps">
+          <li>여기서 설정을 바꾸고 <b>저장 후 적용</b>을 누르면</li>
+          <li>설정 파일(config.js)이 GitHub Pages에 올라가고</li>
+          <li>주문서가 열릴 때마다 그 파일을 읽어 화면을 꾸며요. (반영까지 보통 1~3분)</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h3>스킨에 처음 한 번 설치하기</h3>
+        <p class="help">카페24 관리자 → 디자인(PC/모바일) → 스킨 편집 → <code>order/orderform.html</code> 을 아래 내용으로 바꿔 저장하면 끝이에요. (조각 파일 <code>order/ec_orderform/*.html</code> 은 건드리지 않아요)</p>
+        <button id="btnCopyOrderform" class="btn small">orderform.html 복사</button>
+        <pre id="orderformSrc" class="code"></pre>
+      </div>
+      <div class="card">
+        <h3>되돌리기</h3>
+        <div id="history" class="history"></div>
+      </div>
+    </section>
+  </main>
+
+  <aside class="preview">
+    <div class="preview-bar">
+      <span>미리보기</span>
+      <div class="seg">
+        <button data-pv="mobile" class="on">모바일</button>
+        <button data-pv="pc">PC</button>
+      </div>
+    </div>
+    <div class="preview-frame mobile"><iframe id="pv" src="preview.html" title="주문서 미리보기"></iframe></div>
+    <p class="preview-note">실제 카페24 주문서와 같은 구조의 가짜 페이지입니다. 색·로고·뱃지·문구·배너가 어떻게 보일지 바로 확인하세요.</p>
+  </aside>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>
