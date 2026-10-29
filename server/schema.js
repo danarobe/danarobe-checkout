@@ -43,6 +43,7 @@ export const PAYMETHOD_MODES = [
 
 export const DEFAULT_CONFIG = {
   version: 1,
+  enabled: true,
   theme: { mainColor: '#000000', subColor: '#000000', round: true },
   logo: { visible: false, url: '', heightPc: 24, heightMo: 24 },
   paymethod: { mode: 'mixed', order: 'simple_first' },

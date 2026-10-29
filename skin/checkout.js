@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-10-29.4';
+  var VER = '2026-10-29.5';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var doc = document;
   var log = function () { if (cfg.debug) try { console.log.apply(console, ['[DNRB]'].concat([].slice.call(arguments))); } catch (e) {} };
@@ -617,6 +617,7 @@
     doc.documentElement.classList.add('dnrb-ready');
     log('ready', VER);
   }
+  if (cfg.enabled === false) { log('disabled by config'); window.DNRB_PAY = { version: VER, config: cfg, disabled: true }; return; }
   applyTheme(); // 깜빡임 방지: 색/모드 클래스는 가능한 한 빨리
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', init); else init();
   window.DNRB_PAY = { version: VER, config: cfg, rerender: init };
