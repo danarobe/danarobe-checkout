@@ -1,4 +1,4 @@
-/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-10-29T08:11:21.536Z) */
+/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-10-29T09:20:53.627Z) */
 window.DNRB_PAY_CONFIG = {
   "version": 1,
   "enabled": true,
@@ -36,7 +36,8 @@ window.DNRB_PAY_CONFIG = {
     "showNoCoupon": false
   },
   "couponWindow": {
-    "defaultTab": "unavailable",
+    "custom": true,
+    "defaultTab": "available",
     "showUnavailable": true,
     "showNotices": true,
     "notices": [
@@ -49,7 +50,8 @@ window.DNRB_PAY_CONFIG = {
   "points": {
     "title": "",
     "summary": true,
-    "summaryText": "이번 주문으로 {amount} 적립 예정"
+    "summaryText": "이번 주문으로 {amount} 적립 예정",
+    "hideSection": true
   },
   "notices": [],
   "promotion": {
