@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-10-29.16';
+  var VER = '2026-10-29.18';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var doc = document;
   var log = function () { if (cfg.debug) try { console.log.apply(console, ['[DNRB]'].concat([].slice.call(arguments))); } catch (e) {} };
@@ -329,7 +329,7 @@
     });
     swInput.addEventListener('change', function () {
       try { localStorage.setItem('dnrb-coupon-auto', swInput.checked ? 'on' : 'off'); } catch (e) {}
-      if (swInput.checked) { try { sessionStorage.removeItem('dnrb-coupon-auto-tried:' + location.pathname + location.search); } catch (e) {} autoApplyCoupon(panel); }
+      if (swInput.checked) { panel._autoTried = false; try { sessionStorage.removeItem('dnrb-coupon-auto-at:' + location.pathname); } catch (e) {} autoApplyCoupon(panel); }
     });
     panel._paint = paint;
     paint();
@@ -592,8 +592,11 @@
     var st = panel._state;
     if (!(st.own > 0 && st.used === 0)) return;
     if (couponMileageExclusive() && mileageInUse()) return; // 적립금을 먼저 쓰고 있으면 쿠폰 자동 적용 안 함
-    var key = 'dnrb-coupon-auto-tried:' + location.pathname + location.search;
-    try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, '1'); } catch (e) {}
+    // 페이지를 열 때마다 한 번 (카페24는 새로고침하면 적용 쿠폰을 비운다).
+    // 혹시 적용이 새로고침을 부르는 경우에 대비해 10초 안에 다시 시도하지 않는다.
+    if (panel._autoTried) return; panel._autoTried = true;
+    var key = 'dnrb-coupon-auto-at:' + location.pathname;
+    try { var last = +sessionStorage.getItem(key) || 0; if (Date.now() - last < 10000) return; sessionStorage.setItem(key, String(Date.now())); } catch (e) {}
     couponCore.applyBest().then(function (r) {
       if (r && r.chosen.length) { log('coupon auto-applied', r); if (window.dnrbToast) window.dnrbToast('가장 할인이 큰 쿠폰을 적용했어요'); }
     }).catch(function (e) { log('coupon auto failed', e); });
