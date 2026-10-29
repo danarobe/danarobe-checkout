@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-10-29.7';
+  var VER = '2026-10-29.8';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var doc = document;
   var log = function () { if (cfg.debug) try { console.log.apply(console, ['[DNRB]'].concat([].slice.call(arguments))); } catch (e) {} };
@@ -298,8 +298,12 @@
       panel.classList.toggle('dnrb-none', st.own === 0);
       setHtml(applied, '<span>🏷️</span><span>지금 적용된 쿠폰 <b>' + st.used + '장</b></span>');
       setText(amount, '-' + fmtWon(st.amount) + '원');
+      var mileLock = couponMileageExclusive() && mileageInUse() && st.used === 0;
       setHtml(btn, '<span>할인 쿠폰</span><span class="dnrb-coupon-own">보유 <b>' + st.own + '장</b></span>' +
-        (st.own > 0 && st.used === 0 ? '<span class="dnrb-coupon-tip">사용 가능한 쿠폰이 있어요!</span>' : ''));
+        (st.own > 0 && st.used === 0 && !mileLock ? '<span class="dnrb-coupon-tip">사용 가능한 쿠폰이 있어요!</span>' : ''));
+      var lockNote = $('.dnrb-coupon-lock', panel);
+      if (mileLock && !lockNote) body.appendChild(el('div', { 'class': 'dnrb-coupon-lock' }, '적립금을 사용 중이라 쿠폰은 함께 쓸 수 없어요.'));
+      else if (!mileLock && lockNote) lockNote.remove();
       panel._state = st;
     }
     btn.addEventListener('click', function () { var b = srcButton(); if (b) b.click(); else window.dnrbToast && window.dnrbToast('사용할 수 있는 쿠폰이 없어요'); });
@@ -399,11 +403,42 @@
     if (!couponAutoOn() || !panel || !panel._state || !couponCore.hasOrderData()) return;
     var st = panel._state;
     if (!(st.own > 0 && st.used === 0)) return;
+    if (couponMileageExclusive() && mileageInUse()) return; // 적립금을 먼저 쓰고 있으면 쿠폰 자동 적용 안 함
     var key = 'dnrb-coupon-auto-tried:' + location.pathname + location.search;
     try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, '1'); } catch (e) {}
     couponCore.applyBest().then(function (r) {
       if (r && r.chosen.length) { log('coupon auto-applied', r); if (window.dnrbToast) window.dnrbToast('가장 할인이 큰 쿠폰을 적용했어요'); }
     }).catch(function (e) { log('coupon auto failed', e); });
+  }
+  // 쿠폰과 적립금을 함께 쓸 수 없는 몰 설정이면(카페24 hidden 값 F), 쿠폰 적용 중엔 적립금 입력을 막고 안내한다
+  function couponMileageExclusive() {
+    var a = doc.getElementById('is_used_with_coupon'), b = doc.getElementById('is_used_with_mileage');
+    return !!((a && String(a.value).toUpperCase() === 'F') || (b && String(b.value).toUpperCase() === 'F'));
+  }
+  function mileageInUse() { var m = doc.getElementById('input_mile') || $('[name="input_mile"]'); return !!(m && parseWon(m.value) > 0); }
+  function couponsInUse() {
+    var od = window.CAFE24 && window.CAFE24.SHOP_FRONT_ORDERFORM_DATA && window.CAFE24.SHOP_FRONT_ORDERFORM_DATA.coupon;
+    if (od) return [od.sUsedOrderCoupon, od.sUsedProductCoupon].filter(Boolean).length > 0;
+    var ac = $('#appliedCouponCount'); return !!(ac && parseWon(ac.textContent) > 0);
+  }
+  function renderMileageLock(discount) {
+    if (!couponMileageExclusive()) return;
+    var mile = doc.getElementById('input_mile') || $('[name="input_mile"]', discount); if (!mile) return;
+    var row = mile.closest('.discountDetail') || mile.parentNode;
+    var allBtn = doc.getElementById('all_use_mileage');
+    var note = el('div', { 'class': 'dnrb-mile-lock' }, '쿠폰을 사용 중이라 적립금은 함께 쓸 수 없어요. (쿠폰을 빼면 적립금을 쓸 수 있어요)');
+    row.appendChild(note);
+    function paint() {
+      var lock = couponsInUse() && !mileageInUse();
+      row.classList.toggle('dnrb-locked', lock);
+      note.style.display = lock ? '' : 'none';
+      mile.disabled = lock; if (allBtn) allBtn.disabled = lock;
+      if (lock) mile.placeholder = '쿠폰 사용 중';
+    }
+    paint();
+    watch(discount, paint, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class', 'style', 'value'] });
+    discount.addEventListener('change', function () { setTimeout(paint, 50); });
+    discount.addEventListener('input', function () { setTimeout(paint, 50); });
   }
   function renderCoupon() {
     var c = cfg.coupon || {};
@@ -434,6 +469,7 @@
     // 자동할인 줄 모양
     $$('.discountDetail', discount).forEach(function (d) { var h = $('.heading', d); if (h && /자동\s*할인/.test(h.textContent)) { d.classList.add('dnrb-auto'); d.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('a')) return; var a = $('a.ec-jigsaw-eLayer, a.btnNormal', d); if (a) a.click(); }); } });
     var panel = renderCouponPanel(discount);
+    renderMileageLock(discount);
     if (panel && couponCore.hasOrderData()) {
       // 실제 사용 가능한 쿠폰 수로 "보유 N장" 보정 후 자동 적용
       couponCore.countAvailable().then(function (n) {
@@ -508,11 +544,12 @@
     var line = el('div', { 'class': 'dnrb-points-summary' });
     var total = $('.totalPay', pay) || $('.contents', pay);
     if (!total) return;
+    if (pt.hideSection !== false) benefit.classList.add('dnrb-benefit-hidden'); // 적립 혜택 카드는 숨기고 요약 한 줄만 보여준다
     total.parentNode.insertBefore(line, total.nextSibling);
     function paint() {
       var src = $('#ec-jigsaw-title-benefit .txtStrong, #ec-jigsaw-heading-benefit', benefit) || $('.totalPay .txtEm', benefit);
       var amt = src ? parseWon(src.textContent) : 0;
-      var hidden = benefit.classList.contains('displaynone') || benefit.offsetParent === null;
+      var hidden = benefit.classList.contains('displaynone');
       if (!amt || hidden) { line.style.display = 'none'; return; }
       setHtml(line, '<span>🪙</span><span>' + esc(String(pt.summaryText || '이번 주문으로 {amount} 적립 예정').replace('{amount}', fmtWon(amt) + '원')) + '</span>');
       line.style.display = '';

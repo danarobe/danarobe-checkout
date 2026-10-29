@@ -46,6 +46,7 @@
   <div class="titleArea"><h1>주문/결제</h1></div>
 </header>
 <div id="mCafe24Order" class="typeHeader">
+<input type="hidden" id="is_used_with_coupon" value="F"><input type="hidden" id="is_used_with_mileage" value="F">
   <!-- 카페24 배송지 조각(ec_orderform/billingNshipping.html)과 같은 구조 -->
   <div id="ec-jigsaw-area-shippingInfo" class="ec-base-fold eToggle selected">
     <div id="ec-jigsaw-title-shippingInfo" class="title"><h2>배송지</h2></div>
@@ -96,7 +97,7 @@
         <div class="discountDetail"><strong class="heading">자동 할인</strong><span class="summary"></span><div class="control"><span class="txtEm">2,200원</span><a href="#none" class="btnNormal ec-jigsaw-eLayer" onclick="alert('할인 내역 레이어 (미리보기)');return false;">할인 내역</a></div></div>
         <div class="discountDetail"><strong class="heading">쿠폰 할인</strong><span class="summary">(보유쿠폰 <span class="txtEm">2개</span>)</span><div class="control"><span class="txtEm"><span id="mProductCouponDiscount">11,500원</span><span id="mDeliveryCouponDiscount" class="displaynone">0원</span></span><span id="appliedCouponCount" class="displaynone">2</span><a href="#none" id="btn_coupon_select" class="btnNormal" onclick="alert('카페24 쿠폰 선택 창이 열립니다 (미리보기)');return false;">쿠폰 적용</a></div></div>
         <div class="discountDetail"><strong class="heading">할인코드 적용</strong><div class="control"><input type="text" name="ec_discountcode" class="inputTypeText" placeholder="할인코드를 입력해주세요"><a href="#none" id="ec_discountcode" class="btnNormal">적용</a></div></div>
-        <div class="discountDetail"><strong class="heading">적립금</strong><span class="summary">(사용 가능 <span class="txtEm">2,000원</span>)</span><div class="control"><input type="text" value="0" class="inputTypeText" style="width:120px"><button type="button" class="btnNormal">전액 사용</button></div></div>
+        <div class="discountDetail"><strong class="heading">적립금</strong><span class="summary">(사용 가능 <span class="txtEm">2,000원</span>)</span><div class="control"><input type="text" id="input_mile" name="input_mile" value="0" class="inputTypeText" style="width:120px"><button type="button" id="all_use_mileage" class="btnNormal">전액 사용</button></div></div>
         <div class="totalPay"><h3 class="heading">적용금액</h3><strong class="txtEm">-0원</strong></div>
       </div>
     </div>
@@ -172,6 +173,7 @@
   // 미리보기: 카페24 배송지 동작 흉내 (탭 전환, 최근 배송지 선택 → 입력칸 채우기)
   function pvTab(t){ var r=document.getElementById('ec-jigsaw-tab-shippingInfo-recentAddress'), n=document.getElementById('ec-jigsaw-tab-shippingInfo-newAddress'); r.classList.toggle('selected',t==='recent'); n.classList.toggle('selected',t==='new'); document.getElementById('ec-shippingInfo-recentAddress').style.display=t==='recent'?'':'none'; document.getElementById('ec-shippingInfo-newAddress').style.display=t==='new'?'':'none'; return false; }
   function pvPick(radio){ var li=radio.closest('li'); var name=li.querySelector('.name').textContent.replace(/\[.*?\]/,'').trim(); var addr=li.querySelector('.address').textContent.trim(); var m=addr.match(/^\[(\d+)\]\s*(.*)$/); var phone=li.querySelector('dd').textContent.split('-'); var f=function(n,i){return document.querySelectorAll('[name="'+n+'"]')[i||0];}; f('rname').value=name; f('rzipcode1').value=m?m[1]:''; var full=m?m[2]:addr; var parts=full.split(' '); f('raddr2').value=parts.pop(); f('raddr1').value=parts.join(' '); f('rphone2_[]',0).value=phone[0]; f('rphone2_[]',1).value=phone[1]; f('rphone2_[]',2).value=phone[2]; document.querySelector('#ec-shippingInfo-recentAddressText .name span:last-child').textContent=name; document.querySelector('#ec-shippingInfo-recentAddressText .address').textContent=addr; }
+  document.addEventListener('click', function (e) { var a = e.target.closest && e.target.closest('.dnrb-freeship-link'); if (a) { e.preventDefault(); alert('실제 주문서에서는 장바구니 페이지로 이동합니다. (미리보기)'); } });
   // 미리보기: 섹션 접기/펼치기, 결제수단 선택 표시
   document.querySelectorAll('.ec-base-fold > .title').forEach(function (t) { t.addEventListener('click', function () { t.parentNode.classList.toggle('selected'); }); });
 </script>

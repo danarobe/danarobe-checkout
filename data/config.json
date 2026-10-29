@@ -48,7 +48,8 @@
   "points": {
     "title": "",
     "summary": true,
-    "summaryText": "이번 주문으로 {amount} 적립 예정"
+    "summaryText": "이번 주문으로 {amount} 적립 예정",
+    "hideSection": true
   },
   "notices": [],
   "promotion": {
