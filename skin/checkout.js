@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-10-29.8';
+  var VER = '2026-10-29.9';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var doc = document;
   var log = function () { if (cfg.debug) try { console.log.apply(console, ['[DNRB]'].concat([].slice.call(arguments))); } catch (e) {} };
@@ -466,8 +466,12 @@
       var cd = $$('.discountDetail', discount).filter(function (d) { var h = $('.heading', d); return h && /쿠폰/.test(h.textContent) && !d.classList.contains('displaynone'); })[0];
       if (cd) cd.appendChild(ul);
     }
-    // 자동할인 줄 모양
-    $$('.discountDetail', discount).forEach(function (d) { var h = $('.heading', d); if (h && /자동\s*할인/.test(h.textContent)) { d.classList.add('dnrb-auto'); d.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('a')) return; var a = $('a.ec-jigsaw-eLayer, a.btnNormal', d); if (a) a.click(); }); } });
+    // 자동할인 줄: 누르면 카페24 할인 내역(#auto_discount_layer)을 우리 레이어로 보여준다
+    $$('.discountDetail', discount).forEach(function (d) {
+      var h = $('.heading', d); if (!(h && /자동\s*할인/.test(h.textContent))) return;
+      d.classList.add('dnrb-auto');
+      d.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); openAutoDiscountLayer(); }, true);
+    });
     var panel = renderCouponPanel(discount);
     renderMileageLock(discount);
     if (panel && couponCore.hasOrderData()) {
@@ -742,6 +746,33 @@
     // 카페24가 값을 바꾸면(최근 배송지 선택, 주소검색 완료 등) 카드도 따라간다
     fold.addEventListener('change', function () { setTimeout(paintCard, 50); });
     watch(contents, paintCard, { childList: true, subtree: true, attributes: true, attributeFilter: ['value', 'class', 'style'] });
+  }
+
+  /* 9.58) 자동 할인 상세: 카페24 할인 내역 표(#auto_discount_layer)에서 보이는 줄만 읽어 레이어로 ---------- */
+  function openAutoDiscountLayer() {
+    var src = $('#auto_discount_layer');
+    var rows = src ? $$('tbody tr', src).filter(function (tr) { return !tr.classList.contains('displaynone') && tr.offsetParent !== null || (!tr.classList.contains('displaynone') && !src.offsetParent); }) : [];
+    var items = rows.map(function (tr) { var th = $('th', tr), td = $('td', tr); return th && td ? { name: th.textContent.trim(), amount: td.textContent.replace(/\s+/g, ' ').trim() } : null; }).filter(function (x) { return x && parseWon(x.amount) > 0; });
+    var total = src ? ($('.totalPay .txtStrong, .totalPay strong', src) || {}).textContent : '';
+    var layer = $('#dnrbAutoLayer');
+    if (!layer) {
+      layer = el('div', { id: 'dnrbAutoLayer', 'class': 'dnrb-agree-layer', role: 'dialog', 'aria-modal': 'true' },
+        '<div class="dnrb-agree-backdrop"></div><div class="dnrb-agree-panel dnrb-auto-panel"><div class="dnrb-agree-head"><h3>자동 할인 내역</h3><button type="button" class="dnrb-agree-close" aria-label="닫기">✕</button></div><div class="dnrb-agree-body"></div><div class="dnrb-agree-foot"><button type="button" class="dnrb-agree-ok">닫기</button></div></div>');
+      doc.body.appendChild(layer);
+      var close = function () { layer.classList.remove('show'); doc.documentElement.classList.remove('dnrb-noscroll'); };
+      $('.dnrb-agree-backdrop', layer).addEventListener('click', close);
+      $('.dnrb-agree-close', layer).addEventListener('click', close);
+      $('.dnrb-agree-ok', layer).addEventListener('click', close);
+      doc.addEventListener('keydown', function (e) { if (e.key === 'Escape' && layer.classList.contains('show')) close(); });
+    }
+    var body = $('.dnrb-agree-body', layer);
+    var html = '<p class="dnrb-auto-desc">회원 등급·신상품·기간·세트 할인처럼 쇼핑몰이 자동으로 적용한 할인이에요.</p>';
+    if (items.length) {
+      html += '<ul class="dnrb-auto-list">' + items.map(function (i) { return '<li><span>' + esc(i.name) + '</span><b>-' + esc(i.amount.replace(/^-/, '')) + '</b></li>'; }).join('') + '</ul>';
+      if (total) html += '<div class="dnrb-auto-total"><span>자동 할인 합계</span><b>' + esc(String(total).trim().replace(/^-/, '-')) + '</b></div>';
+    } else html += '<p class="dnrb-agree-loading">적용된 자동 할인이 없어요.</p>';
+    body.innerHTML = html;
+    layer.classList.add('show'); doc.documentElement.classList.add('dnrb-noscroll');
   }
 
   /* 9.6) 약관 "자세히": 새 창 대신 페이지 안 레이어로 보여준다 ---------------------
