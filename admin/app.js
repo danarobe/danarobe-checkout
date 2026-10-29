@@ -169,10 +169,9 @@
   };
   function fitDevice() {
     const dev = $('#device'); const stage = $('.preview-stage');
-    if (dev.classList.contains('pc')) { dev.style.transform = ''; stage.style.height = ''; return; }
     const w = dev.offsetWidth, h = dev.offsetHeight;
     const s = Math.min(1, (stage.clientWidth - 8) / w, (stage.clientHeight - 8) / h);
-    dev.style.transform = `scale(${s.toFixed(3)})`;
+    dev.style.transform = `translateX(-50%) scale(${s.toFixed(3)})`;
   }
   function setDevice(name) {
     const dev = $('#device'); dev.className = 'device ' + name;
