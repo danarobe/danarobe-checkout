@@ -51,7 +51,7 @@ export const DEFAULT_CONFIG = {
   benefitMsgs: [],
   installment: { visible: false, title: '무이자 할부 안내', items: [] },
   coupon: { autoSelect: true, showNoCoupon: false },
-  couponWindow: { defaultTab: 'available', showUnavailable: true, showNotices: true, notices: [] },
+  couponWindow: { custom: true, defaultTab: 'available', showUnavailable: true, showNotices: true, notices: [] },
   points: { title: '', summary: true, summaryText: '이번 주문으로 {amount} 적립 예정', hideSection: true },
   notices: [],
   promotion: { type: 'text', position: 'default', items: [], images: [] },

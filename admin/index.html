@@ -128,7 +128,11 @@
           <label>안내문구 <span class="hint">한 줄에 하나씩</span></label>
           <textarea data-bind-lines="couponWindow.notices" rows="6"></textarea>
         </div>
-        <p class="help warn">쿠폰 팝업창은 카페24가 띄우는 별도 창이라, 이 설정은 실제 주문서에서 쿠폰 팝업 구조를 확인한 뒤 마지막 단계에서 연결됩니다. (지금은 저장만 됩니다)</p>
+        <div class="row">
+          <label>우리 쿠폰 창 사용 <span class="hint">끄면 카페24 기본 쿠폰 창이 열려요</span></label>
+          <label class="switch"><input type="checkbox" data-bind="couponWindow.custom"><span></span></label>
+        </div>
+        <p class="help">"할인 쿠폰" 버튼을 누르면 우리 디자인의 쿠폰 창이 열려요. 쿠폰별 할인 금액은 카페24가 계산한 값이고, "사용 불가" 탭은 회원 쿠폰 목록에서 이 주문에 쓸 수 없는 쿠폰을 모아 보여줍니다.</p>
       </div>
     </section>
 

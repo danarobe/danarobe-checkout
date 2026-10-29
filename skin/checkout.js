@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-10-29.9';
+  var VER = '2026-10-29.10';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var doc = document;
   var log = function () { if (cfg.debug) try { console.log.apply(console, ['[DNRB]'].concat([].slice.call(arguments))); } catch (e) {} };
@@ -306,7 +306,10 @@
       else if (!mileLock && lockNote) lockNote.remove();
       panel._state = st;
     }
-    btn.addEventListener('click', function () { var b = srcButton(); if (b) b.click(); else window.dnrbToast && window.dnrbToast('사용할 수 있는 쿠폰이 없어요'); });
+    btn.addEventListener('click', function () {
+      if ((cfg.couponWindow || {}).custom !== false && (couponCore.hasOrderData() || window.DNRB_PREVIEW_COUPONS)) { openCouponLayer(panel); return; }
+      var b = srcButton(); if (b) b.click(); else window.dnrbToast && window.dnrbToast('사용할 수 있는 쿠폰이 없어요');
+    });
     swInput.addEventListener('change', function () {
       try { localStorage.setItem('dnrb-coupon-auto', swInput.checked ? 'on' : 'off'); } catch (e) {}
       if (swInput.checked) { try { sessionStorage.removeItem('dnrb-coupon-auto-tried:' + location.pathname + location.search); } catch (e) {} autoApplyCoupon(panel); }
@@ -397,6 +400,140 @@
     }
   };
   window.dnrbCouponCore = couponCore;
+
+  /* 우리 쿠폰 선택 창 -------------------------------------------------------
+   * 카페24 쿠폰 창을 보이지 않게 열어 쿠폰마다 실제 할인액을 계산한 뒤 우리 디자인의 목록으로 보여준다.
+   * "적용"은 카페24 창의 선택값을 바꾸고 카페24 적용 함수를 부른다 (계산·적용은 전부 카페24). */
+  function parseCouponOption(opt) {
+    var text = (opt.text || '').trim();
+    var m = text.match(/\(~\s*(\d{4})-(\d{2})-(\d{2})[^)]*\)\s*$/);
+    return { value: opt.value, name: m ? text.slice(0, m.index).trim() : text, expires: m ? (m[2] + '/' + m[3]) : '', expiresFull: m ? (m[1] + '-' + m[2] + '-' + m[3]) : '' };
+  }
+  // 쿠폰마다 (혼자 적용했을 때의) 할인액을 잰다
+  function measureCoupons(w) {
+    var selects = $$('select[name="cpnOrdSelect"], select[name="cpnPrdSelect"]', w.document);
+    var reset = function () { selects.forEach(function (sel) { if (sel.value) { sel.value = ''; try { w.couponSelect.chkCpnSelect(sel); } catch (e) {} } }); };
+    reset();
+    var seen = {}, items = [];
+    selects.forEach(function (sel) {
+      [].slice.call(sel.options).forEach(function (opt) {
+        if (!opt.value || opt.disabled || opt.hidden || opt.getAttribute('idx') === '0' || seen[opt.value]) return;
+        seen[opt.value] = 1;
+        sel.value = opt.value; w.__dnrbAlert = null;
+        try { w.couponSelect.chkCpnSelect(sel); } catch (e) {}
+        var ok = sel.value === opt.value && !w.__dnrbAlert;
+        var amount = ok ? couponCore.discountOf(w) : 0;
+        var it = parseCouponOption(opt); it.amount = amount; it.select = sel; it.ok = ok; it.kind = sel.name === 'cpnPrdSelect' ? 'product' : 'order';
+        items.push(it);
+        sel.value = ''; try { w.couponSelect.chkCpnSelect(sel); } catch (e) {}
+      });
+    });
+    reset();
+    return items;
+  }
+  function usedCouponValues() {
+    var od = window.CAFE24 && window.CAFE24.SHOP_FRONT_ORDERFORM_DATA && window.CAFE24.SHOP_FRONT_ORDERFORM_DATA.coupon;
+    if (!od) return [];
+    return [od.sUsedOrderCoupon, od.sUsedProductCoupon].filter(Boolean).join('|').split('|').filter(Boolean).map(function (x) { return x.split(',')[0]; });
+  }
+  function openCouponLayer(panel) {
+    var cw = cfg.couponWindow || {};
+    var layer = $('#dnrbCouponLayer');
+    if (!layer) {
+      layer = el('div', { id: 'dnrbCouponLayer', 'class': 'dnrb-agree-layer', role: 'dialog', 'aria-modal': 'true' },
+        '<div class="dnrb-agree-backdrop"></div><div class="dnrb-agree-panel dnrb-cw-panel"><div class="dnrb-agree-head"><h3>할인 쿠폰</h3><button type="button" class="dnrb-agree-close" aria-label="닫기">✕</button></div><div class="dnrb-cw-tabs"></div><div class="dnrb-agree-body dnrb-cw-body"></div><div class="dnrb-agree-foot dnrb-cw-foot"><button type="button" class="dnrb-cw-reset">선택 안 함</button><button type="button" class="dnrb-agree-ok dnrb-cw-apply">적용</button></div></div>');
+      doc.body.appendChild(layer);
+      $('.dnrb-agree-backdrop', layer).addEventListener('click', function () { closeCouponLayer(); });
+      $('.dnrb-agree-close', layer).addEventListener('click', function () { closeCouponLayer(); });
+      doc.addEventListener('keydown', function (e) { if (e.key === 'Escape' && layer.classList.contains('show')) closeCouponLayer(); });
+    }
+    var body = $('.dnrb-cw-body', layer), tabs = $('.dnrb-cw-tabs', layer), applyBtn = $('.dnrb-cw-apply', layer), resetBtn = $('.dnrb-cw-reset', layer);
+    body.innerHTML = '<p class="dnrb-agree-loading">쿠폰을 불러오는 중…</p>'; tabs.innerHTML = ''; tabs.style.display = 'none';
+    layer.classList.add('show'); doc.documentElement.classList.add('dnrb-noscroll');
+    var state = { hidden: null, items: [], unavailable: [], chosen: null, tab: 'available' };
+    layer._state = state;
+
+    function render() {
+      var list = state.tab === 'unavailable' ? state.unavailable : state.items;
+      var html = '';
+      if (!list.length) html += '<p class="dnrb-agree-loading">' + (state.tab === 'unavailable' ? '사용할 수 없는 쿠폰이 없어요.' : '이 주문에 쓸 수 있는 쿠폰이 없어요.') + '</p>';
+      html += '<div class="dnrb-cw-list">' + list.map(function (it, i) {
+        var on = state.chosen === it.value;
+        return '<label class="dnrb-cw-item' + (on ? ' on' : '') + (it.ok === false || state.tab === 'unavailable' ? ' off' : '') + '">' +
+          '<input type="radio" name="dnrb_cw" value="' + esc(it.value) + '"' + (on ? ' checked' : '') + (state.tab === 'unavailable' ? ' disabled' : '') + '>' +
+          '<span class="dnrb-cw-main"><b class="dnrb-cw-amount">' + (it.amount ? '-' + fmtWon(it.amount) + '원' : (it.reason || '사용 불가')) + '</b><span class="dnrb-cw-name">' + esc(it.name) + '</span>' +
+          (it.expires ? '<span class="dnrb-cw-exp">' + esc(it.expiresFull || it.expires) + ' 까지</span>' : '') + '</span></label>';
+      }).join('') + '</div>';
+      if (cw.showNotices !== false && (cw.notices || []).filter(Boolean).length) {
+        html += '<ul class="dnrb-cw-notes">' + cw.notices.filter(Boolean).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>';
+      }
+      body.innerHTML = html;
+      $$('input[name="dnrb_cw"]', body).forEach(function (r) { r.addEventListener('change', function () { state.chosen = r.value; render(); }); });
+      var chosenItem = state.items.filter(function (it) { return it.value === state.chosen; })[0];
+      applyBtn.textContent = chosenItem ? fmtWon(chosenItem.amount) + '원 할인 적용' : '적용';
+      applyBtn.disabled = !chosenItem && !usedCouponValues().length;
+    }
+    function renderTabs() {
+      if (!(cw.showUnavailable !== false && state.unavailable.length)) { tabs.style.display = 'none'; return; }
+      tabs.style.display = '';
+      tabs.innerHTML = '<button type="button" data-tab="available" class="' + (state.tab === 'available' ? 'on' : '') + '">사용 가능 <b>' + state.items.length + '</b></button><button type="button" data-tab="unavailable" class="' + (state.tab === 'unavailable' ? 'on' : '') + '">사용 불가 <b>' + state.unavailable.length + '</b></button>';
+      $$('button', tabs).forEach(function (b) { b.addEventListener('click', function () { state.tab = b.dataset.tab; renderTabs(); render(); }); });
+    }
+    applyBtn.onclick = function () {
+      var it = state.items.filter(function (x) { return x.value === state.chosen; })[0];
+      if (state.hidden) {
+        var w = state.hidden.win;
+        try {
+          $$('select[name="cpnOrdSelect"], select[name="cpnPrdSelect"]', w.document).forEach(function (sel) { if (sel.value) { sel.value = ''; w.couponSelect.chkCpnSelect(sel); } });
+          if (it) { it.select.value = it.value; w.couponSelect.chkCpnSelect(it.select); }
+          w.couponSelect.setCpnResult('auto');
+          if (window.dnrbToast) window.dnrbToast(it ? '쿠폰을 적용했어요' : '쿠폰을 뺐어요');
+        } catch (e) { log(e); if (window.dnrbToast) window.dnrbToast('쿠폰 적용에 실패했어요. 다시 시도해 주세요'); }
+      } else if (window.dnrbToast) window.dnrbToast('미리보기에서는 적용되지 않아요');
+      closeCouponLayer();
+    };
+    resetBtn.onclick = function () { state.chosen = null; render(); };
+
+    // 데이터 준비
+    if (window.DNRB_PREVIEW_COUPONS && !couponCore.hasOrderData()) {
+      state.items = (window.DNRB_PREVIEW_COUPONS.available || []); state.unavailable = (window.DNRB_PREVIEW_COUPONS.unavailable || []);
+      state.chosen = (state.items.filter(function (i) { return i.applied; })[0] || {}).value || null;
+      if (cw.defaultTab === 'unavailable' && state.unavailable.length) state.tab = 'unavailable';
+      renderTabs(); render(); return;
+    }
+    couponCore.openHidden().then(function (h) {
+      if (!layer.classList.contains('show')) { h.frame.remove(); return; }
+      state.hidden = h;
+      state.items = measureCoupons(h.win).filter(function (it) { return it.ok; });
+      var used = usedCouponValues(); state.chosen = state.items.filter(function (it) { return used.indexOf(it.value) >= 0; }).map(function (it) { return it.value; })[0] || null;
+      return fetchUnavailableCoupons(state.items).then(function (un) { state.unavailable = un; if (cw.defaultTab === 'unavailable' && un.length) state.tab = 'unavailable'; renderTabs(); render(); });
+    }).catch(function (e) { log(e); body.innerHTML = '<p class="dnrb-agree-loading">쿠폰을 불러오지 못했어요. 잠시 후 다시 눌러주세요.</p>'; });
+  }
+  function closeCouponLayer() {
+    var layer = $('#dnrbCouponLayer'); if (!layer) return;
+    layer.classList.remove('show'); doc.documentElement.classList.remove('dnrb-noscroll');
+    var st = layer._state; if (st && st.hidden) { setTimeout(function () { st.hidden.frame.remove(); }, 1500); st.hidden = null; }
+  }
+  // 사용 불가 쿠폰: 회원 쿠폰 목록 페이지(/myshop/coupon/coupon.html)에서 보유 쿠폰을 읽어, 이 주문에 쓸 수 있는 쿠폰을 뺀 나머지
+  // (목록 페이지 구조는 몰마다 달라서, 읽지 못하면 빈 목록을 돌려준다)
+  function fetchUnavailableCoupons(available) {
+    if ((cfg.couponWindow || {}).showUnavailable === false) return Promise.resolve([]);
+    return fetch('/myshop/coupon/coupon.html', { credentials: 'same-origin' }).then(function (r) { return r.text(); }).then(function (html) {
+      var d = new DOMParser().parseFromString(html, 'text/html');
+      var rows = $$('.xans-myshop-couponlist tbody tr', d);
+      var names = {}; available.forEach(function (a) { names[a.name.replace(/\s+/g, '')] = 1; });
+      var out = [];
+      rows.forEach(function (tr) {
+        var nameCell = $('.coupon_name, td:nth-child(2)', tr); if (!nameCell) return;
+        var name = nameCell.textContent.replace(/\s+/g, ' ').trim(); if (!name || /쿠폰명/.test(name)) return;
+        if (names[name.replace(/\s+/g, '')]) return;
+        var cells = $$('td', tr).map(function (c) { return c.textContent.replace(/\s+/g, ' ').trim(); });
+        var exp = (tr.textContent.match(/(\d{4})-(\d{2})-(\d{2})/) || []);
+        out.push({ value: 'un-' + out.length, name: name, amount: 0, reason: cells[2] ? cells[2] + ' 할인' : '사용 불가', expiresFull: exp[0] || '', expires: exp[0] ? exp[2] + '/' + exp[3] : '' });
+      });
+      return out;
+    }).catch(function () { return []; });
+  }
 
   // 최대 혜택 쿠폰 자동 적용: 보유 쿠폰이 있고 아직 하나도 안 썼을 때 한 번만
   function autoApplyCoupon(panel) {

@@ -575,6 +575,29 @@ html.dnrb .dnrb-auto-list li b { font-weight: 700; color: var(--dnrb-main); }
 html.dnrb .dnrb-auto-total { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--dnrb-line); font-size: 15px; font-weight: 700; }
 html.dnrb #mCafe24Order #auto_discount_layer { display: none !important; }
 
+/* 쿠폰 선택 창 */
+html.dnrb .dnrb-cw-tabs { display: flex; gap: 0; margin: 0; padding: 0 20px; border-bottom: 1px solid var(--dnrb-line); }
+html.dnrb .dnrb-cw-tabs button { flex: 1; height: 44px; border: 0; border-bottom: 2px solid transparent; background: none; font: inherit; font-size: 14px; color: var(--dnrb-muted); cursor: pointer; }
+html.dnrb .dnrb-cw-tabs button b { font-weight: 700; }
+html.dnrb .dnrb-cw-tabs button.on { color: var(--dnrb-text); border-bottom-color: var(--dnrb-main); font-weight: 700; }
+html.dnrb .dnrb-cw-list { display: grid; gap: 10px; }
+html.dnrb .dnrb-cw-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid var(--dnrb-line); border-radius: var(--dnrb-radius); background: #fff; cursor: pointer; }
+html.dnrb .dnrb-cw-item.on { border-color: var(--dnrb-main); box-shadow: inset 0 0 0 1px var(--dnrb-main); }
+html.dnrb .dnrb-cw-item.off { opacity: .55; cursor: default; }
+html.dnrb .dnrb-cw-item input { width: 20px; height: 20px; margin: 0; accent-color: var(--dnrb-main); flex: 0 0 20px; }
+html.dnrb .dnrb-cw-main { display: grid; gap: 2px; min-width: 0; }
+html.dnrb .dnrb-cw-amount { font-size: 18px; font-weight: 800; color: var(--dnrb-main); letter-spacing: -0.02em; }
+html.dnrb .dnrb-cw-item.off .dnrb-cw-amount { font-size: 13px; color: var(--dnrb-muted); font-weight: 600; }
+html.dnrb .dnrb-cw-name { font-size: 14px; color: var(--dnrb-text); }
+html.dnrb .dnrb-cw-exp { font-size: 12px; color: var(--dnrb-muted); }
+html.dnrb .dnrb-cw-notes { margin: 16px 0 0; padding: 12px 14px; list-style: none; background: #f7f6f4; border-radius: var(--dnrb-radius-sm); }
+html.dnrb .dnrb-cw-notes li { position: relative; padding-left: 10px; font-size: 12px; color: var(--dnrb-muted); line-height: 1.55; }
+html.dnrb .dnrb-cw-notes li::before { content: "·"; position: absolute; left: 0; }
+html.dnrb .dnrb-cw-foot { display: flex; gap: 8px; }
+html.dnrb .dnrb-cw-reset { flex: 0 0 auto; height: 48px; padding: 0 16px; border: 1px solid var(--dnrb-line); border-radius: var(--dnrb-radius-sm); background: #fff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+html.dnrb .dnrb-cw-apply { flex: 1; }
+html.dnrb .dnrb-cw-apply[disabled] { opacity: .5; cursor: default; }
+
 /* ---------- 하단 결제 버튼 ---------- */
 html.dnrb #mCafe24Order #orderFixItem {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;

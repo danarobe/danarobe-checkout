@@ -26,6 +26,19 @@
     });
   })();
 </script>
+<script>
+  // 미리보기용 가짜 쿠폰 (실제 주문서에서는 카페24 쿠폰 창에서 읽어온다)
+  window.DNRB_PREVIEW_COUPONS = {
+    available: [
+      { value: 'p1', name: '3일간 사용 가능한 6000원 할인 쿠폰', amount: 6000, expiresFull: '2026-11-01', ok: true, applied: true },
+      { value: 'p2', name: '5,000원 보상 쿠폰', amount: 5000, expiresFull: '2026-11-28', ok: true },
+      { value: 'p3', name: '2일간 사용 가능한 3000원 할인 쿠폰', amount: 3000, expiresFull: '2026-10-31', ok: true }
+    ],
+    unavailable: [
+      { value: 'u1', name: '10만원 이상 구매 시 10,000원 할인', amount: 0, reason: '구매금액 조건 미달', expiresFull: '2026-12-31' }
+    ]
+  };
+</script>
 <script src="/skin/checkout.js"></script>
 <script>
   // 기기 흉내: 아이폰은 홈 표시줄(안전영역) 위로 고정 버튼이 올라가고, 안드로이드는 그렇지 않다
