@@ -1,4 +1,4 @@
-/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-10-29T11:18:31.709Z) */
+/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-10-29T13:28:54.846Z) */
 window.DNRB_PAY_CONFIG = {
   "version": 1,
   "enabled": true,
@@ -51,7 +51,8 @@ window.DNRB_PAY_CONFIG = {
     "title": "",
     "summary": true,
     "summaryText": "이번 주문으로 {amount} 적립 예정",
-    "hideSection": true
+    "hideSection": true,
+    "maxUseText": "현재 사용 가능한 최대 적립금은 {amount}입니다."
   },
   "notices": [],
   "promotion": {

@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-10-29.22';
+  var VER = '2026-10-29.23';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var doc = document;
   var log = function () { if (cfg.debug) try { console.log.apply(console, ['[DNRB]'].concat([].slice.call(arguments))); } catch (e) {} };
@@ -739,6 +739,23 @@
     });
   }
 
+  /* 9.15) 적립금 최대 사용 안내 문구 바꾸기
+   * 카페24 기본 문구 "1회 구매시 적립금 최대 사용금액은 N원입니다." 의 N 은 정책 한도가 아니라
+   * 이 손님이 이번 주문에 쓸 수 있는 최대 금액(보유 적립금 등)이라, 정책 한도처럼 읽히지 않게 바꾼다.
+   * 카페24가 금액을 다시 채우면(같은 줄을 통째로 다시 씀) 그때마다 그 금액으로 다시 바꾼다. */
+  function renderMileageMaxText() {
+    var tpl = (cfg.points || {}).maxUseText;
+    if (!tpl) return; // 비워 두면 카페24 원래 문구
+    var li = doc.getElementById('mileage_max_limit'); if (!li) return;
+    function paint() {
+      var m = (li.textContent || '').match(/([\d,]+)\s*원/);
+      if (!m) return; // 카페24가 아직 금액을 안 채웠으면 그대로 둔다
+      setText(li, String(tpl).replace('{amount}', m[1] + '원'));
+    }
+    paint();
+    watch(li, paint, { childList: true, subtree: true, characterData: true });
+  }
+
   /* 9.2) 적립 요약: 결제 금액 아래 "이번 주문으로 N원 적립 예정" ---------- */
   function renderPointsSummary() {
     var pt = cfg.points || {};
@@ -1063,7 +1080,7 @@
 
   function init() {
     try { applyTheme(); } catch (e) { log(e); }
-    var steps = [renderLogo, styleAgreement, setupAgreementLayer, renderShippingCard, wrapSide, renderPaymethods, renderBenefitMsgs, renderInstallment, renderNotices, renderPromotion, renderCoupon, collapseDiscountCode, renderPointsSummary, renderFreeShipping, renderTimer, renderGuestNudge];
+    var steps = [renderLogo, styleAgreement, setupAgreementLayer, renderShippingCard, wrapSide, renderPaymethods, renderBenefitMsgs, renderInstallment, renderNotices, renderPromotion, renderCoupon, collapseDiscountCode, renderMileageMaxText, renderPointsSummary, renderFreeShipping, renderTimer, renderGuestNudge];
     steps.forEach(function (fn) { try { fn(); } catch (e) { log(fn.name, e); } });
     doc.documentElement.classList.add('dnrb-ready');
     log('ready', VER);
