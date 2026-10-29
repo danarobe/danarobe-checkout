@@ -37,6 +37,8 @@
   }
   function setHtml(node, html) { if (node.innerHTML !== html) node.innerHTML = html; }
   function setText(node, text) { if (node.textContent !== text) node.textContent = text; }
+  // 문구에서 굵게(<b>)만 허용하고 나머지 태그는 글자로 보여준다
+  function boldOnly(t) { return esc(String(t || '')).replace(/&lt;b&gt;/g, '<b>').replace(/&lt;\/b&gt;/g, '</b>'); }
   function isGuest() { return !!doc.getElementById('order_password'); }
   function isMobile() { return window.matchMedia('(max-width: 899px)').matches; }
   function methodCode(input) {
@@ -463,11 +465,11 @@
       if (!isOff(now) && now < cut) {
         var s = Math.floor((cut - now) / 1000);
         var timeStr = '<b>' + pad(Math.floor(s / 3600)) + '시간 ' + pad(Math.floor(s % 3600 / 60)) + '분 ' + pad(s % 60) + '초</b>';
-        setHtml(box, '<span>📦</span><span>' + String(t.text || '{time} 안에 결제하면 <b>오늘 출발</b>해요').replace('{time}', timeStr) + '</span>');
+        setHtml(box, '<span>📦</span><span>' + boldOnly(t.text || '{time} 안에 결제하면 <b>오늘 출발</b>해요').replace('{time}', timeStr) + '</span>');
       } else if (t.showNextDay !== false) {
         var n = nextShip(now);
         var dateStr = (n.getMonth() + 1) + '/' + n.getDate() + '(' + DAY[n.getDay()] + ')';
-        setHtml(box, '<span>📦</span><span>' + String(t.textAfter || '지금 주문하면 <b>{date}</b> 출발해요').replace('{date}', dateStr) + '</span>');
+        setHtml(box, '<span>📦</span><span>' + boldOnly(t.textAfter || '지금 주문하면 <b>{date}</b> 출발해요').replace('{date}', dateStr) + '</span>');
       } else { box.style.display = 'none'; return; }
       setTimeout(tick, 1000);
     }
