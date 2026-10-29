@@ -46,6 +46,19 @@ const noCache = { etag: false, lastModified: false, setHeaders: (res) => res.set
 app.use('/skin', express.static(path.join(ROOT, 'skin'), noCache));
 app.use(express.static(path.join(ROOT, 'admin'), noCache));
 
+// 미리보기 "자세히"용: 다나로브에 등록된 실제 약관 페이지를 그대로 가져온다 (카페24 관리자에 적은 문구)
+const TERMS = { mallagree: 'mallagree', personagree: 'personagree' };
+app.get('/api/agreement/:kind', async (req, res) => {
+  const kind = TERMS[req.params.kind];
+  if (!kind) return res.status(404).send('not found');
+  try {
+    const r = await fetch(`https://www.danarobe.com/order/ec_orderform/agreement/${kind}.html`, { headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh) danarobe-checkout-preview' } });
+    res.type('html').send(await r.text());
+  } catch (e) {
+    res.status(502).send('<div class="agreementArea"><h1>약관</h1><div class="wrap"><p>약관을 불러오지 못했어요.</p></div></div>');
+  }
+});
+
 app.get('/api/meta', (req, res) => {
   res.json({ PAYMETHODS, NOTICE_POSITIONS, PROMOTION_POSITIONS, PAYMETHOD_MODES, SITE_BASE, port: PORT });
 });

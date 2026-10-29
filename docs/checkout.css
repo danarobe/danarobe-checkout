@@ -687,3 +687,6 @@ html.dnrb #mCafe24Order input[type="checkbox"]:disabled { opacity: .5; cursor: d
 
 /* 휴대폰: 카페24 모바일 머리글("주문/결제" 회색 띠)은 로고 머리글과 겹치므로 숨긴다 */
 html.dnrb body > #titleArea, html.dnrb #header .titleArea { display: none !important; }
+
+/* 배송정보 제공방침·청약철회방침 동의 줄 숨김 (운영자 요청) */
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement li.dnrb-agree-row-hide { display: none !important; }

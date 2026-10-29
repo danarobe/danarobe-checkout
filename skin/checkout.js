@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-10-29.23';
+  var VER = '2026-10-29.24';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var doc = document;
   var log = function () { if (cfg.debug) try { console.log.apply(console, ['[DNRB]'].concat([].slice.call(arguments))); } catch (e) {} };
@@ -854,11 +854,30 @@
       for (var n = e; n && n !== area; n = n.parentElement) { if (n.classList.contains('displaynone') || n.style.display === 'none') return true; }
       return false;
     }
+    // 배송정보 제공방침 동의 · 청약철회방침 동의 줄은 보이지 않게 한다 (운영자 요청 2026-10-29).
+    // 단, 카페24에서 [필수]로 켜 두면 숨기면 결제가 막히므로 그때는 그대로 보여준다.
+    var HIDE_ROWS = /배송정보\s*제공방침|청약철회방침/;
+    function rowRequired(li) { var t = $('.txtEm', li); return !!(t && /필수/.test(t.textContent) && !/선택/.test(t.textContent)); }
+    function hideRows() {
+      $$('li', area).forEach(function (li) {
+        var want = HIDE_ROWS.test(li.textContent || '') && !rowRequired(li);
+        if (li.classList.contains('dnrb-agree-row-hide') !== want) li.classList.toggle('dnrb-agree-row-hide', want);
+      });
+    }
+    // 이용약관동의 카드는 비회원 주문서에서만 보인다 (회원은 가입 때 동의함).
+    // 혹시 회원 주문서에 카페24가 체크해야 하는 약관을 띄우면(결제가 막히지 않도록) 그때만 보여준다.
+    function memberNeedsCheck() {
+      return $$('input[type="checkbox"]', area).some(function (c) {
+        var li = c.closest('li'); if (!li || cafeHidden(li) || li.classList.contains('dnrb-agree-row-hide')) return false;
+        return !c.disabled && !c.checked && rowRequired(li);
+      });
+    }
     function paintEmpty() {
+      hideRows();
       var blocks = $$('.agreeArea, .agreeTextOnly', area);
-      if (!blocks.length) return;
-      var empty = blocks.every(cafeHidden);
-      if (area.classList.contains('dnrb-agree-empty') !== empty) area.classList.toggle('dnrb-agree-empty', empty);
+      var empty = blocks.length ? blocks.every(cafeHidden) : false;
+      var hide = empty || (!isGuest() && !memberNeedsCheck());
+      if (area.classList.contains('dnrb-agree-empty') !== hide) area.classList.toggle('dnrb-agree-empty', hide);
     }
     paintEmpty();
     watch(area, paintEmpty, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'] });

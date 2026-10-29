@@ -173,18 +173,29 @@
     const s = Math.min(1, (stage.clientWidth - 8) / w, (stage.clientHeight - 8) / h);
     dev.style.transform = `translateX(-50%) scale(${s.toFixed(3)})`;
   }
+  let pvGuest = false;
+  try { pvGuest = localStorage.getItem('dnrb-admin-who') === 'guest'; } catch {}
   function setDevice(name) {
     const dev = $('#device'); dev.className = 'device ' + name;
     $$('[data-pv]').forEach(x => x.classList.toggle('on', x.dataset.pv === name));
     $('#pvNote').textContent = DEVICE_NOTE[name] || '';
-    const f = $('#pv'); const want = 'preview.html?device=' + name;
+    const f = $('#pv'); const want = 'preview.html?device=' + name + (pvGuest ? '&guest=1' : '');
     if (!f.getAttribute('src').endsWith(want)) f.setAttribute('src', want);
     try { localStorage.setItem('dnrb-admin-device', name); } catch {}
     requestAnimationFrame(fitDevice);
   }
   $$('[data-pv]').forEach(b => b.addEventListener('click', () => setDevice(b.dataset.pv)));
+  // 회원 / 비회원 주문서 보기 (비회원만 보이는 것: 이용약관동의 카드, 로그인 유도)
+  function setWho(who) {
+    pvGuest = who === 'guest';
+    $$('[data-who]').forEach(x => x.classList.toggle('on', x.dataset.who === who));
+    try { localStorage.setItem('dnrb-admin-who', who); } catch {}
+    setDevice(($('#device').className.split(' ')[1]) || 'iphone');
+  }
+  $$('[data-who]').forEach(b => b.addEventListener('click', () => setWho(b.dataset.who)));
   window.addEventListener('resize', fitDevice);
-  try { const d = localStorage.getItem('dnrb-admin-device'); if (d && DEVICE_NOTE[d]) setDevice(d); else fitDevice(); } catch { fitDevice(); }
+  $$('[data-who]').forEach(x => x.classList.toggle('on', x.dataset.who === (pvGuest ? 'guest' : 'member')));
+  try { const d = localStorage.getItem('dnrb-admin-device'); setDevice(d && DEVICE_NOTE[d] ? d : 'iphone'); } catch { setDevice('iphone'); }
 
   /* ----- 저장 / 적용 ----- */
   async function save() {

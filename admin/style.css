@@ -89,7 +89,7 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
 
 .preview { position: sticky; top: 56px; height: calc(100vh - 56px); padding: 16px; border-left: 1px solid var(--line); background: #ece9e5; display: flex; flex-direction: column; }
 .preview.pc-mode { }
-.preview-bar { display: flex; align-items: center; justify-content: space-between; font-weight: 700; margin-bottom: 10px; }
+.preview-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-weight: 700; margin-bottom: 10px; }
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: #fff; }
 .seg button { height: 28px; padding: 0 10px; border: 0; background: #fff; cursor: pointer; font-size: 12.5px; }
 .seg button.on { background: var(--c); color: #fff; }
