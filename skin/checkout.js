@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-10-28.1';
+  var VER = '2026-10-29.1';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var doc = document;
   var log = function () { if (cfg.debug) try { console.log.apply(console, ['[DNRB]'].concat([].slice.call(arguments))); } catch (e) {} };
@@ -268,13 +268,16 @@
       var own = 0, m = (r.textContent || '').match(/보유\s*쿠폰?\s*([\d,]+)\s*[개장]/);
       if (m) own = parseInt(m[1].replace(/,/g, ''), 10) || 0;
       var ac = $('#appliedCouponCount'); var used = ac ? parseWon(ac.textContent) : 0;
+      var od = window.CAFE24 && window.CAFE24.SHOP_FRONT_ORDERFORM_DATA && window.CAFE24.SHOP_FRONT_ORDERFORM_DATA.coupon;
+      if (od) used = [od.sUsedOrderCoupon, od.sUsedProductCoupon].filter(Boolean).join('|').split('|').filter(Boolean).length;
+      if (panel._ownOverride != null) own = panel._ownOverride;
       var amt = 0;
       var a1 = $('#mProductCouponDiscount'), a2 = $('#mDeliveryCouponDiscount');
       if (a1 || a2) amt = parseWon(a1 && a1.textContent) + parseWon(a2 && a2.textContent);
       else { var te = $('.control .txtEm', r); amt = parseWon(te && te.textContent); }
       var list = $('#coupon_use_list, [id*="coupon_use_list"]', discount);
-      if (!ac && list) used = $$('li', list).filter(function (li) { return li.offsetParent; }).length;
-      if (!ac && !list && amt > 0 && !used) used = 1;
+      if (!ac && !od && list) used = $$('li', list).filter(function (li) { return li.offsetParent; }).length;
+      if (!ac && !od && !list && amt > 0 && !used) used = 1;
       return { own: own, used: used, amount: amt };
     }
     function paint() {
@@ -289,24 +292,105 @@
     btn.addEventListener('click', function () { var b = srcButton(); if (b) b.click(); else window.dnrbToast && window.dnrbToast('사용할 수 있는 쿠폰이 없어요'); });
     swInput.addEventListener('change', function () {
       try { localStorage.setItem('dnrb-coupon-auto', swInput.checked ? 'on' : 'off'); } catch (e) {}
-      if (swInput.checked) autoApplyCoupon(panel, srcButton);
+      if (swInput.checked) { try { sessionStorage.removeItem('dnrb-coupon-auto-tried:' + location.pathname + location.search); } catch (e) {} autoApplyCoupon(panel); }
     });
+    panel._paint = paint;
     paint();
     if (window.MutationObserver) new MutationObserver(paint).observe(discount, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class', 'style'] });
-    panel._srcButton = srcButton;
     return panel;
   }
-  // 최대 혜택 쿠폰 자동 적용: 보유 쿠폰이 있고 아직 하나도 안 썼을 때, 쿠폰 창을 열어 가장 큰 할인 쿠폰을 고르고 적용한다.
-  // 카페24 쿠폰 창의 구조를 알아보지 못하면 아무것도 하지 않는다. (주문서당 1회)
-  function autoApplyCoupon(panel, srcButton) {
-    if (!couponAutoOn() || !panel || !panel._state) return;
+  /* 쿠폰 창 제어 (카페24 /coupon/coupon_select.html 을 숨은 iframe 에 띄워 카페24 자체 계산·적용 함수를 그대로 쓴다)
+   * - 2026-10-29 다나로브 실제 주문서에서 검증: 6,000/5,000/3,000원 쿠폰 중 6,000원을 골라 적용.
+   * - 주문서 데이터(CAFE24.SHOP_FRONT_ORDERFORM_DATA)가 없는 화면(미리보기·비회원)에서는 아무것도 하지 않는다. */
+  var couponCore = {
+    hasOrderData: function () { return !!(window.CAFE24 && window.CAFE24.SHOP_FRONT_ORDERFORM_DATA && window.EC$); },
+    fetchHtml: function () {
+      var fd = new URLSearchParams();
+      var o = window.CAFE24.SHOP_FRONT_ORDERFORM_DATA;
+      if (o.paymethod && o.paymethod.sSelectedPaymethod) fd.set('addr_paymethod', o.paymethod.sSelectedPaymethod);
+      if (o.shipping && o.shipping.sDelvType === 'B') fd.set('delvtype', 'B');
+      return fetch('/coupon/coupon_select.html', { method: 'POST', body: fd, headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, credentials: 'same-origin' }).then(function (r) { return r.text(); });
+    },
+    // 사용 가능한 쿠폰 수만 센다 (iframe 없이 HTML 만 읽음)
+    countAvailable: function () {
+      if (!this.hasOrderData()) return Promise.resolve(null);
+      return this.fetchHtml().then(function (html) {
+        var d = new DOMParser().parseFromString(html, 'text/html');
+        var seen = {};
+        $$('select[name="cpnOrdSelect"] option, select[name="cpnPrdSelect"] option', d).forEach(function (o) {
+          if (o.value && !o.disabled && o.getAttribute('idx') !== '0') seen[o.value] = 1;
+        });
+        return Object.keys(seen).length;
+      }).catch(function () { return null; });
+    },
+    openHidden: function () {
+      var self = this;
+      return this.fetchHtml().then(function (html) {
+        var f = el('iframe', { 'aria-hidden': 'true', name: 'dnrb_coupon_hidden', style: 'position:fixed;width:1px;height:1px;left:-9999px;top:0;opacity:0;pointer-events:none' });
+        doc.body.appendChild(f);
+        var w = f.contentWindow;
+        try { w.opener = window; } catch (e) {}
+        w.alert = function (m) { w.__dnrbAlert = m; };
+        w.confirm = function () { return true; };
+        w.close = function () {};
+        w.document.open(); w.document.write(html); w.document.close();
+        return new Promise(function (resolve, reject) {
+          var t0 = Date.now();
+          (function wait() {
+            if (w.couponSelect && w.couponSelect.chkCpnSelect && w.EC$) return setTimeout(function () { resolve({ frame: f, win: w }); }, 300);
+            if (Date.now() - t0 > 8000) { f.remove(); return reject(new Error('coupon window not ready')); }
+            setTimeout(wait, 100);
+          })();
+        });
+      });
+    },
+    discountOf: function (w) {
+      return (parseFloat(w.EC$('#totalSalePrice').val()) || 0) + (parseFloat(w.EC$('#totalShipPrice').val()) || 0);
+    },
+    // 슬롯(선택 상자)마다 할인 합계가 가장 많이 늘어나는 쿠폰을 차례로 고른다
+    pickBest: function (w) {
+      var self = this;
+      var selects = $$('select[name="cpnOrdSelect"], select[name="cpnPrdSelect"]', w.document);
+      var chosen = [], total = 0;
+      selects.forEach(function (sel) {
+        var bestOpt = null, bestVal = total;
+        [].slice.call(sel.options).forEach(function (opt) {
+          if (!opt.value || opt.disabled || opt.hidden || opt.getAttribute('idx') === '0') return;
+          if (chosen.some(function (c) { return c.value === opt.value; })) return;
+          sel.value = opt.value; w.__dnrbAlert = null;
+          try { w.couponSelect.chkCpnSelect(sel); } catch (e) {}
+          var v = (sel.value === opt.value && !w.__dnrbAlert) ? self.discountOf(w) : -1;
+          if (v > bestVal) { bestVal = v; bestOpt = opt; }
+        });
+        sel.value = bestOpt ? bestOpt.value : ''; w.__dnrbAlert = null;
+        try { w.couponSelect.chkCpnSelect(sel); } catch (e) {}
+        if (bestOpt) { chosen.push({ value: bestOpt.value, name: bestOpt.text }); total = bestVal; }
+      });
+      return { chosen: chosen, total: total };
+    },
+    applyBest: function () {
+      var self = this;
+      if (!this.hasOrderData()) return Promise.resolve(null);
+      return this.openHidden().then(function (h) {
+        var r = null;
+        try { r = self.pickBest(h.win); if (r.chosen.length) h.win.couponSelect.setCpnResult('auto'); }
+        finally { setTimeout(function () { h.frame.remove(); }, 1500); }
+        return r;
+      });
+    }
+  };
+  window.dnrbCouponCore = couponCore;
+
+  // 최대 혜택 쿠폰 자동 적용: 보유 쿠폰이 있고 아직 하나도 안 썼을 때 한 번만
+  function autoApplyCoupon(panel) {
+    if (!couponAutoOn() || !panel || !panel._state || !couponCore.hasOrderData()) return;
     var st = panel._state;
     if (!(st.own > 0 && st.used === 0)) return;
     var key = 'dnrb-coupon-auto-tried:' + location.pathname + location.search;
     try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, '1'); } catch (e) {}
-    var b = srcButton(); if (!b) return;
-    window.__dnrbAutoCouponPending = { since: Date.now() };
-    b.click();
+    couponCore.applyBest().then(function (r) {
+      if (r && r.chosen.length) { log('coupon auto-applied', r); if (window.dnrbToast) window.dnrbToast('가장 할인이 큰 쿠폰을 적용했어요'); }
+    }).catch(function (e) { log('coupon auto failed', e); });
   }
   function renderCoupon() {
     var c = cfg.coupon || {};
@@ -337,47 +421,13 @@
     // 자동할인 줄 모양
     $$('.discountDetail', discount).forEach(function (d) { var h = $('.heading', d); if (h && /자동\s*할인/.test(h.textContent)) { d.classList.add('dnrb-auto'); d.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('a')) return; var a = $('a.ec-jigsaw-eLayer, a.btnNormal', d); if (a) a.click(); }); } });
     var panel = renderCouponPanel(discount);
-    if (c.autoSelect) { watchCouponLayer(); if (panel) setTimeout(function () { autoApplyCoupon(panel, panel._srcButton); }, 800); }
-  }
-
-  // 쿠폰 팝업(레이어/iframe)이 열리면 최대 할인 쿠폰을 자동 선택한다.
-  // 카페24 쿠폰 팝업 마크업은 몰마다 다를 수 있어, 예상 구조가 없으면 아무것도 하지 않는다.
-  function watchCouponLayer() {
-    if (!window.MutationObserver) return;
-    var done = {};
-    var tryApply = function (root) {
-      if (!root || done[root === doc ? 'doc' : root.src || 'x']) return;
-      var rows = $$('input[type="checkbox"][name*="coupon"], input[type="radio"][name*="coupon"]', root);
-      if (!rows.length) return;
-      var best = null, bestVal = 0;
-      rows.forEach(function (r) {
-        if (r.disabled) return;
-        var tr = r.closest ? (r.closest('tr') || r.closest('li') || r.parentNode) : r.parentNode;
-        var txt = (tr && tr.textContent) || '';
-        var m = txt.match(/(-?[\d,]+)\s*원/g);
-        var val = 0;
-        if (m) m.forEach(function (s) { var n = Math.abs(parseInt(s.replace(/[^\d]/g, ''), 10) || 0); if (n > val) val = n; });
-        if (val > bestVal) { bestVal = val; best = r; }
+    if (panel && couponCore.hasOrderData()) {
+      // 실제 사용 가능한 쿠폰 수로 "보유 N장" 보정 후 자동 적용
+      couponCore.countAvailable().then(function (n) {
+        if (n != null) { panel._ownOverride = n; panel._paint(); }
+        if (c.autoSelect) setTimeout(function () { autoApplyCoupon(panel); }, 300);
       });
-      if (best && !best.checked) { best.click(); log('coupon auto-selected', bestVal); }
-      done[root === doc ? 'doc' : root.src || 'x'] = true;
-      var pending = window.__dnrbAutoCouponPending;
-      if (best && pending && Date.now() - pending.since < 15000) {
-        window.__dnrbAutoCouponPending = null;
-        setTimeout(function () {
-          var apply = $$('button, a, input[type="button"], input[type="submit"]', root).filter(function (x) { var t = (x.value || x.textContent || '').replace(/\s/g, ''); return /^(쿠폰)?적용(하기)?$/.test(t); })[0];
-          if (apply) { apply.click(); log('coupon auto-applied'); if (window.dnrbToast) window.dnrbToast('가장 할인이 큰 쿠폰을 적용했어요'); }
-        }, 300);
-      }
-    };
-    var mo = new MutationObserver(function () {
-      $$('iframe').forEach(function (f) {
-        try { if (f.contentDocument && /coupon/i.test(f.src || '')) tryApply(f.contentDocument); } catch (e) {}
-      });
-      var layer = $('[id*="coupon"][class*="Layer"], [class*="couponLayer"], #couponTag, #ec-couponselect-layer');
-      if (layer && layer.offsetParent) tryApply(layer);
-    });
-    mo.observe(doc.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style', 'src'] });
+    }
   }
 
   /* 9) 오늘배송 타이머 ---------------------------------------------------- */
