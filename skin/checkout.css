@@ -251,7 +251,7 @@ html.dnrb #mCafe24Order ul.payMethod > li.ec-paymethod-recentArea > input[name="
 html.dnrb #mCafe24Order ul.payMethod > li.ec-paymethod-recentArea > label { display: inline-block; }
 
 /* 결제수단 버튼 묶음 */
-html.dnrb #mCafe24Order#mCafe24Order .ec-paymethod-newArea .inner { display: flex; flex-wrap: wrap; gap: 8px; }
+html.dnrb #mCafe24Order#mCafe24Order .ec-paymethod-newArea .inner { display: flex; flex-direction: row; flex-wrap: wrap; align-items: stretch; gap: 8px; }
 html.dnrb #mCafe24Order#mCafe24Order .ec-paymethod-newArea .ec-base-label {
   position: relative; flex: 1 1 calc(50% - 4px); min-width: calc(50% - 4px);
   display: block; margin: 0; padding: 0;
@@ -668,3 +668,17 @@ html.dnrb #mCafe24Order .discountDetail > .displayblock > .control { flex: 1 1 a
 html.dnrb #mCafe24Order .discountDetail > .summary { flex: 1 0 100%; text-align: right; }
 html.dnrb #mCafe24Order .ec-base-help.ec-order-expandwrap { flex: 1 0 100%; margin-top: 2px; background: none; padding: 0; }
 html.dnrb #mCafe24Order .ec-base-help.ec-order-expandwrap li { padding: 0 20px 0 10px; letter-spacing: -0.2px; }
+
+/* 회원 주문서: 카페24가 약관 줄을 모두 숨기면 빈 '이용약관동의' 카드도 숨긴다 */
+html.dnrb #mCafe24Order #ec-jigsaw-area-agreement.dnrb-agree-empty { display: none !important; }
+
+/* 체크박스: 카페24 기본(파란 이미지 체크박스) 대신 테마색 체크박스 */
+html.dnrb #mCafe24Order input[type="checkbox"] {
+  -webkit-appearance: none; appearance: none; flex: 0 0 20px; box-sizing: border-box;
+  border: 1.5px solid #c9c4be; border-radius: 5px; background: #fff none; cursor: pointer;
+}
+html.dnrb #mCafe24Order input[type="checkbox"]:checked {
+  border-color: var(--dnrb-main);
+  background: var(--dnrb-main) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M5 12.5l4.5 4.5L19 7.5'/></svg>") center/14px no-repeat;
+}
+html.dnrb #mCafe24Order input[type="checkbox"]:disabled { opacity: .5; cursor: default; }

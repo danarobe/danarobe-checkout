@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-10-29.18';
+  var VER = '2026-10-29.20';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var doc = document;
   var log = function () { if (cfg.debug) try { console.log.apply(console, ['[DNRB]'].concat([].slice.call(arguments))); } catch (e) {} };
@@ -831,6 +831,20 @@
     $$('.agree .btnAgree, .agree .btnNormal', area).forEach(function (b) {
       if (/내용보기|보기|자세히/.test(b.textContent)) b.textContent = '자세히';
     });
+    // 회원은 가입 때 약관에 동의했으므로 카페24가 약관 줄을 전부 숨긴다 → 빈 제목 카드도 숨긴다 (결제슉과 같은 모습).
+    // 비회원처럼 카페24가 약관을 보여주면 다시 나타난다.
+    function cafeHidden(e) {
+      for (var n = e; n && n !== area; n = n.parentElement) { if (n.classList.contains('displaynone') || n.style.display === 'none') return true; }
+      return false;
+    }
+    function paintEmpty() {
+      var blocks = $$('.agreeArea, .agreeTextOnly', area);
+      if (!blocks.length) return;
+      var empty = blocks.every(cafeHidden);
+      if (area.classList.contains('dnrb-agree-empty') !== empty) area.classList.toggle('dnrb-agree-empty', empty);
+    }
+    paintEmpty();
+    watch(area, paintEmpty, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
   }
 
   /* 9.55) 배송지: 요약 카드 + "배송지 선택" 전체화면 레이어 + 신규 배송지 입력 ------------
