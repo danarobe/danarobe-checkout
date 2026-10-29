@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-10-29.5';
+  var VER = '2026-10-29.6';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var doc = document;
   var log = function () { if (cfg.debug) try { console.log.apply(console, ['[DNRB]'].concat([].slice.call(arguments))); } catch (e) {} };
@@ -592,6 +592,60 @@
     });
   }
 
+  /* 9.6) 약관 "자세히": 새 창 대신 페이지 안 레이어로 보여준다 ---------------------
+   * 카페24 기본 동작은 viewMallAgree() 등이 window.open(약관 페이지) 를 부르는 것.
+   * 약관 버튼을 누른 직후 1초 동안만 window.open 을 가로채 같은 주소를 레이어에 띄운다. */
+  function setupAgreementLayer() {
+    var area = $('#ec-jigsaw-area-agreement'); if (!area) return;
+    if ((cfg.agreement || {}).layer === false) return;
+    var armedUntil = 0;
+    var origOpen = window.open;
+    area.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('.btnAgree, .btnNormal, a[onclick*="view"], button[onclick*="view"]') : null;
+      if (b && area.contains(b)) armedUntil = Date.now() + 1000;
+    }, true);
+    window.open = function (url, name, feats) {
+      try {
+        if (Date.now() < armedUntil && url && /agreement|payment_agree|protected\/order|preview-terms/.test(String(url))) {
+          armedUntil = 0; openAgreementLayer(String(url)); return null;
+        }
+      } catch (err) { log(err); }
+      return origOpen.apply(window, arguments);
+    };
+  }
+  function openAgreementLayer(url) {
+    var layer = $('#dnrbAgreeLayer');
+    if (!layer) {
+      layer = el('div', { id: 'dnrbAgreeLayer', 'class': 'dnrb-agree-layer', role: 'dialog', 'aria-modal': 'true' },
+        '<div class="dnrb-agree-backdrop"></div><div class="dnrb-agree-panel"><div class="dnrb-agree-head"><h3></h3><button type="button" class="dnrb-agree-close" aria-label="닫기">✕</button></div><div class="dnrb-agree-body"></div><div class="dnrb-agree-foot"><button type="button" class="dnrb-agree-ok">닫기</button></div></div>');
+      doc.body.appendChild(layer);
+      var close = function () { layer.classList.remove('show'); doc.documentElement.classList.remove('dnrb-noscroll'); };
+      $('.dnrb-agree-backdrop', layer).addEventListener('click', close);
+      $('.dnrb-agree-close', layer).addEventListener('click', close);
+      $('.dnrb-agree-ok', layer).addEventListener('click', close);
+      doc.addEventListener('keydown', function (e) { if (e.key === 'Escape' && layer.classList.contains('show')) close(); });
+    }
+    var head = $('.dnrb-agree-head h3', layer), body = $('.dnrb-agree-body', layer);
+    head.textContent = '약관'; body.innerHTML = '<p class="dnrb-agree-loading">약관 내용을 불러오는 중…</p>';
+    layer.classList.add('show'); doc.documentElement.classList.add('dnrb-noscroll');
+    body.scrollTop = 0;
+    fetch(url, { credentials: 'same-origin' }).then(function (r) { return r.text(); }).then(function (html) {
+      var d = new DOMParser().parseFromString(html, 'text/html');
+      var box = d.querySelector('.agreementArea, .agreementAreas, .xans-order-agreement, #popup') || d.body;
+      var h1 = box.querySelector('h1, h2') || d.querySelector('h1');
+      var cont = box.querySelector('.wrap') || box;
+      if (h1) { head.textContent = (h1.textContent || '').trim() || '약관'; h1.remove(); }
+      $$('script, style, link, iframe, form > input[type="hidden"], button', cont).forEach(function (n) { n.remove(); });
+      body.innerHTML = '';
+      var frag = doc.createElement('div'); frag.className = 'dnrb-agree-content';
+      // 글자만 안전하게 옮긴다 (스크립트·이벤트 속성 제거)
+      frag.innerHTML = cont.innerHTML.replace(/\son\w+="[^"]*"/g, '').replace(/\son\w+='[^']*'/g, '');
+      body.appendChild(frag);
+    }).catch(function () {
+      body.innerHTML = '<p class="dnrb-agree-loading">약관 내용을 불러오지 못했어요. 잠시 후 다시 눌러주세요.</p>';
+    });
+  }
+
   /* 10) PC 2단 배치용 묶음 ------------------------------------------------ */
   function wrapSide() {
     var order = $('#mCafe24Order'); if (!order) return;
@@ -612,7 +666,7 @@
 
   function init() {
     try { applyTheme(); } catch (e) { log(e); }
-    var steps = [renderLogo, styleAgreement, wrapSide, renderPaymethods, renderBenefitMsgs, renderInstallment, renderNotices, renderPromotion, renderCoupon, collapseDiscountCode, renderPointsSummary, renderFreeShipping, renderTimer, renderGuestNudge];
+    var steps = [renderLogo, styleAgreement, setupAgreementLayer, wrapSide, renderPaymethods, renderBenefitMsgs, renderInstallment, renderNotices, renderPromotion, renderCoupon, collapseDiscountCode, renderPointsSummary, renderFreeShipping, renderTimer, renderGuestNudge];
     steps.forEach(function (fn) { try { fn(); } catch (e) { log(fn.name, e); } });
     doc.documentElement.classList.add('dnrb-ready');
     log('ready', VER);

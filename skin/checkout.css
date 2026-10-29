@@ -451,6 +451,33 @@ html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agreement li p,
 html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agreement .ec-base-help { margin: 0 0 6px 28px; font-size: 12px; color: var(--dnrb-muted); }
 html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agreement .ec-base-help li::before { display: inline; }
 
+/* ---------- 약관 레이어 ---------- */
+html.dnrb-noscroll, html.dnrb-noscroll body { overflow: hidden; }
+html.dnrb .dnrb-agree-layer { position: fixed; inset: 0; z-index: 1000; display: none; font-family: var(--dnrb-font); }
+html.dnrb .dnrb-agree-layer.show { display: block; }
+html.dnrb .dnrb-agree-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.5); }
+html.dnrb .dnrb-agree-panel {
+  position: absolute; left: 0; right: 0; bottom: 0; max-height: 88vh; display: flex; flex-direction: column;
+  background: #fff; border-radius: var(--dnrb-radius) var(--dnrb-radius) 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,.2);
+  animation: dnrb-sheet-up .22s ease-out;
+}
+@keyframes dnrb-sheet-up { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+html.dnrb .dnrb-agree-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px 12px; border-bottom: 1px solid var(--dnrb-line); }
+html.dnrb .dnrb-agree-head h3 { margin: 0; font-size: 16px; font-weight: 700; color: var(--dnrb-text); }
+html.dnrb .dnrb-agree-close { width: 36px; height: 36px; border: 0; background: none; font-size: 18px; color: var(--dnrb-muted); cursor: pointer; }
+html.dnrb .dnrb-agree-body { flex: 1 1 auto; overflow: auto; padding: 16px 20px; -webkit-overflow-scrolling: touch; font-size: 13.5px; line-height: 1.6; color: #333; }
+html.dnrb .dnrb-agree-body .dnrb-agree-content * { max-width: 100%; font-family: inherit !important; }
+html.dnrb .dnrb-agree-body .dnrb-agree-content h2, html.dnrb .dnrb-agree-body .dnrb-agree-content h3, html.dnrb .dnrb-agree-body .dnrb-agree-content h4 { font-size: 14px; margin: 16px 0 6px; }
+html.dnrb .dnrb-agree-body .dnrb-agree-content p { margin: 0 0 8px; }
+html.dnrb .dnrb-agree-body .dnrb-agree-content table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+html.dnrb .dnrb-agree-body .dnrb-agree-content th, html.dnrb .dnrb-agree-body .dnrb-agree-content td { border: 1px solid var(--dnrb-line); padding: 6px 8px; }
+html.dnrb .dnrb-agree-loading { color: var(--dnrb-muted); text-align: center; padding: 30px 0; }
+html.dnrb .dnrb-agree-foot { padding: 10px 20px calc(10px + var(--dnrb-safe-bottom, env(safe-area-inset-bottom, 0px))); border-top: 1px solid var(--dnrb-line); }
+html.dnrb .dnrb-agree-ok { width: 100%; height: 48px; border: 0; border-radius: var(--dnrb-radius-sm); background: var(--dnrb-main); color: #fff; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+@media (min-width: 900px) {
+  html.dnrb .dnrb-agree-panel { left: 50%; right: auto; top: 50%; bottom: auto; width: 640px; max-height: 80vh; transform: translate(-50%, -50%); border-radius: var(--dnrb-radius); animation: none; }
+}
+
 /* ---------- 하단 결제 버튼 ---------- */
 html.dnrb #mCafe24Order #orderFixItem {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
