@@ -27,6 +27,14 @@
   })();
 </script>
 <script src="/skin/checkout.js"></script>
+<script>
+  // 기기 흉내: 아이폰은 홈 표시줄(안전영역) 위로 고정 버튼이 올라가고, 안드로이드는 그렇지 않다
+  (function () {
+    var dev = new URLSearchParams(location.search).get('device') || 'iphone';
+    document.documentElement.classList.add('dev-' + dev);
+    if (dev === 'iphone') document.documentElement.style.setProperty('--dnrb-safe-bottom', '0px'); // 사파리 하단 바가 보일 땐 0
+  })();
+</script>
 </head>
 <body id="userStyle">
 <header id="header">

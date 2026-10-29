@@ -88,14 +88,40 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
 .history .h span { flex: 1; color: var(--muted); }
 
 .preview { position: sticky; top: 56px; height: calc(100vh - 56px); padding: 16px; border-left: 1px solid var(--line); background: #ece9e5; display: flex; flex-direction: column; }
+.preview.pc-mode { }
 .preview-bar { display: flex; align-items: center; justify-content: space-between; font-weight: 700; margin-bottom: 10px; }
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: #fff; }
 .seg button { height: 28px; padding: 0 10px; border: 0; background: #fff; cursor: pointer; font-size: 12.5px; }
 .seg button.on { background: var(--c); color: #fff; }
-.preview-frame { flex: 1; min-height: 0; display: flex; justify-content: center; }
-.preview-frame iframe { border: 0; background: #f2f2f2; border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,.12); width: 100%; height: 100%; }
-.preview-frame.mobile iframe { width: 390px; }
-.preview-frame.pc iframe { width: 100%; }
+.preview-stage { flex: 1; min-height: 0; display: flex; justify-content: center; align-items: flex-start; overflow: hidden; }
+.device { position: relative; display: flex; flex-direction: column; background: #111; border-radius: 44px; padding: 10px; box-shadow: 0 16px 40px rgba(0,0,0,.25); transform-origin: top center; }
+.device .dev-top, .device .dev-bottom { flex: none; color: #fff; font-size: 12px; }
+.device .dev-screen { flex: 1; min-height: 0; background: #f2f2f2; overflow: hidden; }
+.device iframe { display: block; border: 0; width: 100%; height: 100%; background: #f2f2f2; }
+.device .ios-status, .device .and-status, .device .and-chrome, .device .ios-bar, .device .ios-home, .device .and-nav { display: none; }
+/* 아이폰 */
+.device.iphone { width: 393px; height: 852px; box-sizing: content-box; }
+.device.iphone .dev-top, .device.iphone .dev-bottom { background: #f2f2f2; color: #111; }
+.device.iphone .dev-top { border-radius: 34px 34px 0 0; }
+.device.iphone .dev-bottom { border-radius: 0 0 34px 34px; }
+.device.iphone .ios-status { display: flex; align-items: center; justify-content: space-between; height: 47px; padding: 0 28px; font-weight: 700; font-size: 14px; }
+.device.iphone .island { width: 120px; height: 34px; background: #111; border-radius: 20px; }
+.device.iphone .ios-bar { display: flex; justify-content: space-around; align-items: center; height: 49px; background: #f7f7f7; border-top: 1px solid #ddd; font-size: 18px; color: #2b7cff; }
+.device.iphone .ios-home { display: block; height: 34px; background: #f7f7f7; position: relative; }
+.device.iphone .ios-home::after { content: ""; position: absolute; left: 50%; bottom: 8px; width: 134px; height: 5px; border-radius: 3px; background: #111; transform: translateX(-50%); }
+/* 안드로이드 */
+.device.android { width: 360px; height: 800px; box-sizing: content-box; border-radius: 28px; }
+.device.android .dev-top { background: #fff; color: #111; border-radius: 18px 18px 0 0; }
+.device.android .and-status { display: flex; justify-content: space-between; align-items: center; height: 24px; padding: 0 14px; font-size: 12px; }
+.device.android .and-chrome { display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 12px; }
+.device.android .and-chrome .url { flex: 1; height: 38px; display: flex; align-items: center; padding: 0 12px; border-radius: 19px; background: #eef0f3; font-size: 13px; color: #333; overflow: hidden; white-space: nowrap; }
+.device.android .and-chrome .tabs { width: 24px; height: 24px; border: 2px solid #444; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #444; }
+.device.android .dev-bottom { background: #fff; border-radius: 0 0 18px 18px; }
+.device.android .and-nav { display: flex; justify-content: space-around; align-items: center; height: 48px; color: #222; font-size: 16px; }
+/* PC */
+.device.pc { width: 100%; height: 100%; padding: 0; border-radius: 12px; background: #fff; box-shadow: var(--dnrb-shadow, 0 2px 10px rgba(0,0,0,.08)); }
+.device.pc .dev-top, .device.pc .dev-bottom { display: none; }
+.device.pc .dev-screen { border-radius: 12px; }
 .preview-note { font-size: 12px; color: var(--muted); margin: 10px 0 0; line-height: 1.5; }
 
 .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(10px); padding: 10px 16px; background: #1f1d1b; color: #fff; border-radius: 999px; font-size: 13px; opacity: 0; transition: .25s; pointer-events: none; z-index: 50; }

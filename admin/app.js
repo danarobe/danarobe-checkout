@@ -162,10 +162,30 @@
   function schedulePreview() { clearTimeout(pvTimer); pvTimer = setTimeout(sendPreview, 350); }
   function sendPreview() { const f = $('#pv'); if (f && f.contentWindow) f.contentWindow.postMessage({ type: 'dnrb-config', config: cfg }, '*'); }
   $('#pv').addEventListener('load', sendPreview);
-  $$('[data-pv]').forEach(b => b.addEventListener('click', () => {
-    $$('[data-pv]').forEach(x => x.classList.toggle('on', x === b));
-    const fr = $('.preview-frame'); fr.classList.toggle('mobile', b.dataset.pv === 'mobile'); fr.classList.toggle('pc', b.dataset.pv === 'pc');
-  }));
+  const DEVICE_NOTE = {
+    iphone: '아이폰(393×852, 사파리 하단 바·홈 표시줄 포함) 기준. 실제 카페24 주문서와 같은 구조의 가짜 페이지에 설정을 입혀 보여줍니다.',
+    android: '안드로이드(갤럭시 360×800, 크롬 주소창·하단 내비게이션 포함) 기준. 실제 카페24 주문서와 같은 구조의 가짜 페이지에 설정을 입혀 보여줍니다.',
+    pc: 'PC 화면 기준(2단 배치). 실제 카페24 주문서와 같은 구조의 가짜 페이지에 설정을 입혀 보여줍니다.',
+  };
+  function fitDevice() {
+    const dev = $('#device'); const stage = $('.preview-stage');
+    if (dev.classList.contains('pc')) { dev.style.transform = ''; stage.style.height = ''; return; }
+    const w = dev.offsetWidth, h = dev.offsetHeight;
+    const s = Math.min(1, (stage.clientWidth - 8) / w, (stage.clientHeight - 8) / h);
+    dev.style.transform = `scale(${s.toFixed(3)})`;
+  }
+  function setDevice(name) {
+    const dev = $('#device'); dev.className = 'device ' + name;
+    $$('[data-pv]').forEach(x => x.classList.toggle('on', x.dataset.pv === name));
+    $('#pvNote').textContent = DEVICE_NOTE[name] || '';
+    const f = $('#pv'); const want = 'preview.html?device=' + name;
+    if (!f.getAttribute('src').endsWith(want)) f.setAttribute('src', want);
+    try { localStorage.setItem('dnrb-admin-device', name); } catch {}
+    requestAnimationFrame(fitDevice);
+  }
+  $$('[data-pv]').forEach(b => b.addEventListener('click', () => setDevice(b.dataset.pv)));
+  window.addEventListener('resize', fitDevice);
+  try { const d = localStorage.getItem('dnrb-admin-device'); if (d && DEVICE_NOTE[d]) setDevice(d); else fitDevice(); } catch { fitDevice(); }
 
   /* ----- 저장 / 적용 ----- */
   async function save() {

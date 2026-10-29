@@ -454,7 +454,7 @@ html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agreement .ec-base-help li::b
 /* ---------- 하단 결제 버튼 ---------- */
 html.dnrb #mCafe24Order #orderFixItem {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
-  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  padding: 10px 16px calc(10px + var(--dnrb-safe-bottom, env(safe-area-inset-bottom, 0px)));
   background: rgba(242, 242, 242, 0.92); backdrop-filter: blur(8px);
 }
 html.dnrb #mCafe24Order #orderFixItem .btnSubmit {
@@ -475,6 +475,17 @@ html.dnrb .dnrb-toast {
   opacity: 0; transition: opacity .25s; pointer-events: none; white-space: nowrap;
 }
 html.dnrb .dnrb-toast.show { opacity: 1; }
+
+/* ---------- 모바일: 아이폰 사파리가 입력창 포커스 때 화면을 확대하지 않도록 16px ---------- */
+@media (max-width: 899px) {
+  html.dnrb #mCafe24Order input[type="text"],
+  html.dnrb #mCafe24Order input[type="tel"],
+  html.dnrb #mCafe24Order input[type="password"],
+  html.dnrb #mCafe24Order input[type="number"],
+  html.dnrb #mCafe24Order input[type="email"],
+  html.dnrb #mCafe24Order select,
+  html.dnrb #mCafe24Order textarea { font-size: 16px; }
+}
 
 /* ---------- PC (2단) ---------- */
 @media (min-width: 900px) {

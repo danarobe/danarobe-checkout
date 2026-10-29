@@ -306,12 +306,27 @@
     <div class="preview-bar">
       <span>미리보기</span>
       <div class="seg">
-        <button data-pv="mobile" class="on">모바일</button>
+        <button data-pv="iphone" class="on">아이폰</button>
+        <button data-pv="android">안드로이드</button>
         <button data-pv="pc">PC</button>
       </div>
     </div>
-    <div class="preview-frame mobile"><iframe id="pv" src="preview.html" title="주문서 미리보기"></iframe></div>
-    <p class="preview-note">실제 카페24 주문서와 같은 구조의 가짜 페이지입니다. 색·로고·뱃지·문구·배너가 어떻게 보일지 바로 확인하세요.</p>
+    <div class="preview-stage">
+      <div class="device iphone" id="device">
+        <div class="dev-top">
+          <div class="ios-status"><span class="t">9:41</span><span class="island"></span><span class="r">▲ ▮▮▮ ▰</span></div>
+          <div class="and-status"><span class="t">9:41</span><span class="r">▲ ▮▮▮ ▰</span></div>
+          <div class="and-chrome"><span class="lock">🔒</span><span class="url">danarobe.com/order/orderform.html</span><span class="tabs">1</span></div>
+        </div>
+        <div class="dev-screen"><iframe id="pv" src="preview.html?device=iphone" title="주문서 미리보기"></iframe></div>
+        <div class="dev-bottom">
+          <div class="ios-bar"><span>‹</span><span>›</span><span>⇧</span><span>▢</span><span>⧉</span></div>
+          <div class="ios-home"></div>
+          <div class="and-nav"><span>|||</span><span>○</span><span>‹</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="preview-note" id="pvNote">아이폰(393×852, 사파리 하단 바·홈 표시줄 포함) 기준. 실제 카페24 주문서와 같은 구조의 가짜 페이지에 설정을 입혀 보여줍니다.</p>
   </aside>
 </div>
 
