@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-10-29.12';
+  var VER = '2026-10-29.13';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var doc = document;
   var log = function () { if (cfg.debug) try { console.log.apply(console, ['[DNRB]'].concat([].slice.call(arguments))); } catch (e) {} };
@@ -530,7 +530,7 @@
   function closeCouponLayer() {
     var layer = $('#dnrbCouponLayer'); if (!layer) return;
     layer.classList.remove('show'); doc.documentElement.classList.remove('dnrb-noscroll');
-    var st = layer._state; if (st && st.hidden) { setTimeout(function () { st.hidden.frame.remove(); }, 1500); st.hidden = null; }
+    var st = layer._state; if (st && st.hidden) { var fr = st.hidden.frame; st.hidden = null; setTimeout(function () { if (fr && fr.parentNode) fr.parentNode.removeChild(fr); }, 1500); }
   }
   // 사용 불가 쿠폰: 회원 쿠폰 목록 페이지(/myshop/coupon/coupon.html)에서 보유 쿠폰을 읽어, 이 주문에 쓸 수 있는 쿠폰을 뺀 나머지
   // (목록 페이지 구조는 몰마다 달라서, 읽지 못하면 빈 목록을 돌려준다)
