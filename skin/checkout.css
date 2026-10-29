@@ -664,7 +664,9 @@ html.dnrb #ch-plugin, html.dnrb #incento-launcher { display: none !important; }
 /* 적립금 줄 (실제 카페24 조각: .displayblock 안에 제목+입력, 아래에 보유 잔액·펼침 안내) */
 html.dnrb #mCafe24Order .discountDetail > .displayblock { flex: 1 0 100%; display: flex; align-items: center; gap: 8px; }
 html.dnrb #mCafe24Order .discountDetail > .displayblock > .heading { flex: 0 0 auto; min-width: 72px; }
-html.dnrb #mCafe24Order .discountDetail > .displayblock > .control { flex: 1 1 auto; }
+html.dnrb #mCafe24Order .discountDetail > .displayblock > .control { flex: 1 1 auto; flex-wrap: nowrap; min-width: 0; }
+html.dnrb #mCafe24Order .discountDetail > .displayblock > .control input[type="text"] { flex: 1 1 auto; width: auto; min-width: 0; }
+html.dnrb #mCafe24Order .discountDetail > .displayblock > .control .btnNormal { flex: 0 0 auto; white-space: nowrap; }
 html.dnrb #mCafe24Order .discountDetail > .summary { flex: 1 0 100%; text-align: right; }
 html.dnrb #mCafe24Order .ec-base-help.ec-order-expandwrap { flex: 1 0 100%; margin-top: 2px; background: none; padding: 0; }
 html.dnrb #mCafe24Order .ec-base-help.ec-order-expandwrap li { padding: 0 20px 0 10px; letter-spacing: -0.2px; }
