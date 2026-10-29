@@ -30,6 +30,7 @@
     <a href="#installment" class="nav-item" data-sec="installment">무이자할부</a>
     <a href="#promotion" class="nav-item" data-sec="promotion">프로모션</a>
     <a href="#timer" class="nav-item" data-sec="timer">오늘배송 타이머</a>
+    <a href="#freeShipping" class="nav-item" data-sec="freeShipping">무료배송 안내</a>
     <div class="nav-group">설치 · 적용</div>
     <a href="#deploy" class="nav-item" data-sec="deploy">적용 상태 · 설치</a>
   </nav>
@@ -215,6 +216,37 @@
           <label>쉬는 날 <span class="hint">주말은 자동 제외. 공휴일/휴무일을 한 줄에 하나씩 (예: 2026-12-25)</span></label>
           <textarea data-bind-lines="deliveryTimer.holidays" rows="4"></textarea>
         </div>
+      </div>
+    </section>
+
+    <!-- 무료배송 안내 -->
+    <section class="sec" data-sec="freeShipping" hidden>
+      <h2>무료배송 안내</h2>
+      <div class="card">
+        <div class="row"><label>표시</label><label class="switch"><input type="checkbox" data-bind="freeShipping.visible"><span></span></label></div>
+        <div class="row">
+          <label>무료배송 기준 금액 (원) <span class="hint">카페24 배송비 설정과 같게</span></label>
+          <input type="number" data-bind="freeShipping.threshold" class="w120" min="0" step="1000">
+        </div>
+        <div class="row">
+          <label>기준 금액 계산 <span class="hint">카페24 배송비 조건 설정과 맞추세요</span></label>
+          <select data-bind="freeShipping.basis"><option value="after">할인 적용 후 금액 (결제액 기준)</option><option value="product">상품 금액 기준 (할인 전)</option></select>
+        </div>
+        <div class="row">
+          <label>이 금액 이하로 모자랄 때만 안내 (원) <span class="hint">0 이면 항상. 너무 큰 부족액은 안 보여주는 게 좋아요</span></label>
+          <input type="number" data-bind="freeShipping.gapUnder" class="w120" min="0" step="1000">
+        </div>
+        <div class="row">
+          <label>안내 문구 <span class="hint">{gap} 부족액, {fee} 현재 배송비, {threshold} 기준 금액</span></label>
+          <input type="text" data-bind="freeShipping.text">
+        </div>
+        <div class="row"><label>장바구니 링크 표시</label><label class="switch"><input type="checkbox" data-bind="freeShipping.linkToCart"><span></span></label></div>
+        <div class="row"><label>링크 글자</label><input type="text" data-bind="freeShipping.linkText" class="w120"></div>
+        <div class="row">
+          <label>기준을 넘겼을 때 문구 <span class="hint">비우면 넘겼을 때 아무것도 안 보여줌</span></label>
+          <input type="text" data-bind="freeShipping.doneText">
+        </div>
+        <p class="help">주문서에서 "장바구니"로 가면 주문서를 나가게 되므로(카페24 특성), 부족액이 작을 때만 보여주는 설정을 권해요. 장바구니 페이지 자체에 넣는 안내는 별도 작업입니다.</p>
       </div>
     </section>
 

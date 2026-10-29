@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-10-29.1';
+  var VER = '2026-10-29.2';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var doc = document;
   var log = function () { if (cfg.debug) try { console.log.apply(console, ['[DNRB]'].concat([].slice.call(arguments))); } catch (e) {} };
@@ -461,6 +461,49 @@
     tick();
   }
 
+  /* 9.3) 무료배송 안내: "X원만 더 담으면 배송비 무료" / "무료배송 적용됨" ---------- */
+  function renderFreeShipping() {
+    var fs = cfg.freeShipping || {};
+    var threshold = parseInt(fs.threshold, 10) || 0;
+    if (!fs.visible || !threshold) return;
+    var pay = $('#ec-jigsaw-area-payment'); var order = $('#mCafe24Order');
+    if (!pay || !order) return;
+    var box = el('div', { 'class': 'dnrb-freeship', role: 'status' });
+    var after = $('#ec-jigsaw-area-orderProduct') || $('#ec-jigsaw-area-discount');
+    if (after && after.parentNode === order) order.insertBefore(box, after.nextSibling); else order.insertBefore(box, pay);
+    function rowAmount(re) {
+      var rows = $$('tr', pay).filter(function (tr) { var th = $('th', tr); return th && re.test(th.textContent); });
+      return rows.length ? parseWon($('td', rows[0]).textContent) : null;
+    }
+    function paint() {
+      var product = rowAmount(/주문\s*상품|상품\s*금액/);
+      if (product == null) { box.style.display = 'none'; return; }
+      var discount = rowAmount(/할인\s*\/?\s*부가결제|할인/) || 0;
+      var fee = rowAmount(/^\s*배송비/);
+      var base = fs.basis === 'product' ? product : Math.max(0, product - discount);
+      var gap = threshold - base;
+      if (gap <= 0 || fee === 0) {
+        if (!fs.doneText) { box.style.display = 'none'; return; }
+        box.className = 'dnrb-freeship dnrb-freeship-done';
+        box.innerHTML = '<span class="dnrb-freeship-icon">✓</span><span>' + esc(fs.doneText) + '</span>';
+        box.style.display = '';
+        return;
+      }
+      var gapUnder = parseInt(fs.gapUnder, 10) || 0;
+      if (gapUnder && gap > gapUnder) { box.style.display = 'none'; return; }
+      var feeText = fee != null && fee > 0 ? fmtWon(fee) + '원' : '배송비';
+      var text = esc(String(fs.text || '{gap}원만 더 담으면 배송비 {fee}이 무료예요').replace('{gap}', fmtWon(gap)).replace('{fee}', feeText).replace('{threshold}', fmtWon(threshold)));
+      box.className = 'dnrb-freeship';
+      box.innerHTML = '<span class="dnrb-freeship-icon">🚚</span><span class="dnrb-freeship-text">' + text + '</span>' +
+        (fs.linkToCart !== false ? '<a class="dnrb-freeship-link" href="/order/basket.html">' + esc(fs.linkText || '장바구니') + ' ›</a>' : '');
+      box.style.display = '';
+    }
+    paint();
+    if (window.MutationObserver) {
+      var t; new MutationObserver(function () { clearTimeout(t); t = setTimeout(paint, 150); }).observe(pay, { childList: true, subtree: true, characterData: true });
+    }
+  }
+
   /* 9.5) 이용약관 동의: 제목 붙이고 "내용보기" → "자세히" --------------------- */
   function styleAgreement() {
     var area = $('#ec-jigsaw-area-agreement');
@@ -494,7 +537,7 @@
 
   function init() {
     try { applyTheme(); } catch (e) { log(e); }
-    var steps = [renderLogo, styleAgreement, wrapSide, renderPaymethods, renderBenefitMsgs, renderInstallment, renderNotices, renderPromotion, renderCoupon, renderTimer];
+    var steps = [renderLogo, styleAgreement, wrapSide, renderPaymethods, renderBenefitMsgs, renderInstallment, renderNotices, renderPromotion, renderCoupon, renderFreeShipping, renderTimer];
     steps.forEach(function (fn) { try { fn(); } catch (e) { log(fn.name, e); } });
     doc.documentElement.classList.add('dnrb-ready');
     log('ready', VER);

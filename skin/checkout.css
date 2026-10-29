@@ -364,6 +364,19 @@ html.dnrb #mCafe24Order .dnrb-promo strong { display: block; font-size: 14px; co
 html.dnrb #mCafe24Order .dnrb-promo p { margin: 0; font-size: 13px; color: #444; line-height: 1.5; }
 html.dnrb #mCafe24Order .dnrb-promo img.dnrb-promo-img { display: block; width: 100%; height: auto; border-radius: var(--dnrb-radius); }
 
+/* ---------- 무료배송 안내 ---------- */
+html.dnrb #mCafe24Order .dnrb-freeship {
+  display: flex; align-items: center; gap: 8px; margin: -4px 0 12px; padding: 11px 14px;
+  border-radius: var(--dnrb-radius-sm); background: #fff; border: 1px dashed var(--dnrb-main);
+  font-size: 13.5px; line-height: 1.4; color: var(--dnrb-text);
+}
+html.dnrb #mCafe24Order .dnrb-freeship-icon { flex: 0 0 auto; font-size: 16px; line-height: 1; }
+html.dnrb #mCafe24Order .dnrb-freeship-text { flex: 1 1 auto; }
+html.dnrb #mCafe24Order .dnrb-freeship-text b { color: var(--dnrb-main); }
+html.dnrb #mCafe24Order .dnrb-freeship-link { flex: 0 0 auto; color: var(--dnrb-main); font-weight: 700; text-decoration: none; white-space: nowrap; }
+html.dnrb #mCafe24Order .dnrb-freeship-done { border-style: solid; border-color: #d6e9d9; background: #f1f8f2; color: #1e6b32; font-weight: 600; }
+html.dnrb #mCafe24Order .dnrb-freeship-done .dnrb-freeship-icon { color: #1e8e3e; font-weight: 800; }
+
 /* ---------- 오늘배송 타이머 ---------- */
 html.dnrb #mCafe24Order .dnrb-timer {
   margin: 0 0 12px; padding: 14px 16px; border-radius: var(--dnrb-radius);

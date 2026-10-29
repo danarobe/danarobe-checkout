@@ -61,5 +61,15 @@
     "showNextDay": true,
     "accentColor": "#F51A1A"
   },
-  "updatedAt": "2026-10-28T12:45:16.687Z"
+  "updatedAt": "2026-10-28T12:45:16.687Z",
+  "freeShipping": {
+    "visible": true,
+    "threshold": 70000,
+    "basis": "after",
+    "gapUnder": 30000,
+    "linkToCart": true,
+    "text": "{gap}원만 더 담으면 배송비 {fee}이 무료예요",
+    "doneText": "무료배송 적용됨",
+    "linkText": "장바구니"
+  }
 }

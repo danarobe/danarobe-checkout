@@ -55,6 +55,8 @@ export const DEFAULT_CONFIG = {
   notices: [],
   promotion: { type: 'text', position: 'default', items: [], images: [] },
   deliveryTimer: { visible: false, cutoff: '13:00', holidays: [], showNextDay: true, accentColor: '#F51A1A' },
+  freeShipping: { visible: false, threshold: 70000, basis: 'after', gapUnder: 30000, linkToCart: true,
+    text: '{gap}원만 더 담으면 배송비 {fee}이 무료예요', doneText: '무료배송 적용됨', linkText: '장바구니' },
 };
 
 // 깊은 병합: 저장된 설정에 빠진 항목은 기본값으로 채운다
