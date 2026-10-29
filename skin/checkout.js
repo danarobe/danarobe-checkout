@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-10-29.6';
+  var VER = '2026-10-29.7';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var doc = document;
   var log = function () { if (cfg.debug) try { console.log.apply(console, ['[DNRB]'].concat([].slice.call(arguments))); } catch (e) {} };
@@ -592,6 +592,121 @@
     });
   }
 
+  /* 9.55) 배송지: 요약 카드 + "배송지 선택" 전체화면 레이어 + 신규 배송지 입력 ------------
+   * 카페24 배송지 조각(최근 배송지 목록·직접입력 폼)은 그대로 둔 채 겉모습만 바꾼다.
+   * - 요약 카드: 실제 제출되는 입력값(rname, rzipcode1, raddr1, raddr2, rphone2_[])을 읽어 보여준다
+   * - 선택 레이어: 카페24 최근 배송지 목록(ul.shippingList li)을 우리 모양으로 다시 그리고,
+   *   "선택"은 카페24 라디오를 눌러 주고, "수정"은 카페24 수정 버튼을 눌러 준다
+   * - 신규 배송지: 카페24 "직접입력" 폼을 레이어 안에 그대로 보여준다 */
+  function renderShippingCard() {
+    var fold = $('#ec-jigsaw-area-shippingInfo'); if (!fold) return;
+    var contents = $('.contents', fold); if (!contents) return;
+    if ((cfg.shipping || {}).card === false) return;
+    var F = function (n) { return $('[name="' + n + '"]', fold); };
+    var fields = function () {
+      var phone = $$('[name="rphone2_[]"]', fold).map(function (e) { return (e.value || '').trim(); }).filter(Boolean).join('-');
+      if (!phone) phone = $$('[name="rphone1_[]"]', fold).map(function (e) { return (e.value || '').trim(); }).filter(Boolean).join('-');
+      var g = function (n) { var e = F(n); return e ? (e.value || '').trim() : ''; };
+      return { name: g('rname'), zip: g('rzipcode1') || g('rzipcode'), addr1: g('raddr1'), addr2: g('raddr2'), phone: phone };
+    };
+    fold.classList.add('dnrb-ship');
+
+    // 요약 카드
+    var card = el('div', { 'class': 'dnrb-ship-card' });
+    contents.parentNode.insertBefore(card, contents);
+    // 배송 메시지 선택은 카드 안에 둔다 (같은 form 안에서 옮기므로 제출에는 영향 없음)
+    var msgSel = $('select[name="omessage_select"]', fold);
+    var msgSeg = msgSel ? (msgSel.closest('.segment') || msgSel.parentNode) : null;
+    var msgSlot = el('div', { 'class': 'dnrb-ship-msg' });
+    var cardMain = el('div', { 'class': 'dnrb-ship-main', role: 'button', tabindex: '0' });
+    card.appendChild(cardMain); card.appendChild(msgSlot);
+    if (msgSeg) msgSlot.appendChild(msgSeg);
+
+    // 레이어 머리글
+    var head = el('div', { 'class': 'dnrb-ship-head' }, '<button type="button" class="dnrb-ship-back" aria-label="뒤로"></button><h3>배송지 선택</h3><span></span>');
+    contents.insertBefore(head, contents.firstChild);
+    // 우리 목록 + 신규 추가 버튼
+    var listBox = el('div', { 'class': 'dnrb-ship-list' });
+    head.parentNode.insertBefore(listBox, head.nextSibling);
+    var doneBar = el('div', { 'class': 'dnrb-ship-done' }, '<button type="button" class="dnrb-ship-done-btn">입력 완료</button>');
+    contents.appendChild(doneBar);
+
+    var tabRecent = $('#ec-jigsaw-tab-shippingInfo-recentAddress a, #ec-jigsaw-tab-shippingInfo-recentAddress', fold);
+    var tabNew = $('#ec-jigsaw-tab-shippingInfo-newAddress a, #ec-jigsaw-tab-shippingInfo-newAddress', fold);
+    function recentItems() {
+      return $$('ul.shippingList li, li[module="Order_DeliveryList"]', fold).map(function (li) {
+        var radio = $('input[type="radio"]', li); if (!radio) return null;
+        var name = ($('.name', li) || {}).textContent || '';
+        var addr = ($('.address', li) || {}).textContent || '';
+        var dds = $$('dl.contact dd', li).map(function (d) { return d.textContent.trim(); }).filter(Boolean);
+        var modify = $('button[id*="modify"], .btnText', li);
+        return { li: li, radio: radio, name: name.replace(/\s+/g, ' ').trim(), addr: addr.replace(/\s+/g, ' ').replace(/^\[|\]/g, function (m) { return m === '[' ? '(' : ')'; }).trim(), phone: dds[0] || '', modify: modify };
+      }).filter(Boolean);
+    }
+    var mode = null;
+    function open(m) {
+      mode = m;
+      fold.classList.add('dnrb-ship-open'); fold.classList.toggle('dnrb-ship-mode-new', m === 'new'); fold.classList.toggle('dnrb-ship-mode-list', m === 'list');
+      doc.documentElement.classList.add('dnrb-noscroll');
+      $('h3', head).textContent = m === 'new' ? '배송지 입력' : '배송지 선택';
+      if (m === 'new') { if (tabNew) tabNew.click(); var first = F('rname'); if (first && !first.value) setTimeout(function () { try { first.focus(); } catch (e) {} }, 50); }
+      else paintList();
+      contents.scrollTop = 0;
+    }
+    function close() {
+      fold.classList.remove('dnrb-ship-open', 'dnrb-ship-mode-new', 'dnrb-ship-mode-list');
+      doc.documentElement.classList.remove('dnrb-noscroll');
+      paintCard();
+    }
+    function paintList() {
+      var items = recentItems();
+      var html = '<button type="button" class="dnrb-ship-add">＋ 신규 배송지 추가</button>';
+      if (!items.length) html += '<p class="dnrb-ship-empty">저장된 배송지가 없어요. 새 배송지를 추가해 주세요.</p>';
+      listBox.innerHTML = html;
+      items.forEach(function (it, i) {
+        var card = el('div', { 'class': 'dnrb-ship-item' + (it.radio.checked ? ' on' : '') });
+        card.innerHTML = '<div class="dnrb-ship-item-name"><span class="chk">✓</span>' + esc(it.name) + '</div>' +
+          '<div class="dnrb-ship-item-phone">' + esc(it.phone) + '</div>' +
+          '<div class="dnrb-ship-item-addr">' + esc(it.addr) + '</div>' +
+          '<div class="dnrb-ship-item-btns">' + (it.modify ? '<button type="button" class="dnrb-ship-edit">수정</button>' : '') + '<button type="button" class="dnrb-ship-pick">선택</button></div>';
+        $('.dnrb-ship-pick', card).addEventListener('click', function (e) { e.stopPropagation(); if (tabRecent) tabRecent.click(); it.radio.click(); setTimeout(close, 80); });
+        var ed = $('.dnrb-ship-edit', card); if (ed) ed.addEventListener('click', function (e) { e.stopPropagation(); it.modify.click(); });
+        card.addEventListener('click', function () { if (tabRecent) tabRecent.click(); it.radio.click(); setTimeout(close, 80); });
+        listBox.appendChild(card);
+      });
+      $('.dnrb-ship-add', listBox).addEventListener('click', function () { open('new'); });
+    }
+    function paintCard() {
+      var f = fields();
+      var has = !!(f.name || f.addr1);
+      card.classList.toggle('dnrb-ship-empty-state', !has);
+      if (!has) {
+        setHtml(cardMain, '<div class="dnrb-ship-need">배송지 입력이 필요합니다.</div><button type="button" class="dnrb-ship-enter">배송지 입력 <b>＋</b></button>');
+        $('.dnrb-ship-enter', cardMain).addEventListener('click', function (e) { e.stopPropagation(); open(recentItems().length ? 'list' : 'new'); });
+      } else {
+        setHtml(cardMain, '<div class="dnrb-ship-line1"><b>' + esc(f.name) + '</b>' + (f.phone ? '<span class="sep"></span><span>' + esc(f.phone) + '</span>' : '') + '</div>' +
+          '<div class="dnrb-ship-line2">' + (f.zip ? '(' + esc(f.zip) + ') ' : '') + esc(f.addr1) + (f.addr2 ? ' ' + esc(f.addr2) : '') + '</div><span class="dnrb-ship-chev"></span>');
+      }
+      msgSlot.style.display = has ? '' : 'none';
+    }
+    cardMain.addEventListener('click', function () { if (card.classList.contains('dnrb-ship-empty-state')) return; open(recentItems().length ? 'list' : 'new'); });
+    cardMain.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); cardMain.click(); } });
+    $('.dnrb-ship-back', head).addEventListener('click', function () { if (mode === 'new' && recentItems().length) open('list'); else close(); });
+    $('.dnrb-ship-done-btn', doneBar).addEventListener('click', function () {
+      var f = fields();
+      if (!f.name) { window.dnrbToast('받는사람을 입력해 주세요'); return; }
+      if (!f.addr1) { window.dnrbToast('주소를 입력해 주세요'); return; }
+      if (!f.phone || f.phone.replace(/\D/g, '').length < 9) { window.dnrbToast('휴대전화 번호를 입력해 주세요'); return; }
+      close();
+    });
+    // 레이어 안에서 Esc 로 닫기
+    doc.addEventListener('keydown', function (e) { if (e.key === 'Escape' && fold.classList.contains('dnrb-ship-open')) close(); });
+    paintCard();
+    // 카페24가 값을 바꾸면(최근 배송지 선택, 주소검색 완료 등) 카드도 따라간다
+    fold.addEventListener('change', function () { setTimeout(paintCard, 50); });
+    watch(contents, paintCard, { childList: true, subtree: true, attributes: true, attributeFilter: ['value', 'class', 'style'] });
+  }
+
   /* 9.6) 약관 "자세히": 새 창 대신 페이지 안 레이어로 보여준다 ---------------------
    * 카페24 기본 동작은 viewMallAgree() 등이 window.open(약관 페이지) 를 부르는 것.
    * 약관 버튼을 누른 직후 1초 동안만 window.open 을 가로채 같은 주소를 레이어에 띄운다. */
@@ -666,7 +781,7 @@
 
   function init() {
     try { applyTheme(); } catch (e) { log(e); }
-    var steps = [renderLogo, styleAgreement, setupAgreementLayer, wrapSide, renderPaymethods, renderBenefitMsgs, renderInstallment, renderNotices, renderPromotion, renderCoupon, collapseDiscountCode, renderPointsSummary, renderFreeShipping, renderTimer, renderGuestNudge];
+    var steps = [renderLogo, styleAgreement, setupAgreementLayer, renderShippingCard, wrapSide, renderPaymethods, renderBenefitMsgs, renderInstallment, renderNotices, renderPromotion, renderCoupon, collapseDiscountCode, renderPointsSummary, renderFreeShipping, renderTimer, renderGuestNudge];
     steps.forEach(function (fn) { try { fn(); } catch (e) { log(fn.name, e); } });
     doc.documentElement.classList.add('dnrb-ready');
     log('ready', VER);

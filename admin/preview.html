@@ -46,14 +46,36 @@
   <div class="titleArea"><h1>주문/결제</h1></div>
 </header>
 <div id="mCafe24Order" class="typeHeader">
+  <!-- 카페24 배송지 조각(ec_orderform/billingNshipping.html)과 같은 구조 -->
   <div id="ec-jigsaw-area-shippingInfo" class="ec-base-fold eToggle selected">
     <div id="ec-jigsaw-title-shippingInfo" class="title"><h2>배송지</h2></div>
     <div class="contents">
-      <div class="ec-base-table typeWrite"><table><tbody>
-        <tr><th scope="row">받는사람 <span class="icoRequired">필수</span></th><td><input type="text" value="김다나"></td></tr>
-        <tr><th scope="row">주소 <span class="icoRequired">필수</span></th><td><input type="text" value="경기 고양시 덕양구 청초로 10 에이동 10층"></td></tr>
-        <tr><th scope="row">휴대전화 <span class="icoRequired">필수</span></th><td><input type="text" value="010-0000-0000"></td></tr>
-      </tbody></table></div>
+      <div>
+        <div id="ec-jigsaw-tab-shippingInfo" class="ec-base-tab"><ul>
+          <li id="ec-jigsaw-tab-shippingInfo-recentAddress" class="selected"><a href="#none" onclick="return pvTab('recent')">최근 배송지</a></li>
+          <li id="ec-jigsaw-tab-shippingInfo-newAddress"><a href="#none" onclick="return pvTab('new')">직접입력</a></li>
+        </ul></div>
+        <div id="ec-shippingInfo-recentAddress" class="tabCont recentShipArea">
+          <div id="ec-shippingInfo-recentAddressText" class="segment"><div class="recent"><strong class="name"><span class="txtEm">[기본] </span><span>조범준테스트</span></strong><p class="address">[10543] 경기 고양시 덕양구 대덕산로 123 DMC 한강숲 중흥S-CLASS 110-905</p></div></div>
+          <div id="ec-shippingInfo-recentAddressList" class="segment" style="display:none;">
+            <ul class="shippingList">
+              <li module="Order_DeliveryList"><strong class="name"><span class="txtEm">[기본]</span> 조범준테스트</strong><div class="description"><span class="choice"><input type="radio" id="ec-shippingInfo-recentAddressList-choice-select-1" name="ec-shippingInfo-recentAddressList-choice" value="85129" checked onclick="pvPick(this)"></span><p class="address">[10543] 경기 고양시 덕양구 대덕산로 123 DMC 한강숲 중흥S-CLASS 110-905</p><dl class="contact"><dt>휴대전화</dt><dd>010-9844-7416</dd></dl></div><span class="button"><button type="button" id="ec-shippingInfo-recentAddressList-choice-modify-1" class="btnText" onclick="alert('카페24 배송지 수정 창 (미리보기)')">수정</button></span></li>
+              <li module="Order_DeliveryList"><strong class="name">김다나</strong><div class="description"><span class="choice"><input type="radio" id="ec-shippingInfo-recentAddressList-choice-select-2" name="ec-shippingInfo-recentAddressList-choice" value="75596" onclick="pvPick(this)"></span><p class="address">[07505] 서울 강서구 강서로 448 우체국소포실</p><dl class="contact"><dt>휴대전화</dt><dd>010-1234-5678</dd></dl></div><span class="button"><button type="button" id="ec-shippingInfo-recentAddressList-choice-modify-2" class="btnText" onclick="alert('카페24 배송지 수정 창 (미리보기)')">수정</button></span></li>
+            </ul>
+          </div>
+        </div>
+        <div id="ec-shippingInfo-newAddress" class="tabCont newShipArea" style="display:none">
+          <div class="segment ec-shippingInfo-sameaddr"><label><input type="radio" name="sameaddr" value="M"> 회원 정보와 동일</label><label><input type="radio" name="sameaddr" value="F" checked> 새로운 배송지</label></div>
+          <div class="ec-base-table typeWrite"><table><tbody>
+            <tr class="ec-shippingInfo-newAddress-name"><th scope="row">받는사람 <span class="icoRequired">필수</span></th><td><input type="text" name="rname" value="조범준테스트"></td></tr>
+            <tr id="ec-receiver-address"><th scope="row">주소 <span class="icoRequired">필수</span></th><td><input type="text" name="rzipcode1" value="10543" class="w80" readonly style="width:110px"> <button type="button" id="btn_search_rzipcode" class="btnNormal" onclick="alert('카페24 주소검색 창 (미리보기)')">주소검색</button><span class="gBlank10"><input type="text" name="raddr1" value="경기 고양시 덕양구 대덕산로 123 DMC 한강숲 중흥S-CLASS" readonly></span><span class="gBlank10"><input type="text" name="raddr2" value="110-905" placeholder="나머지 주소"></span></td></tr>
+            <tr><th scope="row">휴대전화 <span class="icoRequired">필수</span></th><td><span style="display:flex;gap:6px;align-items:center"><select name="rphone2_[]" style="width:90px"><option>010</option><option>011</option></select> - <input type="text" name="rphone2_[]" value="9844" style="width:80px" maxlength="4"> - <input type="text" name="rphone2_[]" value="7416" style="width:80px" maxlength="4"></span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="ec-shippingInfo-safePhone segment unique"><div class="safePhone"><span class="useCheck"><label><input type="checkbox" name="use_safe_phone"> 안심번호 사용</label></span></div></div>
+      </div>
+      <div class="segment unique"><select name="omessage_select" onchange="document.querySelector('.ec-shippingInfo-omessageInput').style.display=this.value==='direct'?'':'none'"><option value="">-- 메시지 선택 (선택사항) --</option><option>배송 전에 미리 연락바랍니다.</option><option>부재 시 경비실에 맡겨주세요.</option><option>부재 시 문 앞에 놓아주세요.</option><option value="direct">직접 입력</option></select><div class="ec-shippingInfo-omessageInput gBlank10" style="display:none;"><textarea name="omessage" rows="2" placeholder="배송 메시지"></textarea></div></div>
+      <div class="ec-shippingInfo-newAddress-setMain segment"><label><input type="checkbox" name="set_main_address"> 기본 배송지로 저장</label></div>
     </div>
   </div>
 
@@ -147,6 +169,9 @@
   </div>
 </div>
 <script>
+  // 미리보기: 카페24 배송지 동작 흉내 (탭 전환, 최근 배송지 선택 → 입력칸 채우기)
+  function pvTab(t){ var r=document.getElementById('ec-jigsaw-tab-shippingInfo-recentAddress'), n=document.getElementById('ec-jigsaw-tab-shippingInfo-newAddress'); r.classList.toggle('selected',t==='recent'); n.classList.toggle('selected',t==='new'); document.getElementById('ec-shippingInfo-recentAddress').style.display=t==='recent'?'':'none'; document.getElementById('ec-shippingInfo-newAddress').style.display=t==='new'?'':'none'; return false; }
+  function pvPick(radio){ var li=radio.closest('li'); var name=li.querySelector('.name').textContent.replace(/\[.*?\]/,'').trim(); var addr=li.querySelector('.address').textContent.trim(); var m=addr.match(/^\[(\d+)\]\s*(.*)$/); var phone=li.querySelector('dd').textContent.split('-'); var f=function(n,i){return document.querySelectorAll('[name="'+n+'"]')[i||0];}; f('rname').value=name; f('rzipcode1').value=m?m[1]:''; var full=m?m[2]:addr; var parts=full.split(' '); f('raddr2').value=parts.pop(); f('raddr1').value=parts.join(' '); f('rphone2_[]',0).value=phone[0]; f('rphone2_[]',1).value=phone[1]; f('rphone2_[]',2).value=phone[2]; document.querySelector('#ec-shippingInfo-recentAddressText .name span:last-child').textContent=name; document.querySelector('#ec-shippingInfo-recentAddressText .address').textContent=addr; }
   // 미리보기: 섹션 접기/펼치기, 결제수단 선택 표시
   document.querySelectorAll('.ec-base-fold > .title').forEach(function (t) { t.addEventListener('click', function () { t.parentNode.classList.toggle('selected'); }); });
 </script>
