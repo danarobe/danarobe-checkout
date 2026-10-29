@@ -152,6 +152,27 @@
           <label>적립 혜택 제목 바꾸기 <span class="hint">비우면 카페24 기본 "적립 혜택"</span></label>
           <input type="text" data-bind="points.title" placeholder="예: 이번 주문으로 쌓이는 적립금">
         </div>
+        <div class="row">
+          <label>결제 금액 아래 적립 요약 표시 <span class="hint">"이번 주문으로 N원 적립 예정"</span></label>
+          <label class="switch"><input type="checkbox" data-bind="points.summary"><span></span></label>
+        </div>
+        <div class="row"><label>적립 요약 문구 <span class="hint">{amount} 자리에 금액</span></label><input type="text" data-bind="points.summaryText"></div>
+      </div>
+      <div class="card">
+        <h3>할인코드 입력칸</h3>
+        <div class="row">
+          <label>평소에는 접어 두기 <span class="hint">빈 코드 입력칸은 손님이 코드를 찾으러 나가게 만들어요</span></label>
+          <label class="switch"><input type="checkbox" data-bind="discountCode.collapse"><span></span></label>
+        </div>
+        <div class="row"><label>펼치기 링크 글자</label><input type="text" data-bind="discountCode.linkText"></div>
+      </div>
+      <div class="card">
+        <h3>비회원 로그인 유도 <span class="hint">비회원 주문서 맨 위에만 보여요</span></h3>
+        <div class="row"><label>표시</label><label class="switch"><input type="checkbox" data-bind="guestNudge.visible"><span></span></label></div>
+        <div class="row"><label>제목</label><input type="text" data-bind="guestNudge.title"></div>
+        <div class="row"><label>설명</label><input type="text" data-bind="guestNudge.body"></div>
+        <div class="row"><label>버튼 글자</label><input type="text" data-bind="guestNudge.linkText"></div>
+        <p class="help">버튼은 카페24 로그인 페이지(네이버·카카오 버튼 포함)로 가고, 로그인 후 이 주문서로 돌아옵니다.</p>
       </div>
     </section>
 
@@ -210,7 +231,9 @@
       <div class="card">
         <div class="row"><label>표시</label><label class="switch"><input type="checkbox" data-bind="deliveryTimer.visible"><span></span></label></div>
         <div class="row"><label>배송 마감 시간</label><input type="time" data-bind="deliveryTimer.cutoff" class="w120"></div>
+        <div class="row"><label>마감 전 문구 <span class="hint">{time} 자리에 남은 시간. 굵게는 &lt;b&gt;</span></label><input type="text" data-bind="deliveryTimer.text"></div>
         <div class="row"><label>마감 후 다음 출발일 안내</label><label class="switch"><input type="checkbox" data-bind="deliveryTimer.showNextDay"><span></span></label></div>
+        <div class="row"><label>마감 후 문구 <span class="hint">{date} 자리에 다음 출발일</span></label><input type="text" data-bind="deliveryTimer.textAfter"></div>
         <div class="row"><label>강조 색상</label><div class="color"><input type="color" data-bind="deliveryTimer.accentColor"><input type="text" data-bind="deliveryTimer.accentColor" class="w120"></div></div>
         <div class="row">
           <label>쉬는 날 <span class="hint">주말은 자동 제외. 공휴일/휴무일을 한 줄에 하나씩 (예: 2026-12-25)</span></label>

@@ -364,6 +364,38 @@ html.dnrb #mCafe24Order .dnrb-promo strong { display: block; font-size: 14px; co
 html.dnrb #mCafe24Order .dnrb-promo p { margin: 0; font-size: 13px; color: #444; line-height: 1.5; }
 html.dnrb #mCafe24Order .dnrb-promo img.dnrb-promo-img { display: block; width: 100%; height: auto; border-radius: var(--dnrb-radius); }
 
+/* ---------- 할인코드 접기 ---------- */
+html.dnrb #mCafe24Order .discountDetail.dnrb-dc-collapsed { display: none !important; }
+html.dnrb #mCafe24Order .dnrb-dc-toggle {
+  display: inline-flex; align-items: center; gap: 2px; margin: 6px 0 2px; padding: 0; border: 0; background: none;
+  font: inherit; font-size: 13px; color: var(--dnrb-muted); text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+}
+html.dnrb #mCafe24Order .dnrb-dc-toggle span { text-decoration: none; }
+
+/* ---------- 적립 요약 ---------- */
+html.dnrb #mCafe24Order .dnrb-points-summary {
+  display: flex; align-items: center; gap: 6px; margin: 8px 0 0; padding: 8px 12px;
+  border-radius: var(--dnrb-radius-sm); background: #faf6ee; font-size: 13px; color: #6b5420;
+}
+
+/* ---------- 비회원 로그인 유도 ---------- */
+html.dnrb #mCafe24Order .dnrb-guest {
+  display: flex; align-items: center; gap: 12px; margin: 0 0 12px; padding: 14px 16px;
+  background: var(--dnrb-card); border-radius: var(--dnrb-radius); box-shadow: var(--dnrb-shadow); border-left: 4px solid var(--dnrb-main);
+}
+html.dnrb #mCafe24Order .dnrb-guest-icon { font-size: 22px; line-height: 1; flex: 0 0 auto; }
+html.dnrb #mCafe24Order .dnrb-guest-body { flex: 1 1 auto; min-width: 0; }
+html.dnrb #mCafe24Order .dnrb-guest-body strong { display: block; font-size: 14px; margin-bottom: 2px; }
+html.dnrb #mCafe24Order .dnrb-guest-body p { margin: 0; font-size: 12.5px; color: var(--dnrb-muted); line-height: 1.45; }
+html.dnrb #mCafe24Order .dnrb-guest-link {
+  flex: 0 0 auto; display: inline-flex; align-items: center; height: 36px; padding: 0 12px;
+  border-radius: var(--dnrb-radius-sm); background: var(--dnrb-main); color: #fff; font-size: 13px; font-weight: 700; text-decoration: none; white-space: nowrap;
+}
+@media (max-width: 480px) {
+  html.dnrb #mCafe24Order .dnrb-guest { flex-wrap: wrap; }
+  html.dnrb #mCafe24Order .dnrb-guest-link { flex-basis: 100%; justify-content: center; height: 40px; }
+}
+
 /* ---------- 무료배송 안내 ---------- */
 html.dnrb #mCafe24Order .dnrb-freeship {
   display: flex; align-items: center; gap: 8px; margin: -4px 0 12px; padding: 11px 14px;

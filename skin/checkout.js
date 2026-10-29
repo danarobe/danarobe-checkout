@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-10-29.2';
+  var VER = '2026-10-29.4';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var doc = document;
   var log = function () { if (cfg.debug) try { console.log.apply(console, ['[DNRB]'].concat([].slice.call(arguments))); } catch (e) {} };
@@ -26,6 +26,17 @@
   function safeUrl(u) { try { var p = new URL(String(u || ''), location.href); return /^https?:$/.test(p.protocol) ? p.href : ''; } catch (e) { return ''; } }
   function safeColor(c, fallback) { return /^#[0-9a-f]{3,8}$/i.test(String(c || '')) ? c : fallback; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  // 변화 감시: 콜백 안에서 DOM 을 바꿔도 무한 반복되지 않도록 한 박자 뒤에, 한 번에 하나만 실행
+  function watch(target, fn, opts) {
+    if (!window.MutationObserver || !target) return;
+    var t = null, busy = false;
+    new MutationObserver(function () {
+      if (busy) return;
+      clearTimeout(t); t = setTimeout(function () { busy = true; try { fn(); } finally { busy = false; } }, 120);
+    }).observe(target, opts || { childList: true, subtree: true, characterData: true });
+  }
+  function setHtml(node, html) { if (node.innerHTML !== html) node.innerHTML = html; }
+  function setText(node, text) { if (node.textContent !== text) node.textContent = text; }
   function isGuest() { return !!doc.getElementById('order_password'); }
   function isMobile() { return window.matchMedia('(max-width: 899px)').matches; }
   function methodCode(input) {
@@ -283,10 +294,10 @@
     function paint() {
       var st = readState();
       panel.classList.toggle('dnrb-none', st.own === 0);
-      applied.innerHTML = '<span>🏷️</span><span>지금 적용된 쿠폰 <b>' + st.used + '장</b></span>';
-      amount.textContent = '-' + fmtWon(st.amount) + '원';
-      btn.innerHTML = '<span>할인 쿠폰</span><span class="dnrb-coupon-own">보유 <b>' + st.own + '장</b></span>';
-      if (st.own > 0 && st.used === 0) btn.appendChild(el('span', { 'class': 'dnrb-coupon-tip' }, '사용 가능한 쿠폰이 있어요!'));
+      setHtml(applied, '<span>🏷️</span><span>지금 적용된 쿠폰 <b>' + st.used + '장</b></span>');
+      setText(amount, '-' + fmtWon(st.amount) + '원');
+      setHtml(btn, '<span>할인 쿠폰</span><span class="dnrb-coupon-own">보유 <b>' + st.own + '장</b></span>' +
+        (st.own > 0 && st.used === 0 ? '<span class="dnrb-coupon-tip">사용 가능한 쿠폰이 있어요!</span>' : ''));
       panel._state = st;
     }
     btn.addEventListener('click', function () { var b = srcButton(); if (b) b.click(); else window.dnrbToast && window.dnrbToast('사용할 수 있는 쿠폰이 없어요'); });
@@ -296,7 +307,7 @@
     });
     panel._paint = paint;
     paint();
-    if (window.MutationObserver) new MutationObserver(paint).observe(discount, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class', 'style'] });
+    watch(discount, paint, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class', 'style'] });
     return panel;
   }
   /* 쿠폰 창 제어 (카페24 /coupon/coupon_select.html 을 숨은 iframe 에 띄워 카페24 자체 계산·적용 함수를 그대로 쓴다)
@@ -451,14 +462,78 @@
       var cut = new Date(now); cut.setHours(parseInt(hm[0], 10) || 0, parseInt(hm[1], 10) || 0, 0, 0);
       if (!isOff(now) && now < cut) {
         var s = Math.floor((cut - now) / 1000);
-        box.innerHTML = '<span>📦</span><span><b>' + pad(Math.floor(s / 3600)) + '시간 ' + pad(Math.floor(s % 3600 / 60)) + '분 ' + pad(s % 60) + '초</b> 안에 결제하면 <b>오늘 출발</b>해요</span>';
+        var timeStr = '<b>' + pad(Math.floor(s / 3600)) + '시간 ' + pad(Math.floor(s % 3600 / 60)) + '분 ' + pad(s % 60) + '초</b>';
+        setHtml(box, '<span>📦</span><span>' + String(t.text || '{time} 안에 결제하면 <b>오늘 출발</b>해요').replace('{time}', timeStr) + '</span>');
       } else if (t.showNextDay !== false) {
         var n = nextShip(now);
-        box.innerHTML = '<span>📦</span><span>지금 주문하면 <b>' + (n.getMonth() + 1) + '/' + n.getDate() + '(' + DAY[n.getDay()] + ')</b> 출발해요</span>';
+        var dateStr = (n.getMonth() + 1) + '/' + n.getDate() + '(' + DAY[n.getDay()] + ')';
+        setHtml(box, '<span>📦</span><span>' + String(t.textAfter || '지금 주문하면 <b>{date}</b> 출발해요').replace('{date}', dateStr) + '</span>');
       } else { box.style.display = 'none'; return; }
       setTimeout(tick, 1000);
     }
     tick();
+  }
+
+  /* 9.1) 할인코드 입력칸 접기: "할인코드가 있어요" 링크를 누르면 펼침 ---------- */
+  function collapseDiscountCode() {
+    var dc = cfg.discountCode || {};
+    if (!dc.collapse) return;
+    var discount = $('#ec-jigsaw-area-discount'); if (!discount) return;
+    var rows = $$('.discountDetail', discount).filter(function (d) {
+      return $('input[name="ec_discountcode"], #ec_discountcode', d) && !$('#ec_discountcode_clear', d);
+    });
+    rows.forEach(function (row) {
+      if (row.classList.contains('displaynone')) return;
+      // 이미 코드가 적용된 상태(초기화 버튼이 보이는 줄)는 접지 않는다
+      var applied = $$('.discountDetail', discount).some(function (d) { var c = $('#ec_discountcode_clear', d); return c && !d.classList.contains('displaynone'); });
+      if (applied) return;
+      var link = el('button', { type: 'button', 'class': 'dnrb-dc-toggle' }, esc(dc.linkText || '할인코드가 있어요') + ' <span>›</span>');
+      row.classList.add('dnrb-dc-collapsed');
+      row.parentNode.insertBefore(link, row);
+      link.addEventListener('click', function () {
+        row.classList.remove('dnrb-dc-collapsed'); link.remove();
+        var inp = $('input[name="ec_discountcode"]', row); if (inp) inp.focus();
+      });
+    });
+  }
+
+  /* 9.2) 적립 요약: 결제 금액 아래 "이번 주문으로 N원 적립 예정" ---------- */
+  function renderPointsSummary() {
+    var pt = cfg.points || {};
+    if (!pt.summary) return;
+    var benefit = $('#ec-jigsaw-area-benefit'); var pay = $('#ec-jigsaw-area-payment');
+    if (!benefit || !pay) return;
+    var line = el('div', { 'class': 'dnrb-points-summary' });
+    var total = $('.totalPay', pay) || $('.contents', pay);
+    if (!total) return;
+    total.parentNode.insertBefore(line, total.nextSibling);
+    function paint() {
+      var src = $('#ec-jigsaw-title-benefit .txtStrong, #ec-jigsaw-heading-benefit', benefit) || $('.totalPay .txtEm', benefit);
+      var amt = src ? parseWon(src.textContent) : 0;
+      var hidden = benefit.classList.contains('displaynone') || benefit.offsetParent === null;
+      if (!amt || hidden) { line.style.display = 'none'; return; }
+      setHtml(line, '<span>🪙</span><span>' + esc(String(pt.summaryText || '이번 주문으로 {amount} 적립 예정').replace('{amount}', fmtWon(amt) + '원')) + '</span>');
+      line.style.display = '';
+    }
+    paint();
+    watch(benefit, paint, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class', 'style'] });
+  }
+
+  /* 9.25) 비회원 로그인 유도: 비회원 주문서 맨 위 ---------- */
+  function renderGuestNudge() {
+    var g = cfg.guestNudge || {};
+    if (!g.visible || !isGuest()) return;
+    var order = $('#mCafe24Order'); if (!order) return;
+    var ret = encodeURIComponent(location.pathname + location.search);
+    var box = el('div', { 'class': 'dnrb-guest' });
+    var body = el('div', { 'class': 'dnrb-guest-body' });
+    if (g.title) body.appendChild(el('strong', null, esc(g.title)));
+    if (g.body) body.appendChild(el('p', null, esc(g.body)));
+    box.appendChild(el('div', { 'class': 'dnrb-guest-icon' }, '🔑'));
+    box.appendChild(body);
+    box.appendChild(el('a', { 'class': 'dnrb-guest-link', href: '/member/login.html?returnUrl=' + ret }, esc(g.linkText || '로그인하고 주문하기')));
+    var first = $('.dnrb-timer', order);
+    order.insertBefore(box, first ? first.nextSibling : order.firstElementChild);
   }
 
   /* 9.3) 무료배송 안내: "X원만 더 담으면 배송비 무료" / "무료배송 적용됨" ---------- */
@@ -485,7 +560,7 @@
       if (gap <= 0 || fee === 0) {
         if (!fs.doneText) { box.style.display = 'none'; return; }
         box.className = 'dnrb-freeship dnrb-freeship-done';
-        box.innerHTML = '<span class="dnrb-freeship-icon">✓</span><span>' + esc(fs.doneText) + '</span>';
+        setHtml(box, '<span class="dnrb-freeship-icon">✓</span><span>' + esc(fs.doneText) + '</span>');
         box.style.display = '';
         return;
       }
@@ -494,14 +569,12 @@
       var feeText = fee != null && fee > 0 ? fmtWon(fee) + '원' : '배송비';
       var text = esc(String(fs.text || '{gap}원만 더 담으면 배송비 {fee}이 무료예요').replace('{gap}', fmtWon(gap)).replace('{fee}', feeText).replace('{threshold}', fmtWon(threshold)));
       box.className = 'dnrb-freeship';
-      box.innerHTML = '<span class="dnrb-freeship-icon">🚚</span><span class="dnrb-freeship-text">' + text + '</span>' +
-        (fs.linkToCart !== false ? '<a class="dnrb-freeship-link" href="/order/basket.html">' + esc(fs.linkText || '장바구니') + ' ›</a>' : '');
+      setHtml(box, '<span class="dnrb-freeship-icon">🚚</span><span class="dnrb-freeship-text">' + text + '</span>' +
+        (fs.linkToCart !== false ? '<a class="dnrb-freeship-link" href="/order/basket.html">' + esc(fs.linkText || '장바구니') + ' ›</a>' : ''));
       box.style.display = '';
     }
     paint();
-    if (window.MutationObserver) {
-      var t; new MutationObserver(function () { clearTimeout(t); t = setTimeout(paint, 150); }).observe(pay, { childList: true, subtree: true, characterData: true });
-    }
+    watch(pay, paint);
   }
 
   /* 9.5) 이용약관 동의: 제목 붙이고 "내용보기" → "자세히" --------------------- */
@@ -537,7 +610,7 @@
 
   function init() {
     try { applyTheme(); } catch (e) { log(e); }
-    var steps = [renderLogo, styleAgreement, wrapSide, renderPaymethods, renderBenefitMsgs, renderInstallment, renderNotices, renderPromotion, renderCoupon, renderFreeShipping, renderTimer];
+    var steps = [renderLogo, styleAgreement, wrapSide, renderPaymethods, renderBenefitMsgs, renderInstallment, renderNotices, renderPromotion, renderCoupon, collapseDiscountCode, renderPointsSummary, renderFreeShipping, renderTimer, renderGuestNudge];
     steps.forEach(function (fn) { try { fn(); } catch (e) { log(fn.name, e); } });
     doc.documentElement.classList.add('dnrb-ready');
     log('ready', VER);
