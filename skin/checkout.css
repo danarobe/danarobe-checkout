@@ -590,6 +590,7 @@ html.dnrb .dnrb-cw-amount { font-size: 18px; font-weight: 800; color: var(--dnrb
 html.dnrb .dnrb-cw-item.off .dnrb-cw-amount { font-size: 13px; color: var(--dnrb-muted); font-weight: 600; }
 html.dnrb .dnrb-cw-name { font-size: 14px; color: var(--dnrb-text); }
 html.dnrb .dnrb-cw-exp { font-size: 12px; color: var(--dnrb-muted); }
+html.dnrb .dnrb-cw-note { font-size: 12.5px; color: #9a6b00; }
 html.dnrb .dnrb-cw-notes { margin: 16px 0 0; padding: 12px 14px; list-style: none; background: #f7f6f4; border-radius: var(--dnrb-radius-sm); }
 html.dnrb .dnrb-cw-notes li { position: relative; padding-left: 10px; font-size: 12px; color: var(--dnrb-muted); line-height: 1.55; }
 html.dnrb .dnrb-cw-notes li::before { content: "·"; position: absolute; left: 0; }
