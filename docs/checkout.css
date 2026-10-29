@@ -682,3 +682,6 @@ html.dnrb #mCafe24Order input[type="checkbox"]:checked {
   background: var(--dnrb-main) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M5 12.5l4.5 4.5L19 7.5'/></svg>") center/14px no-repeat;
 }
 html.dnrb #mCafe24Order input[type="checkbox"]:disabled { opacity: .5; cursor: default; }
+
+/* 휴대폰: 카페24 모바일 머리글("주문/결제" 회색 띠)은 로고 머리글과 겹치므로 숨긴다 */
+html.dnrb body > #titleArea, html.dnrb #header .titleArea { display: none !important; }
