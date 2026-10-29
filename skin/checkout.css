@@ -85,6 +85,8 @@ html.dnrb #mCafe24Order .ec-base-fold.eToggle > .title::after {
   content: ""; flex: 0 0 20px; width: 20px; height: 20px; margin-left: auto;
   background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23171717' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M18 15l-6-6-6 6'/></svg>") center/20px no-repeat;
   transition: transform .2s;
+  /* 카페24 기본 화살표(테두리+45도 회전)를 지운다: 안 지우면 두 화살표가 겹쳐 깨져 보임 */
+  position: static; top: auto; right: auto; border: 0 !important; transform: none;
 }
 html.dnrb #mCafe24Order .ec-base-fold.eToggle:not(.selected) > .title::after { transform: rotate(180deg); }
 html.dnrb #mCafe24Order .ec-base-fold > .contents { padding: 0 20px 20px; border: 0; }
@@ -653,3 +655,6 @@ html.dnrb .dnrb-toast.show { opacity: 1; }
   html.dnrb #mCafe24Order .ec-base-table.typeWrite th { display: table-cell; width: 120px; padding: 8px 12px 8px 0; }
   html.dnrb #mCafe24Order .ec-base-table.typeWrite td { display: table-cell; padding: 6px 0; }
 }
+
+/* 결제슉과 동일하게 주문서에서는 채팅 버튼(채널톡 등)을 숨긴다: 결제 버튼을 가리지 않도록 */
+html.dnrb #ch-plugin, html.dnrb #incento-launcher { display: none !important; }

@@ -1,3 +1,6 @@
 node_modules/
 data/history/
 .DS_Store
+
+# 결제슉/원본 주문서 백업은 공개 저장소에 올리지 않는다 (로컬 전용)
+backup/*.html

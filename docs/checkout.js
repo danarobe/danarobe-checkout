@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-10-29.13';
+  var VER = '2026-10-29.14';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var doc = document;
   var log = function () { if (cfg.debug) try { console.log.apply(console, ['[DNRB]'].concat([].slice.call(arguments))); } catch (e) {} };
@@ -282,7 +282,7 @@
       if (m) own = parseInt(m[1].replace(/,/g, ''), 10) || 0;
       var ac = $('#appliedCouponCount'); var used = ac ? parseWon(ac.textContent) : 0;
       var od = window.CAFE24 && window.CAFE24.SHOP_FRONT_ORDERFORM_DATA && window.CAFE24.SHOP_FRONT_ORDERFORM_DATA.coupon;
-      if (od) used = [od.sUsedOrderCoupon, od.sUsedProductCoupon].filter(Boolean).join('|').split('|').filter(Boolean).length;
+      if (od) used = usedCouponValues().length; // 카페24는 쿠폰이 없으면 "0" 을 준다
       if (panel._ownOverride != null) own = panel._ownOverride;
       var amt = 0;
       var a1 = $('#mProductCouponDiscount'), a2 = $('#mDeliveryCouponDiscount');
@@ -589,7 +589,7 @@
   function mileageInUse() { var m = doc.getElementById('input_mile') || $('[name="input_mile"]'); return !!(m && parseWon(m.value) > 0); }
   function couponsInUse() {
     var od = window.CAFE24 && window.CAFE24.SHOP_FRONT_ORDERFORM_DATA && window.CAFE24.SHOP_FRONT_ORDERFORM_DATA.coupon;
-    if (od) return [od.sUsedOrderCoupon, od.sUsedProductCoupon].filter(Boolean).length > 0;
+    if (od) return usedCouponValues().length > 0;
     var ac = $('#appliedCouponCount'); return !!(ac && parseWon(ac.textContent) > 0);
   }
   function renderMileageLock(discount) {
@@ -698,7 +698,7 @@
     rows.forEach(function (row) {
       if (row.classList.contains('displaynone')) return;
       // 이미 코드가 적용된 상태(초기화 버튼이 보이는 줄)는 접지 않는다
-      var applied = $$('.discountDetail', discount).some(function (d) { var c = $('#ec_discountcode_clear', d); return c && !d.classList.contains('displaynone'); });
+      var applied = $$('.discountDetail', discount).some(function (d) { var c = $('#ec_discountcode_clear', d); return c && !d.classList.contains('displaynone') && getComputedStyle(d).display !== 'none'; });
       if (applied) return;
       var link = el('button', { type: 'button', 'class': 'dnrb-dc-toggle' }, esc(dc.linkText || '할인코드가 있어요') + ' <span>›</span>');
       row.classList.add('dnrb-dc-collapsed');
