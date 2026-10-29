@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-10-29.14';
+  var VER = '2026-10-29.16';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var doc = document;
   var log = function () { if (cfg.debug) try { console.log.apply(console, ['[DNRB]'].concat([].slice.call(arguments))); } catch (e) {} };
@@ -83,6 +83,16 @@
   function renderPaymethods() {
     var area = $('#ec-jigsaw-area-paymethod');
     if (!area) return;
+    // "최근 결제수단" 상자는 숨기고 전체 결제수단 목록을 바로 보여준다 (예전 주문서·결제슉과 같은 동작).
+    // 카페24가 최근 결제수단을 이미 체크해 두므로 목록에서도 그 수단이 선택된 채로 보인다.
+    var recent = $('.ec-paymethod-recentArea', area), newArea = $('.ec-paymethod-newArea', area);
+    if (recent && newArea) {
+      recent.classList.add('dnrb-hide');
+      area.classList.add('dnrb-pm-norecent');
+      var newRadio = doc.getElementById('paymethod-new');
+      if (newRadio && !newRadio.checked) newRadio.click();
+      if (!newArea.classList.contains('selected')) newArea.classList.add('selected');
+    }
     var labels = $$('.ec-paymethod-newArea .ec-base-label', area);
     if (!labels.length) labels = $$('.ec-base-label', area);
     var badges = (cfg.badges || []).filter(function (b) { return b && b.visible !== false && b.text; });
@@ -111,6 +121,11 @@
         }
       } else if (!(label.textContent || '').trim() && LABELS[code]) {
         label.appendChild(el('span', { 'class': 'dnrb-paylabel' }, esc(LABELS[code])));
+      } else if (!$('.dnrb-paylabel', label)) {
+        // 실제 카페24 조각은 이미지 없이 글자만 있다: 글자를 우리 span 으로 감싸 모양을 맞춘다
+        var txt = (label.textContent || '').trim();
+        if (txt) { label.textContent = ''; label.appendChild(el('span', { 'class': 'dnrb-paylabel' }, esc(txt))); }
+        if (!simple) wrap.classList.add('dnrb-textonly');
       }
 
       // 뱃지
@@ -286,7 +301,9 @@
       if (panel._ownOverride != null) own = panel._ownOverride;
       var amt = 0;
       var a1 = $('#mProductCouponDiscount'), a2 = $('#mDeliveryCouponDiscount');
-      if (a1 || a2) amt = parseWon(a1 && a1.textContent) + parseWon(a2 && a2.textContent);
+      var tc = $('.mTotalCouponDiscount', discount); // 주문서 쿠폰+상품 쿠폰 합계 (실제 카페24 조각)
+      if (tc) amt = parseWon(tc.textContent);
+      else if (a1 || a2) amt = parseWon(a1 && a1.textContent) + parseWon(a2 && a2.textContent);
       else { var te = $('.control .txtEm', r); amt = parseWon(te && te.textContent); }
       var list = $('#coupon_use_list, [id*="coupon_use_list"]', discount);
       if (!ac && !od && list) used = $$('li', list).filter(function (li) { return li.offsetParent; }).length;
@@ -695,18 +712,27 @@
     var rows = $$('.discountDetail', discount).filter(function (d) {
       return $('input[name="ec_discountcode"], #ec_discountcode', d) && !$('#ec_discountcode_clear', d);
     });
+    // 카페24가 직접 숨긴 줄인지 (우리 접기 클래스는 제외하고 판단)
+    function cafeHidden(d) { return d.classList.contains('displaynone') || d.style.display === 'none'; }
     rows.forEach(function (row) {
-      if (row.classList.contains('displaynone')) return;
-      // 이미 코드가 적용된 상태(초기화 버튼이 보이는 줄)는 접지 않는다
-      var applied = $$('.discountDetail', discount).some(function (d) { var c = $('#ec_discountcode_clear', d); return c && !d.classList.contains('displaynone') && getComputedStyle(d).display !== 'none'; });
-      if (applied) return;
       var link = el('button', { type: 'button', 'class': 'dnrb-dc-toggle' }, esc(dc.linkText || '할인코드가 있어요') + ' <span>›</span>');
+      var opened = false;
       row.classList.add('dnrb-dc-collapsed');
       row.parentNode.insertBefore(link, row);
+      // 카페24가 줄을 숨겼거나 이미 코드가 적용된 상태(초기화 버튼 줄이 보임)면 링크도 숨긴다.
+      // 카페24 스크립트가 페이지를 연 뒤에 줄을 숨기므로 한 번이 아니라 바뀔 때마다 다시 판단한다.
+      function paint() {
+        if (opened) return;
+        var applied = $$('.discountDetail', discount).some(function (d) { return $('#ec_discountcode_clear', d) && !cafeHidden(d); });
+        var want = (cafeHidden(row) || applied) ? 'none' : '';
+        if (link.style.display !== want) link.style.display = want;
+      }
       link.addEventListener('click', function () {
-        row.classList.remove('dnrb-dc-collapsed'); link.remove();
+        opened = true; row.classList.remove('dnrb-dc-collapsed'); link.remove();
         var inp = $('input[name="ec_discountcode"]', row); if (inp) inp.focus();
       });
+      paint();
+      watch(discount, paint, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
     });
   }
 
