@@ -695,7 +695,7 @@ html.dnrb #mCafe24Order #ec-jigsaw-area-agreement li.dnrb-agree-row-hide { displ
 html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agree .btnAgree {
   width: auto; height: auto; min-height: 0; line-height: 1.4; text-indent: 0; overflow: visible;
   padding: 4px 0 4px 8px; margin: 0; border: 0; background: none; white-space: nowrap;
-  font-size: 12.5px; color: var(--dnrb-muted); text-decoration: underline; text-underline-offset: 2px; cursor: pointer;
+  font-size: 12.5px; color: var(--dnrb-muted); text-decoration: none; cursor: pointer;
 }
 html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agree .btnAgree::before,
 html.dnrb #mCafe24Order #ec-jigsaw-area-agreement .agree .btnAgree::after { display: none; }
