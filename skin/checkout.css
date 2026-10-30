@@ -751,7 +751,10 @@ html.dnrb #mCafe24Order .dnrb-guest-card .ec-base-help li { padding-left: 10px; 
 html.dnrb #mCafe24Order .dnrb-guest-card .txtWarn { color: #e53935; }
 html.dnrb #mCafe24Order .dnrb-guest-card .txtWarn:empty { display: none; }
 /* 간편 회원가입: 위에 얇은 구분선, 체크박스 줄 */
-html.dnrb #mCafe24Order .dnrb-guest-card .joinArea { margin: 0; padding: 18px 0 0; border-top: 1px solid var(--dnrb-line); background: none; }
+html.dnrb #mCafe24Order .dnrb-guest-card .joinArea { margin: 0; padding: 0; border: 0; background: none; }
+/* 비밀번호 칸이 보일 때만 그 아래에 구분선 (간편 회원가입을 체크하면 카페24가 비밀번호 칸을 숨김) */
+html.dnrb #mCafe24Order .dnrb-guest-card:has(.ec-orderform-NoMemberPasswdRow:not([style*="none"])) .joinArea { padding-top: 18px; border-top: 1px solid var(--dnrb-line); }
+html.dnrb #mCafe24Order .dnrb-guest-card #guest ec-jigsawpiece:not(:has(> :not([id$="-head"]):not([id$="-tail"]):not([style*="none"]))) { display: none; }
 html.dnrb #mCafe24Order .dnrb-guest-card .agreeJoin { display: flex; align-items: center; gap: 8px; margin: 0; padding: 0; background: none; }
 html.dnrb #mCafe24Order .dnrb-guest-card .agreeJoin input[type="checkbox"] { flex: 0 0 20px; width: 20px; height: 20px; margin: 0; }
 html.dnrb #mCafe24Order .dnrb-guest-card .agreeJoin label { margin: 0; font-size: 14px; font-weight: 600; line-height: 1.4; min-height: 0; }
