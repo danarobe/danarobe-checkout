@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "enabled": false,
+  "enabled": true,
   "theme": {
     "mainColor": "#605043",
     "subColor": "#605043",
@@ -89,5 +89,5 @@
     "doneText": "무료배송 적용됨",
     "linkText": "장바구니"
   },
-  "updatedAt": "2026-10-30T01:41:22.645Z"
+  "updatedAt": "2026-10-30T01:42:30.260Z"
 }
