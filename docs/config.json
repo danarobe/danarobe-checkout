@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "enabled": true,
+  "enabled": false,
   "theme": {
     "mainColor": "#605043",
     "subColor": "#605043",

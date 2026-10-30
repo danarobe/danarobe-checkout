@@ -1,7 +1,7 @@
-/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-10-29T13:50:55.701Z) */
+/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-10-30T01:41:22.657Z) */
 window.DNRB_PAY_CONFIG = {
   "version": 1,
-  "enabled": true,
+  "enabled": false,
   "theme": {
     "mainColor": "#605043",
     "subColor": "#605043",
