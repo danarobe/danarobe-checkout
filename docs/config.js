@@ -1,4 +1,4 @@
-/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-10-30T02:42:47.966Z) */
+/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-10-30T02:43:18.845Z) */
 window.DNRB_PAY_CONFIG = {
   "version": 1,
   "enabled": true,
@@ -68,7 +68,7 @@ window.DNRB_PAY_CONFIG = {
     "showNextDay": true,
     "accentColor": "#F51A1A",
     "text": "{time} 안에 결제하면 <b>오늘 출발</b>해요 (일반발송 상품 포함 시 변동될 수 있음)",
-    "textAfter": "지금 주문하면 오늘출발 상품은 <b>{date}</b> 출발해요"
+    "textAfter": "지금 주문하면 오늘출발 상품은 <b>{date}</b> 출발해요 (일반발송 상품 포함 시 변동될 수 있음)"
   },
   "discountCode": {
     "collapse": true,
