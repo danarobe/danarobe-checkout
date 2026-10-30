@@ -758,3 +758,8 @@ html.dnrb #mCafe24Order .dnrb-guest-card .agreeJoin label { margin: 0; font-size
 html.dnrb #mCafe24Order .dnrb-guest-card .joinArea .guide { margin: 6px 0 0 28px; padding: 0; background: none; }
 html.dnrb #mCafe24Order .dnrb-guest-card .joinArea .guide .ec-base-help { margin: 0; }
 html.dnrb #mCafe24Order .dnrb-guest-card #simpleJoinDataForm { margin: 14px 0 0; }
+/* 입력칸 아래 카페24 확인 문구 줄(이메일·아이디 확인 등)은 점 없이, 비어 있으면 자리 차지 안 함 */
+html.dnrb #mCafe24Order .dnrb-guest-card td .ec-base-help li { padding-left: 0; }
+html.dnrb #mCafe24Order .dnrb-guest-card td .ec-base-help li::before { content: none; }
+html.dnrb #mCafe24Order .dnrb-guest-card td ul.ec-base-help { margin: 0; }
+html.dnrb #mCafe24Order .dnrb-guest-card td ul.ec-base-help li { margin-top: 6px; }
