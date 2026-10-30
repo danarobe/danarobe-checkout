@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-10-29.26';
+  var VER = '2026-10-30.1';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var doc = document;
   var log = function () { if (cfg.debug) try { console.log.apply(console, ['[DNRB]'].concat([].slice.call(arguments))); } catch (e) {} };
@@ -929,6 +929,8 @@
         var radio = $('input[type="radio"]', li); if (!radio) return null;
         var name = ($('.name', li) || {}).textContent || '';
         var addr = ($('.address', li) || {}).textContent || '';
+        // 비회원 등 저장된 배송지가 없으면 카페24가 빈 틀(이름·주소 없음)만 남겨 둔다 → 목록에서 뺀다
+        if (!radio.value || !(name.trim() || addr.replace(/[\[\]\s]/g, ''))) return null;
         var dds = $$('dl.contact dd', li).map(function (d) { return d.textContent.trim(); }).filter(Boolean);
         var modify = $('button[id*="modify"], .btnText', li);
         return { li: li, radio: radio, name: name.replace(/\s+/g, ' ').trim(), addr: addr.replace(/\s+/g, ' ').replace(/^\[|\]/g, function (m) { return m === '[' ? '(' : ')'; }).trim(), phone: dds[0] || '', modify: modify };
