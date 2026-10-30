@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-10-30.1';
+  var VER = '2026-10-30.2';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var doc = document;
   var log = function () { if (cfg.debug) try { console.log.apply(console, ['[DNRB]'].concat([].slice.call(arguments))); } catch (e) {} };
@@ -739,6 +739,28 @@
     });
   }
 
+  /* 9.12) 비회원 주문 정보 카드
+   * 카페24는 비회원 주문조회 비밀번호·간편 회원가입을 배송지 영역 안에 두는데, 우리 배송지는 "배송지 입력" 창 안에 있어서
+   * 창을 닫으면 비밀번호 칸이 숨겨져 "비밀번호를 입력하세요" 안내가 떠도 손님이 칸을 찾을 수 없다.
+   * → 같은 주문서(form) 안에서 배송지 카드 바로 아래로 옮겨 따로 보이는 카드로 만든다(값·검사는 카페24 그대로). */
+  function renderGuestInfo() {
+    if (!isGuest()) return;
+    var g = doc.getElementById('guest');
+    var ship = $('#ec-jigsaw-area-shippingInfo');
+    if (!g || !ship || !ship.parentNode || g.closest('.dnrb-guest-card')) return; // 없거나 이미 옮겼으면 그만
+    var card = el('div', { 'class': 'dnrb-guest-card' });
+    ship.parentNode.insertBefore(card, ship.nextSibling);
+    card.appendChild(g);
+    var pw = $('.ec-orderform-NoMemberPasswdRow', g);
+    if (pw) {
+      var h = $('.title h2', pw); if (h) h.textContent = '비회원 주문조회 비밀번호';
+      var sub = el('p', { 'class': 'dnrb-guest-sub' }, '주문 내역을 확인할 때 필요해요.');
+      var t = $('.title', pw); if (t) t.appendChild(sub);
+      var pi = doc.getElementById('order_password'); if (pi) pi.setAttribute('placeholder', '비밀번호');
+      var pc = doc.getElementById('order_password_confirm'); if (pc) pc.setAttribute('placeholder', '비밀번호 한 번 더');
+    }
+  }
+
   /* 9.15) 적립금 최대 사용 안내 문구 바꾸기
    * 카페24 기본 문구 "1회 구매시 적립금 최대 사용금액은 N원입니다." 의 N 은 정책 한도가 아니라
    * 이 손님이 이번 주문에 쓸 수 있는 최대 금액(보유 적립금 등)이라, 정책 한도처럼 읽히지 않게 바꾼다.
@@ -1101,7 +1123,7 @@
 
   function init() {
     try { applyTheme(); } catch (e) { log(e); }
-    var steps = [renderLogo, styleAgreement, setupAgreementLayer, renderShippingCard, wrapSide, renderPaymethods, renderBenefitMsgs, renderInstallment, renderNotices, renderPromotion, renderCoupon, collapseDiscountCode, renderMileageMaxText, renderPointsSummary, renderFreeShipping, renderTimer, renderGuestNudge];
+    var steps = [renderLogo, styleAgreement, setupAgreementLayer, renderShippingCard, renderGuestInfo, wrapSide, renderPaymethods, renderBenefitMsgs, renderInstallment, renderNotices, renderPromotion, renderCoupon, collapseDiscountCode, renderMileageMaxText, renderPointsSummary, renderFreeShipping, renderTimer, renderGuestNudge];
     steps.forEach(function (fn) { try { fn(); } catch (e) { log(fn.name, e); } });
     doc.documentElement.classList.add('dnrb-ready');
     log('ready', VER);

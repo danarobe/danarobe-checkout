@@ -713,3 +713,48 @@ html.dnrb #mCafe24Order input[type="radio"] {
   border: 1.5px solid #c9c4be; border-radius: 50%; background: #fff none; cursor: pointer;
 }
 html.dnrb #mCafe24Order input[type="radio"]:checked { border: 6px solid var(--dnrb-main); background: #fff none; }
+
+/* ---------- 비회원 주문 정보 카드 (주문조회 비밀번호 + 간편 회원가입) ---------- */
+html.dnrb #mCafe24Order .dnrb-guest-card { background: #fff; border-radius: var(--dnrb-radius); box-shadow: var(--dnrb-shadow); padding: 20px; margin: 0 0 12px; }
+html.dnrb #mCafe24Order .dnrb-guest-card #guest { display: flex; flex-direction: column; gap: 18px; }
+html.dnrb #mCafe24Order .dnrb-guest-card #guest ec-jigsawpiece { display: block; }
+html.dnrb #mCafe24Order .dnrb-guest-card #guest ec-jigsawpiece:has(.ec-orderform-NoMemberPasswdRow) { order: -1; }
+html.dnrb #mCafe24Order .dnrb-guest-card .pannelArea { margin: 0; padding: 0; background: none; border: 0; }
+html.dnrb #mCafe24Order .dnrb-guest-card .pannelArea > .title { display: block; margin: 0 0 12px; padding: 0; border: 0; background: none; }
+html.dnrb #mCafe24Order .dnrb-guest-card .pannelArea > .title::after { display: none; }
+html.dnrb #mCafe24Order .dnrb-guest-card .pannelArea > .title h2 { margin: 0; font-size: 16px; font-weight: 700; color: var(--dnrb-text); }
+html.dnrb #mCafe24Order .dnrb-guest-sub { margin: 4px 0 0; font-size: 12.5px; color: var(--dnrb-muted); }
+html.dnrb #mCafe24Order .dnrb-guest-card .pannelArea > .contents { display: block !important; padding: 0; border: 0; background: none; }
+/* 표 → 위아래 배치 (제목 위, 입력칸 아래) */
+html.dnrb #mCafe24Order .dnrb-guest-card .ec-base-table { margin: 0; border: 0; background: none; }
+html.dnrb #mCafe24Order .dnrb-guest-card .ec-base-table table,
+html.dnrb #mCafe24Order .dnrb-guest-card .ec-base-table tbody,
+html.dnrb #mCafe24Order .dnrb-guest-card .ec-base-table tr,
+html.dnrb #mCafe24Order .dnrb-guest-card .ec-base-table th,
+html.dnrb #mCafe24Order .dnrb-guest-card .ec-base-table td { display: block; width: auto; border: 0; padding: 0; background: none; text-align: left; }
+html.dnrb #mCafe24Order .dnrb-guest-card .ec-base-table caption,
+html.dnrb #mCafe24Order .dnrb-guest-card .ec-base-table colgroup { display: none; }
+html.dnrb #mCafe24Order .dnrb-guest-card .ec-base-table tr + tr { margin-top: 14px; }
+html.dnrb #mCafe24Order .dnrb-guest-card .ec-base-table th { margin: 0 0 6px; font-size: 13px; font-weight: 600; color: #555; }
+html.dnrb #mCafe24Order .dnrb-guest-card .ec-base-table th br { display: none; }
+html.dnrb #mCafe24Order .dnrb-guest-card input[type="text"],
+html.dnrb #mCafe24Order .dnrb-guest-card input[type="password"],
+html.dnrb #mCafe24Order .dnrb-guest-card input[type="email"] {
+  display: block; box-sizing: border-box; width: 100%; height: 46px; padding: 0 14px;
+  border: 1px solid var(--dnrb-line); border-radius: var(--dnrb-radius-sm); background: #fff; font: inherit; font-size: 16px;
+}
+html.dnrb #mCafe24Order .dnrb-guest-card input:focus { outline: none; border-color: var(--dnrb-main); }
+html.dnrb #mCafe24Order .dnrb-guest-card .displayFlex { display: flex; gap: 8px; align-items: center; }
+html.dnrb #mCafe24Order .dnrb-guest-card .ec-base-help { display: block; margin: 6px 0 0; padding: 0; font-size: 12.5px; color: var(--dnrb-muted); line-height: 1.5; background: none; }
+html.dnrb #mCafe24Order .dnrb-guest-card .ec-base-help:empty { display: none; }
+html.dnrb #mCafe24Order .dnrb-guest-card .ec-base-help li { padding-left: 10px; }
+html.dnrb #mCafe24Order .dnrb-guest-card .txtWarn { color: #e53935; }
+html.dnrb #mCafe24Order .dnrb-guest-card .txtWarn:empty { display: none; }
+/* 간편 회원가입: 위에 얇은 구분선, 체크박스 줄 */
+html.dnrb #mCafe24Order .dnrb-guest-card .joinArea { margin: 0; padding: 18px 0 0; border-top: 1px solid var(--dnrb-line); background: none; }
+html.dnrb #mCafe24Order .dnrb-guest-card .agreeJoin { display: flex; align-items: center; gap: 8px; margin: 0; padding: 0; background: none; }
+html.dnrb #mCafe24Order .dnrb-guest-card .agreeJoin input[type="checkbox"] { flex: 0 0 20px; width: 20px; height: 20px; margin: 0; }
+html.dnrb #mCafe24Order .dnrb-guest-card .agreeJoin label { margin: 0; font-size: 14px; font-weight: 600; line-height: 1.4; min-height: 0; }
+html.dnrb #mCafe24Order .dnrb-guest-card .joinArea .guide { margin: 6px 0 0 28px; padding: 0; background: none; }
+html.dnrb #mCafe24Order .dnrb-guest-card .joinArea .guide .ec-base-help { margin: 0; }
+html.dnrb #mCafe24Order .dnrb-guest-card #simpleJoinDataForm { margin: 14px 0 0; }
