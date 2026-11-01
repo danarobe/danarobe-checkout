@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-11-01.1';
+  var VER = '2026-11-01.2';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var doc = document;
   var log = function () { if (cfg.debug) try { console.log.apply(console, ['[DNRB]'].concat([].slice.call(arguments))); } catch (e) {} };
@@ -14,6 +14,8 @@
   var SIMPLE = { naverpay: 1, kakaopay: 1, tosspay: 1, payco: 1, smilepay: 1, samsungpay: 1, applepay: 1, kpay: 1, paynow: 1, cafe24pay: 1, ssgpay: 1, lpay: 1, chaipay: 1 };
   var LABELS = { card: '신용카드', tcash: '계좌이체', cash: '무통장입금', icash: '가상계좌', cell: '휴대폰 결제', deferpay: '후불결제',
     naverpay: '네이버페이', kakaopay: '카카오페이', tosspay: '토스페이', payco: '페이코', smilepay: '스마일페이', samsungpay: '삼성페이', applepay: '애플페이', kpay: 'K페이', paynow: '페이나우' };
+  // 간편결제 이름 앞 마크 (카페24 조각은 글자만 주므로 우리가 붙인다)
+  var MARKS = { naverpay: 'N pay', kakaopay: 'pay', tosspay: 'toss' };
 
   function $(sel, root) { return (root || doc).querySelector(sel); }
   function $$(sel, root) { return [].slice.call((root || doc).querySelectorAll(sel)); }
@@ -126,6 +128,10 @@
         var txt = (label.textContent || '').trim();
         if (txt) { label.textContent = ''; label.appendChild(el('span', { 'class': 'dnrb-paylabel' }, esc(txt))); }
         if (!simple) wrap.classList.add('dnrb-textonly');
+      }
+      var pl = $('.dnrb-paylabel', label);
+      if (MARKS[code] && pl && !$('.dnrb-paymark', label)) {
+        pl.insertBefore(el('span', { 'class': 'dnrb-paymark dnrb-paymark-' + code, 'aria-hidden': 'true' }, esc(MARKS[code])), pl.firstChild);
       }
 
       // 뱃지
