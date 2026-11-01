@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-10-30.4';
+  var VER = '2026-11-01.1';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var doc = document;
   var log = function () { if (cfg.debug) try { console.log.apply(console, ['[DNRB]'].concat([].slice.call(arguments))); } catch (e) {} };
@@ -710,7 +710,8 @@
   /* 9.1) 할인코드 입력칸 접기: "할인코드가 있어요" 링크를 누르면 펼침 ---------- */
   function collapseDiscountCode() {
     var dc = cfg.discountCode || {};
-    if (!dc.collapse) return;
+    var collapse = dc.mode ? dc.mode === 'collapse' : !!dc.collapse; // 'collapse' 접어 두기 / 'open' 펼쳐 두기
+    if (!collapse) return;
     var discount = $('#ec-jigsaw-area-discount'); if (!discount) return;
     var rows = $$('.discountDetail', discount).filter(function (d) {
       return $('input[name="ec_discountcode"], #ec_discountcode', d) && !$('#ec_discountcode_clear', d);

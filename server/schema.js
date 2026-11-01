@@ -57,7 +57,7 @@ export const DEFAULT_CONFIG = {
   promotion: { type: 'text', position: 'default', items: [], images: [] },
   deliveryTimer: { visible: false, cutoff: '15:00', holidays: [], showNextDay: true, accentColor: '#F51A1A',
     text: '{time} 안에 결제하면 오늘출발 상품은 <b>오늘 출발</b>해요', textAfter: '지금 주문하면 오늘출발 상품은 <b>{date}</b> 출발해요' },
-  discountCode: { collapse: true, linkText: '할인코드가 있어요' },
+  discountCode: { mode: 'collapse', collapse: true, linkText: '할인코드가 있어요' },
   guestNudge: { visible: true, title: '네이버 · 카카오로 3초 만에 로그인', body: '로그인하면 쿠폰과 적립금을 쓸 수 있고, 주문조회 비밀번호를 만들 필요가 없어요.', linkText: '로그인하고 주문하기' },
   freeShipping: { visible: false, threshold: 70000, basis: 'after', gapUnder: 30000, linkToCart: true,
     text: '{gap}원만 더 담으면 배송비 {fee}이 무료예요', doneText: '무료배송 적용됨', linkText: '장바구니' },
