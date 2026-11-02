@@ -70,6 +70,7 @@
     "textAfter": "지금 주문하면 오늘출발 상품은 <b>{date}</b> 출발해요 (일반발송 상품 포함 시 변동될 수 있음)"
   },
   "discountCode": {
+    "mode": "open",
     "collapse": true,
     "linkText": "할인코드가 있어요"
   },
@@ -89,5 +90,5 @@
     "doneText": "무료배송 적용됨",
     "linkText": "장바구니"
   },
-  "updatedAt": "2026-10-30T02:43:18.829Z"
+  "updatedAt": "2026-11-02T01:08:35.920Z"
 }
