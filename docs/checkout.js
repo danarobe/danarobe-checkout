@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-11-02.3';
+  var VER = '2026-11-02.4';
   var cfg = window.DNRB_PAY_CONFIG || {};
   // 카페24 공용 스크립트(앱 할인 계산)는 전역 sPage 로 '지금이 주문서인지'를 보는데, v1 조각으로 만든 우리 주문서 껍데기에는
   // 이 값이 없어 할인코드가 서버에서 통과해도 화면 반영 단계에서 오류로 멈춘다(아무 반응 없음). 비상 스위치로 꺼도 필요하므로 맨 앞에서 채운다.
@@ -430,10 +430,18 @@
   /* 우리 쿠폰 선택 창 -------------------------------------------------------
    * 카페24 쿠폰 창을 보이지 않게 열어 쿠폰마다 실제 할인액을 계산한 뒤 우리 디자인의 목록으로 보여준다.
    * "적용"은 카페24 창의 선택값을 바꾸고 카페24 적용 함수를 부른다 (계산·적용은 전부 카페24). */
+  // PC 쿠폰 창은 "이름 (~2026-12-02 …)", 모바일 쿠폰 창은 "(~12/02 14:02) 이름" 으로 기한 위치가 다르다
   function parseCouponOption(opt) {
     var text = (opt.text || '').trim();
     var m = text.match(/\(~\s*(\d{4})-(\d{2})-(\d{2})[^)]*\)\s*$/);
-    return { value: opt.value, name: m ? text.slice(0, m.index).trim() : text, expires: m ? (m[2] + '/' + m[3]) : '', expiresFull: m ? (m[1] + '-' + m[2] + '-' + m[3]) : '' };
+    if (m) return { value: opt.value, name: text.slice(0, m.index).trim(), expires: m[2] + '/' + m[3], expiresFull: m[1] + '-' + m[2] + '-' + m[3] };
+    var p = text.match(/^\(~\s*(\d{1,2})\/(\d{1,2})[^)]*\)\s*/);
+    if (p) {
+      var mm = ('0' + p[1]).slice(-2), dd = ('0' + p[2]).slice(-2), now = new Date(), y = now.getFullYear();
+      if (+mm < now.getMonth() + 1) y++; // 12/02 처럼 연도가 없으면 오늘 이후 가장 가까운 날로 본다
+      return { value: opt.value, name: text.slice(p[0].length).trim(), expires: mm + '/' + dd, expiresFull: y + '-' + mm + '-' + dd };
+    }
+    return { value: opt.value, name: text, expires: '', expiresFull: '' };
   }
   // 쿠폰마다 (혼자 적용했을 때의) 할인액을 잰다
   function measureCoupons(w) {
@@ -573,7 +581,9 @@
         var nameCell = $('td.coupon_name', tr); if (!nameCell) return;
         var name = nameCell.textContent.replace(/\s+/g, ' ').trim(); if (!name) return;
         var key = name.replace(/\s+/g, '');
-        if (avail[key]) { avail[key]--; return; } // 이 주문에 쓸 수 있는 쿠폰
+        // 이 주문에 쓸 수 있는 쿠폰 (쿠폰 창 이름에 기한 등이 덧붙어 있어도 같은 쿠폰으로 본다)
+        var hit = avail[key] ? key : Object.keys(avail).filter(function (k) { return avail[k] > 0 && (k.slice(-key.length) === key || key.slice(-k.length) === k); })[0];
+        if (hit) { avail[hit]--; return; }
         var cells = $$('td', tr);
         var disc = cells[2] ? cells[2].textContent.replace(/\s+/g, ' ').trim() : '';
         var info = {};
