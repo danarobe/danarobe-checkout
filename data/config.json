@@ -121,6 +121,10 @@
       "title": "로그인하면 회원 할인가로 주문할 수 있어요",
       "body": "신상품 7% 할인 · 회원가입 시 적립금 2,000P",
       "linkText": "로그인"
+    },
+    "hideButtons": {
+      "estimate": true,
+      "oversea": true
     }
   }
 }

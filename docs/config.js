@@ -1,4 +1,4 @@
-/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-11-11T07:52:18.799Z) */
+/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-11-11T09:05:51.763Z) */
 window.DNRB_PAY_CONFIG = {
   "version": 1,
   "enabled": true,
@@ -121,6 +121,10 @@ window.DNRB_PAY_CONFIG = {
       "title": "로그인하면 회원 할인가로 주문할 수 있어요",
       "body": "신상품 7% 할인 · 회원가입 시 적립금 2,000P",
       "linkText": "로그인"
+    },
+    "hideButtons": {
+      "estimate": true,
+      "oversea": true
     }
   }
 };

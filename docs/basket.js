@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-11-11.2';
+  var VER = '2026-11-11.3';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var bc = cfg.basket || {};
   if (cfg.enabled === false || bc.enabled === false) return;
@@ -250,6 +250,19 @@
     anchor.parentNode.insertBefore(box, shipBox ? shipBox.nextSibling : anchor);
   }
 
+  /* 5) 쓰지 않는 버튼 숨기기 (견적서출력 · 해외장바구니로 이동) ---------- */
+  function hideButtons() {
+    var h = bc.hideButtons || {};
+    var rules = [];
+    if (h.estimate !== false) rules.push(/estimatePrint\(/);
+    if (h.oversea !== false) rules.push(/moveOversea\(/);
+    if (!rules.length) return;
+    $$('a[onclick], button[onclick]').forEach(function (a) {
+      var on = a.getAttribute('onclick');
+      if (rules.some(function (re) { return re.test(on); })) a.classList.add('dnrb-hide');
+    });
+  }
+
   /* 시작 ----------------------------------------------------------------- */
   function paint() {
     var sum = summary();
@@ -265,6 +278,7 @@
     var t = cfg.theme || {};
     if (safeColor(t.mainColor)) html.style.setProperty('--dnrb-main', t.mainColor);
     if (!boxes().length) return; // 빈 장바구니
+    hideButtons();
     buildShipBox();
     buildGuestBenefit();
     buildOrderButtons();
