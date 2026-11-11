@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-11-11.3';
+  var VER = '2026-11-11.4';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var bc = cfg.basket || {};
   if (cfg.enabled === false || bc.enabled === false) return;
@@ -66,20 +66,33 @@
 
   /* 1) 들어오면 상품 전체 선택 ------------------------------------------ */
   // 카페24 "전체선택" 링크를 한 번 눌러 체크와 합계 재계산을 카페24가 하게 한다 (상품마다 누르면 계산 요청이 상품 수만큼 생김)
-  // 우리 스크립트는 카페24 장바구니 스크립트가 버튼에 기능을 붙이기 전에 실행되므로, 페이지 로딩이 끝난 뒤에 누른다.
+  // 우리 스크립트는 카페24 장바구니 스크립트가 버튼에 기능을 붙이기 전에 실행되므로, 기능이 붙는 순간(보통 DOMContentLoaded 직후)을 기다렸다 누른다.
+  // 광고·추적 스크립트까지 끝나는 load 를 기다리면 느린 인터넷에서 몇 초씩 늦어진다.
   function noneChecked() { var bs = boxes(); return bs.length && !bs.some(function (c) { return c.checked; }); }
+  function selectAllBtn() { return $('#product_select_all') || $$('a, button').filter(function (a) { return /^\s*전체선택\s*$/.test(a.textContent); })[0]; }
+  function cafeBound(a) {
+    var jq = window.EC$ || window.jQuery;
+    try { var ev = jq && jq._data && jq._data(a, 'events'); return !!(ev && ev.click); } catch (e) { return false; }
+  }
   function selectAllOnLoad() {
     if (bc.selectAll === false) return;
+    var done = false, tries = 0;
     function go() {
+      if (done) return; done = true;
       if (!noneChecked()) return;
-      var all = $$('a, button').filter(function (a) { return /^\s*전체선택\s*$/.test(a.textContent); })[0];
+      var all = selectAllBtn();
       if (all) all.click();
       // "전체선택" 이 안 먹었으면 상자를 하나씩 누른다
       setTimeout(function () { if (noneChecked()) boxes().forEach(function (c) { c.click(); }); paint(); }, 1200);
       log('selected all', boxes().length);
     }
-    if (doc.readyState === 'complete') setTimeout(go, 300);
-    else window.addEventListener('load', function () { setTimeout(go, 300); });
+    (function wait() {
+      var all = selectAllBtn();
+      if (all && cafeBound(all)) return go();
+      if (++tries > 50) return go(); // 약 7초
+      setTimeout(wait, 150);
+    })();
+    window.addEventListener('load', function () { setTimeout(go, 300); });
   }
 
   /* 2) 주문 버튼 하나: "59,000원 주문하기" --------------------------------- */
