@@ -32,6 +32,8 @@
     <a href="#promotion" class="nav-item" data-sec="promotion">프로모션</a>
     <a href="#timer" class="nav-item" data-sec="timer">오늘배송 타이머</a>
     <a href="#freeShipping" class="nav-item" data-sec="freeShipping">무료배송 안내</a>
+    <div class="nav-group">장바구니</div>
+    <a href="#basket" class="nav-item" data-sec="basket">장바구니 꾸미기</a>
     <div class="nav-group">설치 · 적용</div>
     <a href="#deploy" class="nav-item" data-sec="deploy">적용 상태 · 설치</a>
   </nav>
@@ -284,6 +286,47 @@
           <input type="text" data-bind="freeShipping.doneText">
         </div>
         <p class="help">주문서에서 "장바구니"로 가면 주문서를 나가게 되므로(카페24 특성), 부족액이 작을 때만 보여주는 설정을 권해요. 장바구니 페이지 자체에 넣는 안내는 별도 작업입니다.</p>
+      </div>
+    </section>
+
+    <!-- 장바구니 꾸미기 -->
+    <section class="sec" data-sec="basket" hidden>
+      <h2>장바구니 꾸미기</h2>
+      <div class="card">
+        <div class="row"><label>장바구니 꾸미기 사용 <span class="hint">끄면 카페24 원래 장바구니 (손님 브라우저에 최대 10분 남을 수 있음)</span></label><label class="switch"><input type="checkbox" data-bind="basket.enabled"><span></span></label></div>
+        <div class="row"><label>들어오면 상품 전체 선택 <span class="hint">끄면 카페24처럼 아무것도 선택 안 된 채로 시작</span></label><label class="switch"><input type="checkbox" data-bind="basket.selectAll"><span></span></label></div>
+      </div>
+      <div class="card">
+        <h3>주문 버튼 하나로</h3>
+        <div class="row"><label>표시 <span class="hint">"전체상품주문 / 선택상품주문" 두 버튼 대신 금액이 보이는 버튼 하나</span></label><label class="switch"><input type="checkbox" data-bind="basket.orderBar.visible"><span></span></label></div>
+        <div class="row"><label>버튼 글자 <span class="hint">{amount} 결제예정금액, {count} 선택 개수</span></label><input type="text" data-bind="basket.orderBar.text"></div>
+        <div class="row"><label>전부 선택일 때 작은 글씨</label><input type="text" data-bind="basket.orderBar.allLabel" class="w120"></div>
+        <div class="row"><label>일부만 선택일 때 작은 글씨</label><input type="text" data-bind="basket.orderBar.selectLabel" class="w120"></div>
+        <div class="row"><label>아무것도 선택 안 했을 때 버튼</label><input type="text" data-bind="basket.orderBar.noneButton"></div>
+      </div>
+      <div class="card">
+        <h3>무료배송 막대</h3>
+        <div class="row"><label>표시 <span class="hint">기준 금액·계산 방식은 "무료배송 안내" 메뉴 값을 같이 써요</span></label><label class="switch"><input type="checkbox" data-bind="basket.freeShipBar.visible"><span></span></label></div>
+        <div class="row"><label>모자랄 때 문구 <span class="hint">{gap} 부족액, {threshold} 기준 금액, &lt;b&gt;굵게&lt;/b&gt;</span></label><input type="text" data-bind="basket.freeShipBar.text"></div>
+        <div class="row"><label>채웠을 때 문구</label><input type="text" data-bind="basket.freeShipBar.doneText"></div>
+        <div class="row"><label>주문 버튼 옆 작은 안내 <span class="hint">{gap} 부족액</span></label><input type="text" data-bind="basket.freeShipBar.barText"></div>
+        <div class="row"><label>주문 버튼 옆 (채웠을 때)</label><input type="text" data-bind="basket.freeShipBar.barDoneText" class="w120"></div>
+      </div>
+      <div class="card">
+        <h3>무료배송 채우기 추천</h3>
+        <div class="row"><label>표시 <span class="hint">부족액이 "무료배송 안내 › 이 금액 이하로 모자랄 때만" 이하일 때만 보여요</span></label><label class="switch"><input type="checkbox" data-bind="basket.recommend.visible"><span></span></label></div>
+        <div class="row"><label>추천할 카테고리 번호 <span class="hint">상품 목록 주소의 cate_no (ACC = 27)</span></label><input type="number" data-bind="basket.recommend.cateNo" class="w120" min="0"></div>
+        <div class="row"><label>제목</label><input type="text" data-bind="basket.recommend.title"></div>
+        <div class="row"><label>최대 개수</label><input type="number" data-bind="basket.recommend.max" class="w120" min="1" max="20"></div>
+        <div class="row"><label>부족액을 채우는 상품 표시</label><input type="text" data-bind="basket.recommend.fillTag" class="w120"></div>
+        <p class="help">부족액 이상인 상품을 싼 순서로 먼저, 그다음 부족액보다 싼 상품을 보여줘요. 장바구니에 이미 있는 상품과 품절 상품은 빼요. 누르면 상품 페이지로 가요(옵션 선택이 필요해서).</p>
+      </div>
+      <div class="card">
+        <h3>비회원 혜택 안내</h3>
+        <div class="row"><label>표시 <span class="hint">로그인 안 한 손님에게만</span></label><label class="switch"><input type="checkbox" data-bind="basket.guestBenefit.visible"><span></span></label></div>
+        <div class="row"><label>제목</label><input type="text" data-bind="basket.guestBenefit.title"></div>
+        <div class="row"><label>설명</label><input type="text" data-bind="basket.guestBenefit.body"></div>
+        <div class="row"><label>버튼 글자</label><input type="text" data-bind="basket.guestBenefit.linkText" class="w120"></div>
       </div>
     </section>
 

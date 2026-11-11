@@ -1,0 +1,78 @@
+/* =====================================================================
+ * 다나로브 장바구니 꾸미기 — basket.css
+ * basket.js 가 html 에 dnrb-basket 클래스를 붙였을 때만 적용된다 (스크립트를 끄면 원래 모습).
+ * ===================================================================== */
+html.dnrb-basket {
+  --dnrb-main: #000000;
+  --dnrb-text: #171717;
+  --dnrb-muted: #767676;
+  --dnrb-line: #e5e5e5;
+  --dnrb-soft: #f7f6f4;
+  --dnrb-ship-color: var(--dnrb-main);
+}
+
+/* ---------- 무료배송 막대 + 채우기 추천 ---------- */
+html.dnrb-basket .dnrb-ship {
+  margin: 0 0 16px; padding: 14px 16px; border: 1px solid var(--dnrb-line); border-radius: 12px; background: #fff;
+}
+html.dnrb-basket .dnrb-ship-head { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--dnrb-text); line-height: 1.45; }
+html.dnrb-basket .dnrb-ship-head b { color: var(--dnrb-ship-color); font-weight: 800; }
+html.dnrb-basket .dnrb-ship-icon { flex: 0 0 auto; font-size: 16px; }
+html.dnrb-basket .dnrb-ship-done .dnrb-ship-icon { width: 20px; height: 20px; border-radius: 50%; background: var(--dnrb-ship-color); color: #fff; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+html.dnrb-basket .dnrb-ship-track { margin-top: 10px; height: 6px; border-radius: 6px; background: #ece9e5; overflow: hidden; }
+html.dnrb-basket .dnrb-ship-track i { display: block; height: 100%; border-radius: 6px; background: var(--dnrb-ship-color); transition: width .4s ease; }
+
+html.dnrb-basket .dnrb-reco { margin-top: 14px; }
+html.dnrb-basket .dnrb-reco-title { font-size: 13px; font-weight: 700; color: var(--dnrb-text); margin-bottom: 8px; }
+html.dnrb-basket .dnrb-reco-list {
+  display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch;
+}
+html.dnrb-basket .dnrb-reco-item {
+  flex: 0 0 112px; scroll-snap-align: start; display: flex; flex-direction: column; gap: 4px; text-decoration: none; color: var(--dnrb-text);
+}
+html.dnrb-basket .dnrb-reco-img { display: block; width: 112px; height: 140px; border-radius: 8px; overflow: hidden; background: var(--dnrb-soft); }
+html.dnrb-basket .dnrb-reco-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+html.dnrb-basket .dnrb-reco-name {
+  font-size: 12px; line-height: 1.35; color: #444; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: keep-all;
+}
+html.dnrb-basket .dnrb-reco-price { font-size: 13px; font-weight: 700; }
+html.dnrb-basket .dnrb-reco-tag { align-self: flex-start; font-size: 11px; color: var(--dnrb-ship-color); border: 1px solid currentColor; border-radius: 4px; padding: 1px 5px; }
+
+/* ---------- 비회원 혜택 안내 ---------- */
+html.dnrb-basket .dnrb-gbene {
+  display: flex; align-items: center; gap: 12px; margin: 0 0 16px; padding: 12px 14px; border-radius: 12px; background: var(--dnrb-soft);
+}
+html.dnrb-basket .dnrb-gbene-txt { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; font-size: 13px; line-height: 1.45; color: var(--dnrb-muted); }
+html.dnrb-basket .dnrb-gbene-txt b { font-size: 14px; color: var(--dnrb-text); }
+html.dnrb-basket .dnrb-gbene-btn {
+  flex: 0 0 auto; padding: 8px 14px; border-radius: 999px; background: var(--dnrb-main); color: #fff !important; font-size: 13px; font-weight: 700; text-decoration: none; white-space: nowrap;
+}
+
+/* ---------- 주문 버튼 하나 ---------- */
+/* 카페24 원래 버튼(전체상품주문/선택상품주문)은 숨기고 우리 버튼이 대신 누른다 */
+html.dnrb-basket.dnrb-bbar-on #orderFixArea > .ec-base-button,
+html.dnrb-basket.dnrb-bbar-on #orderFixItem > .ec-base-button { display: none !important; }
+
+html.dnrb-basket .dnrb-bbar-btn {
+  appearance: none; border: 0; border-radius: 10px; background: var(--dnrb-main); color: #fff; font: inherit; font-size: 16px; font-weight: 700;
+  height: 52px; padding: 0 18px; cursor: pointer; white-space: nowrap;
+}
+html.dnrb-basket .dnrb-bbar-btn:disabled { background: #cfcac4; cursor: default; }
+
+/* 화면 아래 고정 바 (휴대폰·태블릿) */
+html.dnrb-basket #orderFixArea { height: auto !important; padding: 0 !important; background: transparent !important; border: 0 !important; }
+html.dnrb-basket #orderFixArea .dnrb-bbar {
+  display: flex; align-items: center; gap: 12px; padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+  background: #fff; border-top: 1px solid var(--dnrb-line); box-shadow: 0 -4px 16px rgba(0,0,0,.06);
+}
+html.dnrb-basket #orderFixArea .dnrb-bbar-info { flex: 0 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; line-height: 1.3; text-align: left; }
+html.dnrb-basket #orderFixArea .dnrb-bbar-label { font-size: 13px; color: var(--dnrb-text); font-weight: 600; white-space: nowrap; }
+html.dnrb-basket #orderFixArea .dnrb-bbar-ship { font-size: 12px; color: var(--dnrb-main); white-space: nowrap; }
+html.dnrb-basket #orderFixArea .dnrb-bbar-ship:empty { display: none; }
+html.dnrb-basket #orderFixArea .dnrb-bbar-btn { flex: 1 1 auto; min-width: 0; }
+
+/* 금액 상자 아래 버튼 (PC 오른쪽 상자 / 휴대폰 금액 아래) */
+html.dnrb-basket #orderFixItem .dnrb-bbar-inline { display: flex; flex-direction: column; gap: 6px; margin: 0 0 12px; }
+html.dnrb-basket #orderFixItem .dnrb-bbar-inline .dnrb-bbar-btn { width: 100%; height: 56px; font-size: 17px; }
+html.dnrb-basket #orderFixItem .dnrb-bbar-inline .dnrb-bbar-ship { text-align: center; font-size: 12.5px; color: var(--dnrb-main); font-weight: 600; }
+html.dnrb-basket #orderFixItem .dnrb-bbar-inline .dnrb-bbar-ship:empty { display: none; }

@@ -89,5 +89,37 @@
     "text": "{gap}원만 더 담으면 배송비 {fee}이 무료예요",
     "doneText": "무료배송 적용됨",
     "linkText": "장바구니"
+  },
+  "basket": {
+    "enabled": true,
+    "selectAll": true,
+    "orderBar": {
+      "visible": true,
+      "text": "{amount}원 주문하기",
+      "allLabel": "전체 {count}개",
+      "selectLabel": "선택 {count}개",
+      "noneButton": "상품을 선택해 주세요",
+      "noneText": "주문할 상품을 선택해 주세요."
+    },
+    "freeShipBar": {
+      "visible": true,
+      "text": "<b>{gap}원</b>만 더 담으면 <b>무료배송</b>",
+      "doneText": "무료배송 조건을 채웠어요",
+      "barText": "무료배송까지 {gap}원",
+      "barDoneText": "무료배송"
+    },
+    "recommend": {
+      "visible": true,
+      "cateNo": 27,
+      "title": "함께 담으면 무료배송",
+      "max": 8,
+      "fillTag": "담으면 무료배송"
+    },
+    "guestBenefit": {
+      "visible": true,
+      "title": "로그인하면 회원 할인가로 주문할 수 있어요",
+      "body": "신상품 7% 할인 · 회원가입 시 적립금 2,000P",
+      "linkText": "로그인"
+    }
   }
 }

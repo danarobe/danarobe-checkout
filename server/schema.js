@@ -61,6 +61,15 @@ export const DEFAULT_CONFIG = {
   guestNudge: { visible: true, title: '네이버 · 카카오로 3초 만에 로그인', body: '로그인하면 쿠폰과 적립금을 쓸 수 있고, 주문조회 비밀번호를 만들 필요가 없어요.', linkText: '로그인하고 주문하기' },
   freeShipping: { visible: false, threshold: 70000, basis: 'after', gapUnder: 30000, linkToCart: true,
     text: '{gap}원만 더 담으면 배송비 {fee}이 무료예요', doneText: '무료배송 적용됨', linkText: '장바구니' },
+  // 장바구니 (basket.js). 무료배송 기준 금액·계산 방식·안내 상한(gapUnder)은 위 freeShipping 값을 같이 쓴다.
+  basket: {
+    enabled: true,
+    selectAll: true,
+    orderBar: { visible: true, text: '{amount}원 주문하기', allLabel: '전체 {count}개', selectLabel: '선택 {count}개', noneButton: '상품을 선택해 주세요', noneText: '주문할 상품을 선택해 주세요.' },
+    freeShipBar: { visible: true, text: '<b>{gap}원</b>만 더 담으면 <b>무료배송</b>', doneText: '무료배송 조건을 채웠어요', barText: '무료배송까지 {gap}원', barDoneText: '무료배송' },
+    recommend: { visible: true, cateNo: 0, title: '함께 담으면 무료배송', max: 8, fillTag: '담으면 무료배송' },
+    guestBenefit: { visible: true, title: '로그인하면 회원 할인가로 주문할 수 있어요', body: '', linkText: '로그인' },
+  },
 };
 
 // 깊은 병합: 저장된 설정에 빠진 항목은 기본값으로 채운다
