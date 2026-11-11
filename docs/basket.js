@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-11-11.1';
+  var VER = '2026-11-11.2';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var bc = cfg.basket || {};
   if (cfg.enabled === false || bc.enabled === false) return;
@@ -66,13 +66,20 @@
 
   /* 1) 들어오면 상품 전체 선택 ------------------------------------------ */
   // 카페24 "전체선택" 링크를 한 번 눌러 체크와 합계 재계산을 카페24가 하게 한다 (상품마다 누르면 계산 요청이 상품 수만큼 생김)
+  // 우리 스크립트는 카페24 장바구니 스크립트가 버튼에 기능을 붙이기 전에 실행되므로, 페이지 로딩이 끝난 뒤에 누른다.
+  function noneChecked() { var bs = boxes(); return bs.length && !bs.some(function (c) { return c.checked; }); }
   function selectAllOnLoad() {
     if (bc.selectAll === false) return;
-    var bs = boxes();
-    if (!bs.length || bs.some(function (c) { return c.checked; })) return;
-    var all = $$('a, button').filter(function (a) { return /^\s*전체선택\s*$/.test(a.textContent); })[0];
-    if (all) all.click(); else bs.forEach(function (c) { c.click(); });
-    log('selected all', bs.length);
+    function go() {
+      if (!noneChecked()) return;
+      var all = $$('a, button').filter(function (a) { return /^\s*전체선택\s*$/.test(a.textContent); })[0];
+      if (all) all.click();
+      // "전체선택" 이 안 먹었으면 상자를 하나씩 누른다
+      setTimeout(function () { if (noneChecked()) boxes().forEach(function (c) { c.click(); }); paint(); }, 1200);
+      log('selected all', boxes().length);
+    }
+    if (doc.readyState === 'complete') setTimeout(go, 300);
+    else window.addEventListener('load', function () { setTimeout(go, 300); });
   }
 
   /* 2) 주문 버튼 하나: "59,000원 주문하기" --------------------------------- */
