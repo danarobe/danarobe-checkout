@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-11-12.4';
+  var VER = '2026-11-12.5';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var bc = cfg.basket || {};
   if (cfg.enabled === false || bc.enabled === false) return;
@@ -294,6 +294,16 @@
     qaState.fallback = true;
   }
   function qaSelects(d) { return $$('select[id^="product_option_id"]', d); }
+  // 카페24 옵션 창은 고를 때마다 아래 '선택 목록'(#totalProducts)에 한 줄씩 쌓는다(상세 페이지에서 여러 색을 함께 담는 방식).
+  // 우리 창은 한 번에 하나만 담으므로, 옵션을 바꿀 때마다 그 목록을 카페24 삭제 버튼으로 비운다.
+  // 안 비우면 ① 같은 옵션을 다시 고를 때 "이미 선택된 옵션" 경고 후 '선택해 주세요'로 되돌아가고 ② 다른 색으로 바꾸면 두 색이 함께 담긴다.
+  function qaRows(d) { return $$('#totalProducts .option_product', d); }
+  function qaClearRows(d, w) {
+    var jq = w.EC$ || w.jQuery;
+    $$('#totalProducts .option_product .delete', d).forEach(function (a) {
+      try { if (jq) jq(a).trigger('click'); else a.click(); } catch (e) { try { a.click(); } catch (x) {} }
+    });
+  }
   function qaLabel(s) {
     var row = s.closest('tr, li, .ec-base-table, dl, .option'), t = '';
     if (row) { var th = $('th, dt, .title, label', row); if (th) t = th.textContent; }
@@ -315,13 +325,17 @@
     }).join('');
     $$('select', body).forEach(function (mine) {
       mine.addEventListener('change', function () {
-        var src = qaSelects(qaFrame.contentDocument)[+mine.getAttribute('data-i')];
+        var fd = qaFrame.contentDocument, fw = qaFrame.contentWindow;
+        var src = qaSelects(fd)[+mine.getAttribute('data-i')];
         if (!src) return;
-        var jq = qaFrame.contentWindow.EC$ || qaFrame.contentWindow.jQuery;
-        src.value = mine.value || '*';
-        if (jq) jq(src).trigger('change'); else src.dispatchEvent(new Event('change', { bubbles: true }));
-        qaMsg('');
-        setTimeout(qaRender, 350); // 다음 옵션 상자가 바뀔 수 있음
+        var jq = fw.EC$ || fw.jQuery;
+        qaClearRows(fd, fw);
+        setTimeout(function () {
+          src.value = mine.value || '*';
+          if (jq) jq(src).trigger('change'); else src.dispatchEvent(new Event('change', { bubbles: true }));
+          qaMsg('');
+          setTimeout(qaRender, 350); // 다음 옵션 상자가 바뀔 수 있음
+        }, qaRows(fd).length ? 150 : 0);
       });
     });
     qaBusy(false);
@@ -390,6 +404,15 @@
     var w = qaFrame.contentWindow, d = qaFrame.contentDocument;
     var missing = qaSelects(d).filter(function (s) { return !s.disabled && (s.getAttribute('required') === 'true' || s.required) && (!s.value || /^\*/.test(s.value)); });
     if (missing.length) { qaMsg('‘' + qaLabel(missing[0]) + '’ 옵션을 선택해 주세요.', true); return; }
+    // 안전장치: 선택 목록에 두 줄 이상이면(여러 옵션이 함께 담길 상황) 담지 않고 다시 고르게 한다
+    if (qaRows(d).length > 1) {
+      qaClearRows(d, w);
+      qaSelects(d).forEach(function (s) { s.value = '*'; });
+      qaState.auto = {};
+      setTimeout(qaRender, 200);
+      qaMsg('옵션을 다시 골라 주세요.', true);
+      return;
+    }
     qaState.submitting = true;
     qaBusy(true, '담는 중…'); qaMsg('');
     try { w.product_submit(2, '/exec/front/order/basket/', null); }
