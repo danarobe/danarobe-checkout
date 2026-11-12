@@ -72,6 +72,8 @@ export const DEFAULT_CONFIG = {
       quickAdd: { enabled: true, live: false } },
     guestBenefit: { visible: true, title: '로그인하면 회원 할인가로 주문할 수 있어요', body: '', linkText: '로그인' },
     hideButtons: { estimate: true, oversea: true },
+    // 금액 안내: 버튼 아래 문구 + 합계에 할인 금액 줄. live=false 면 테스트 스킨 주소에서만
+    priceNote: { visible: true, live: false, text: '쿠폰/적립금 적용 시 결제 금액은 상이할 수 있습니다', discountLine: true, discountLabel: '할인 금액' },
     // 2단계 화면 정리. live=false 이면 테스트 스킨 주소(/skin-…)에서만 켜지고 손님 화면(대표 스킨)은 그대로.
     tidy: { enabled: true, live: false, compactTop: true, compactItems: true, optionChange: true, autoQuantity: true, hideGuide: true, giftBelow: true },
   },

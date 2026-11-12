@@ -1,4 +1,4 @@
-/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-11-12T06:35:58.574Z) */
+/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-11-12T07:54:01.983Z) */
 window.DNRB_PAY_CONFIG = {
   "version": 1,
   "enabled": true,
@@ -129,6 +129,13 @@ window.DNRB_PAY_CONFIG = {
     "hideButtons": {
       "estimate": true,
       "oversea": true
+    },
+    "priceNote": {
+      "visible": true,
+      "live": false,
+      "text": "쿠폰/적립금 적용 시 결제 금액은 상이할 수 있습니다",
+      "discountLine": true,
+      "discountLabel": "할인 금액"
     },
     "tidy": {
       "enabled": true,

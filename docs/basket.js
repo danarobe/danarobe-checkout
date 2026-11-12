@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-11-12.6';
+  var VER = '2026-11-12.7';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var bc = cfg.basket || {};
   if (cfg.enabled === false || bc.enabled === false) return;
@@ -111,6 +111,9 @@
     if (link) link.click();
   }
   var bars = [];
+  // 금액 안내: 버튼 아래 문구("쿠폰/적립금 적용 시 …") + 합계에 할인 금액 줄. live 를 켜기 전에는 테스트 스킨 주소에서만
+  var pn = bc.priceNote || {};
+  var noteOn = pn.visible !== false && (!!PREFIX || pn.live === true);
   function buildOrderButtons() {
     var ob = bc.orderBar || {};
     if (ob.visible === false || !boxes().length) return;
@@ -126,7 +129,8 @@
     // 금액 상자 아래 버튼 (PC 오른쪽, 휴대폰은 금액 바로 아래)
     var fixItem = $('#orderFixItem');
     if (fixItem) {
-      var inline = el('div', { 'class': 'dnrb-bbar dnrb-bbar-inline' }, '<button type="button" class="dnrb-bbar-btn"></button><span class="dnrb-bbar-ship"></span>');
+      var inline = el('div', { 'class': 'dnrb-bbar dnrb-bbar-inline' }, '<button type="button" class="dnrb-bbar-btn"></button><span class="dnrb-bbar-ship"></span>' +
+        (noteOn && pn.text ? '<p class="dnrb-bbar-note">' + esc(pn.text) + '</p>' : ''));
       fixItem.insertBefore(inline, fixItem.firstChild);
       bars.push(inline);
     }
@@ -146,6 +150,29 @@
       var lb = $('.dnrb-bbar-label', b); if (lb && lb.textContent !== label) lb.textContent = label;
       var sp = $('.dnrb-bbar-ship', b); if (sp) setHtml(sp, ship || '');
     });
+  }
+
+  // 이 스킨은 카페24 '총 할인금액' 줄을 숨겨 두어 74,000 + 3,000 = 72,900 처럼 숫자가 안 맞아 보인다.
+  // 결제예정금액에 이미 빠져 있는 할인(기간할인 등)을 '할인 금액' 줄로 보여준다 (금액 계산은 카페24 그대로).
+  function paintDiscountLine(sum) {
+    if (!noteOn || pn.discountLine === false) return;
+    var s = $('.xans-order-totalsummary'); if (!s) return;
+    var line = $('.dnrb-disc', s);
+    var d = sum && sum.discount > 0 ? sum.discount : 0;
+    if (!line) {
+      if (!d) return;
+      var payTitle = $$('.title, h4', s).filter(function (n) { return /결제\s*예정\s*금액/.test(n.textContent); })[0];
+      var payItem = payTitle && (payTitle.closest('.totalSummary__item') || payTitle.closest('.heading') || payTitle.parentNode);
+      if (!payItem || !payItem.parentNode) return;
+      line = el('div', { 'class': 'totalSummary__item dnrb-disc' },
+        '<div class="heading"><h4 class="title"></h4><div class="data"><strong class="dnrb-disc-amt"></strong><span>원</span></div></div>');
+      payItem.parentNode.insertBefore(line, payItem);
+    }
+    line.style.display = d ? '' : 'none';
+    var t = $('.title', line), a = $('.dnrb-disc-amt', line);
+    var label = pn.discountLabel || '할인 금액', amt = '-' + fmtWon(d);
+    if (t.textContent !== label) t.textContent = label;
+    if (a.textContent !== amt) a.textContent = amt;
   }
 
   /* 3) 무료배송 막대 + 채우기 추천 -------------------------------------- */
@@ -535,6 +562,7 @@
     var ship = paintShip(st);
     paintReco(st);
     paintOrderButtons(sum, ship);
+    paintDiscountLine(sum);
   }
   function start() {
     if (window.top !== window) return; // 바로 담기용 iframe 안의 장바구니에서는 아무것도 안 함

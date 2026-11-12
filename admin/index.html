@@ -331,6 +331,14 @@
         <div class="row"><label>버튼 글자</label><input type="text" data-bind="basket.guestBenefit.linkText" class="w120"></div>
       </div>
       <div class="card">
+        <h3>금액 안내</h3>
+        <div class="row"><label>켜기</label><label class="switch"><input type="checkbox" data-bind="basket.priceNote.visible"><span></span></label></div>
+        <div class="row"><label>손님 화면에도 적용 <span class="hint">끄면 테스트 스킨 주소에서만</span></label><label class="switch"><input type="checkbox" data-bind="basket.priceNote.live"><span></span></label></div>
+        <div class="row"><label>주문 버튼 아래 문구</label><input type="text" data-bind="basket.priceNote.text"></div>
+        <div class="row"><label>합계에 할인 금액 줄 보이기 <span class="hint">기간할인 등, 결제예정금액에 이미 빠진 금액</span></label><label class="switch"><input type="checkbox" data-bind="basket.priceNote.discountLine"><span></span></label></div>
+        <div class="row"><label>할인 줄 이름</label><input type="text" data-bind="basket.priceNote.discountLabel" class="w120"></div>
+      </div>
+      <div class="card">
         <h3>쓰지 않는 버튼 숨기기</h3>
         <div class="row"><label>"견적서출력" 숨기기</label><label class="switch"><input type="checkbox" data-bind="basket.hideButtons.estimate"><span></span></label></div>
         <div class="row"><label>"해외장바구니로 이동" 숨기기</label><label class="switch"><input type="checkbox" data-bind="basket.hideButtons.oversea"><span></span></label></div>
