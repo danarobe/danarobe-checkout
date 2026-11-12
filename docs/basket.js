@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-11-12.1';
+  var VER = '2026-11-12.4';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var bc = cfg.basket || {};
   if (cfg.enabled === false || bc.enabled === false) return;
@@ -182,7 +182,10 @@
   }
 
   // 추천: 지정 카테고리 목록에서 부족액을 채울 수 있는 값싼 상품부터 (장바구니에 이미 있는 상품 제외)
-  var recoCache = null, recoGap = null;
+  var recoCache = null, recoGap = null, recoItems = {};
+  // 추천 상품을 장바구니 안에서 바로 담기 (손님 화면은 quickAdd.live 를 켜기 전까지 테스트 스킨 주소에서만)
+  var qa = (bc.recommend || {}).quickAdd || {};
+  var quickOn = qa.enabled !== false && (!!PREFIX || qa.live === true);
   function loadRecoItems() {
     var r = bc.recommend || {};
     var cate = parseInt(r.cateNo, 10);
@@ -238,14 +241,169 @@
       var pick = fills.concat(rest).slice(0, Math.max(1, parseInt(r.max, 10) || 8));
       if (!pick.length) { recoBox.style.display = 'none'; return; }
       recoBox.style.display = '';
+      recoItems = {};
       setHtml(recoBox, '<div class="dnrb-reco-title">' + esc(r.title || '함께 담으면 무료배송') + '</div><div class="dnrb-reco-list">' + pick.map(function (it) {
         var href = /^\/[^/]/.test(it.href || '') ? it.href : '/product/detail.html?product_no=' + it.no; // 같은 사이트 주소만
         if (PREFIX && href.indexOf(PREFIX + '/') !== 0) href = PREFIX + href;
-        return '<a class="dnrb-reco-item" href="' + esc(href) + '">' +
+        recoItems[it.no] = { no: it.no, name: it.name, price: it.price, img: it.img, href: href };
+        var fillTag = it.price >= gap ? esc(r.fillTag || '담으면 무료배송') : '';
+        return '<a class="dnrb-reco-item" href="' + esc(href) + '" data-no="' + it.no + '">' +
           (it.img ? '<span class="dnrb-reco-img"><img src="' + esc(it.img) + '" alt="" loading="lazy"></span>' : '') +
           '<span class="dnrb-reco-name">' + esc(it.name) + '</span><b class="dnrb-reco-price">' + fmtWon(it.price) + '원</b>' +
-          (it.price >= gap ? '<span class="dnrb-reco-tag">' + esc(r.fillTag || '담으면 무료배송') + '</span>' : '') + '</a>';
+          (quickOn ? '<span class="dnrb-reco-tag dnrb-reco-add">+ ' + (fillTag || '담기') + '</span>'
+                   : (fillTag ? '<span class="dnrb-reco-tag">' + fillTag + '</span>' : '')) + '</a>';
       }).join('') + '</div>');
+    });
+  }
+
+  /* 3-1) 추천 상품 바로 담기 ---------------------------------------------- */
+  // 카페24 옵션 선택 페이지(layer_option.html — 상품 목록의 '옵션 선택' 창과 같은 가벼운 페이지)를 화면 밖 iframe 으로 열어
+  // 카페24 옵션 상자·장바구니 담기(product_submit)를 그대로 쓴다. 상세 페이지보다 사진이 훨씬 적어 빨리 뜬다.
+  // 옵션 조합·재고·품절·중복 확인은 전부 카페24가 한다. 담기에 성공하면 iframe 이 장바구니로 이동하므로 그걸 신호로 새로고침.
+  var qaSheet = null, qaFrame = null, qaState = null;
+  function qaClose() {
+    if (qaFrame) { try { qaFrame.remove(); } catch (e) {} qaFrame = null; }
+    if (qaSheet) qaSheet.classList.remove('is-open');
+    doc.documentElement.classList.remove('dnrb-qa-lock');
+    qaState = null;
+  }
+  function qaBuildSheet() {
+    if (qaSheet) return qaSheet;
+    qaSheet = el('div', { 'class': 'dnrb-qa', role: 'dialog', 'aria-modal': 'true', 'aria-label': '옵션 선택' },
+      '<div class="dnrb-qa-dim"></div><div class="dnrb-qa-panel">' +
+      '<button type="button" class="dnrb-qa-x" aria-label="닫기">×</button>' +
+      '<div class="dnrb-qa-head"><span class="dnrb-qa-img"></span><div class="dnrb-qa-info"><span class="dnrb-qa-name"></span><b class="dnrb-qa-price"></b></div></div>' +
+      '<div class="dnrb-qa-body"></div><p class="dnrb-qa-msg" aria-live="polite"></p>' +
+      '<button type="button" class="dnrb-qa-add" disabled>장바구니 담기</button>' +
+      '<a class="dnrb-qa-more" href="#">상품 자세히 보기</a></div>');
+    doc.body.appendChild(qaSheet);
+    $('.dnrb-qa-dim', qaSheet).addEventListener('click', qaClose);
+    $('.dnrb-qa-x', qaSheet).addEventListener('click', qaClose);
+    $('.dnrb-qa-add', qaSheet).addEventListener('click', qaSubmit);
+    doc.addEventListener('keydown', function (e) { if (e.key === 'Escape' && qaState) qaClose(); });
+    return qaSheet;
+  }
+  function qaMsg(t, isErr) { var m = $('.dnrb-qa-msg', qaSheet); m.textContent = t || ''; m.classList.toggle('is-err', !!isErr); }
+  function qaBusy(on, label) { var b = $('.dnrb-qa-add', qaSheet); b.disabled = !!on; b.textContent = label || '장바구니 담기'; }
+  // 상품 페이지로 넘겨야 하는 경우(옵션 상자를 못 찾음, 글자 입력 옵션 등)
+  function qaFallback(text) {
+    var it = qaState && qaState.item; if (!it) return;
+    $('.dnrb-qa-body', qaSheet).innerHTML = '';
+    qaMsg(text || '이 상품은 상품 페이지에서 옵션을 골라 주세요.');
+    var b = $('.dnrb-qa-add', qaSheet); b.disabled = false; b.textContent = '상품 페이지에서 고르기';
+    qaState.fallback = true;
+  }
+  function qaSelects(d) { return $$('select[id^="product_option_id"]', d); }
+  function qaLabel(s) {
+    var row = s.closest('tr, li, .ec-base-table, dl, .option'), t = '';
+    if (row) { var th = $('th, dt, .title, label', row); if (th) t = th.textContent; }
+    return (t || '옵션').replace(/\s+/g, ' ').replace(/\*|필수/g, '').trim();
+  }
+  // iframe 의 옵션 상자를 우리 창에 그대로 옮겨 그린다 (선택에 따라 다음 상자가 바뀌는 옵션도 다시 읽음)
+  function qaRender() {
+    if (!qaState || !qaFrame) return;
+    var d; try { d = qaFrame.contentDocument; } catch (e) { return qaFallback(); }
+    var sels = qaSelects(d);
+    var body = $('.dnrb-qa-body', qaSheet);
+    body.innerHTML = sels.map(function (s, i) {
+      var opts = [].slice.call(s.options).map(function (o) {
+        if (/^\*/.test(o.value)) return ''; // "- [필수] 옵션을 선택해 주세요 -" · "-----" 줄
+        return '<option value="' + esc(o.value) + '"' + (o.disabled ? ' disabled' : '') + (s.value === o.value ? ' selected' : '') + '>' + esc(o.text) + '</option>';
+      }).join('');
+      return '<label class="dnrb-qa-opt"><span>' + esc(qaLabel(s)) + '</span><select data-i="' + i + '"' + (s.disabled ? ' disabled' : '') + '>' +
+        '<option value="">선택해 주세요</option>' + opts + '</select></label>';
+    }).join('');
+    $$('select', body).forEach(function (mine) {
+      mine.addEventListener('change', function () {
+        var src = qaSelects(qaFrame.contentDocument)[+mine.getAttribute('data-i')];
+        if (!src) return;
+        var jq = qaFrame.contentWindow.EC$ || qaFrame.contentWindow.jQuery;
+        src.value = mine.value || '*';
+        if (jq) jq(src).trigger('change'); else src.dispatchEvent(new Event('change', { bubbles: true }));
+        qaMsg('');
+        setTimeout(qaRender, 350); // 다음 옵션 상자가 바뀔 수 있음
+      });
+    });
+    qaBusy(false);
+    // 고를 수 있는 값이 하나뿐이면 미리 골라 둔다 (한 번 더 누르는 수고 덜기)
+    qaState.auto = qaState.auto || {};
+    $$('select', body).forEach(function (mine) {
+      var i = mine.getAttribute('data-i');
+      var real = [].slice.call(mine.options).filter(function (o) { return o.value && !o.disabled; });
+      if (!mine.value && real.length === 1 && !qaState.auto[i]) {
+        qaState.auto[i] = 1; mine.value = real[0].value; mine.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+  }
+  function qaReady() {
+    var tries = 0;
+    (function wait() {
+      if (!qaState || !qaFrame) return;
+      var w, d; try { w = qaFrame.contentWindow; d = qaFrame.contentDocument; } catch (e) { return qaFallback(); }
+      // 사진이 다 받아질 때까지(load) 기다리지 않고, 옵션 상자와 카페24 담기 기능이 생기면 바로 시작
+      var ok = d && typeof w.product_submit === 'function' && (w.EC$ || w.jQuery) &&
+        (qaSelects(d).length || d.readyState === 'complete');
+      if (!ok) { if (++tries > 100) return qaFallback('상품 정보를 불러오지 못했어요.'); return setTimeout(wait, 120); }
+      // 카페24 알림·확인 창은 우리 화면에서 보이게
+      w.alert = function (m) { if (qaState) qaState.submitting = false; qaMsg(String(m || ''), true); qaBusy(false); };
+      w.confirm = function (m) { return window.confirm(m); };
+      // 글자 입력·파일 첨부 같은 옵션은 이 창에서 못 받음 → 상품 페이지로
+      var hard = $$('input[name^="option_add"], textarea[name^="option_add"], input[type="file"][name*="option"], [option_style="radio"] input, .ec-product-button', d).filter(function (n) { return n.offsetParent !== null || n.type === 'file'; });
+      if (hard.length) return qaFallback();
+      qaState.ready = true;
+      qaRender();
+    })();
+  }
+  function qaOpen(no) {
+    var it = recoItems[no]; if (!it) return false;
+    qaBuildSheet();
+    qaState = { item: it, ready: false };
+    var img = $('.dnrb-qa-img', qaSheet); img.innerHTML = it.img ? '<img src="' + esc(it.img) + '" alt="">' : '';
+    $('.dnrb-qa-name', qaSheet).textContent = it.name;
+    $('.dnrb-qa-price', qaSheet).textContent = fmtWon(it.price) + '원';
+    $('.dnrb-qa-more', qaSheet).setAttribute('href', it.href);
+    $('.dnrb-qa-body', qaSheet).innerHTML = '<div class="dnrb-qa-loading">옵션을 불러오는 중…</div>';
+    qaMsg(''); qaBusy(true);
+    qaSheet.classList.add('is-open');
+    doc.documentElement.classList.add('dnrb-qa-lock');
+    if (qaFrame) try { qaFrame.remove(); } catch (e) {}
+    qaFrame = el('iframe', { 'class': 'dnrb-qa-frame', title: '', 'aria-hidden': 'true', tabindex: '-1',
+      src: PREFIX + '/product/layer_option.html?product_no=' + encodeURIComponent(no) + '&cate_no=0&bPrdOptLayer=T' });
+    qaFrame.addEventListener('load', function onload() {
+      if (!qaState) return;
+      var path = ''; try { path = qaFrame.contentWindow.location.pathname; } catch (e) {}
+      if (qaState.submitting) {
+        // 담기 성공 → 카페24가 iframe 을 장바구니로 보냄
+        if (/\/order\/basket/.test(path)) { qaState.done = true; qaMsg('장바구니에 담았어요'); qaBusy(true, '담았어요 ✓'); setTimeout(function () { location.reload(); }, 400); }
+        return;
+      }
+    });
+    doc.body.appendChild(qaFrame);
+    qaReady();
+    return true;
+  }
+  function qaSubmit() {
+    if (!qaState) return;
+    var it = qaState.item;
+    if (qaState.fallback) { location.href = it.href; return; }
+    if (!qaState.ready) return;
+    var w = qaFrame.contentWindow, d = qaFrame.contentDocument;
+    var missing = qaSelects(d).filter(function (s) { return !s.disabled && (s.getAttribute('required') === 'true' || s.required) && (!s.value || /^\*/.test(s.value)); });
+    if (missing.length) { qaMsg('‘' + qaLabel(missing[0]) + '’ 옵션을 선택해 주세요.', true); return; }
+    qaState.submitting = true;
+    qaBusy(true, '담는 중…'); qaMsg('');
+    try { w.product_submit(2, '/exec/front/order/basket/', null); }
+    catch (e) { qaState.submitting = false; qaBusy(false); qaMsg('담지 못했어요. 상품 페이지에서 다시 시도해 주세요.', true); return; }
+    setTimeout(function () {
+      if (qaState && qaState.submitting && !qaState.done) { qaState.submitting = false; qaBusy(false); if (!$('.dnrb-qa-msg', qaSheet).textContent) qaMsg('응답이 늦어요. 잠시 뒤 다시 눌러 주세요.', true); }
+    }, 12000);
+  }
+  function quickAddInit() {
+    if (!quickOn) return;
+    doc.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.dnrb-reco-item');
+      if (!a || e.metaKey || e.ctrlKey || e.shiftKey) return;
+      if (qaOpen(a.getAttribute('data-no'))) e.preventDefault();
     });
   }
 
@@ -351,6 +509,7 @@
     paintOrderButtons(sum, ship);
   }
   function start() {
+    if (window.top !== window) return; // 바로 담기용 iframe 안의 장바구니에서는 아무것도 안 함
     if (!/\/order\/basket/.test(location.pathname)) return;
     var html = doc.documentElement;
     html.classList.add('dnrb-basket');
@@ -365,6 +524,7 @@
     }
     hideButtons();
     buildShipBox();
+    quickAddInit();
     buildGuestBenefit();
     buildOrderButtons();
     paint();

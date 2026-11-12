@@ -67,7 +67,9 @@ export const DEFAULT_CONFIG = {
     selectAll: true,
     orderBar: { visible: true, text: '{amount}원 주문하기', allLabel: '전체 {count}개', selectLabel: '선택 {count}개', noneButton: '상품을 선택해 주세요', noneText: '주문할 상품을 선택해 주세요.' },
     freeShipBar: { visible: true, text: '<b>{gap}원</b>만 더 담으면 <b>무료배송</b>', doneText: '무료배송 조건을 채웠어요', barText: '무료배송까지 {gap}원', barDoneText: '무료배송' },
-    recommend: { visible: true, cateNo: 0, title: '함께 담으면 무료배송', max: 8, fillTag: '담으면 무료배송' },
+    recommend: { visible: true, cateNo: 0, title: '함께 담으면 무료배송', max: 8, fillTag: '담으면 무료배송',
+      // 장바구니 안에서 옵션 골라 바로 담기. live=false 면 테스트 스킨 주소에서만
+      quickAdd: { enabled: true, live: false } },
     guestBenefit: { visible: true, title: '로그인하면 회원 할인가로 주문할 수 있어요', body: '', linkText: '로그인' },
     hideButtons: { estimate: true, oversea: true },
     // 2단계 화면 정리. live=false 이면 테스트 스킨 주소(/skin-…)에서만 켜지고 손님 화면(대표 스킨)은 그대로.

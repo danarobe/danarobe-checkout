@@ -319,6 +319,8 @@
         <div class="row"><label>제목</label><input type="text" data-bind="basket.recommend.title"></div>
         <div class="row"><label>최대 개수</label><input type="number" data-bind="basket.recommend.max" class="w120" min="1" max="20"></div>
         <div class="row"><label>부족액을 채우는 상품 표시</label><input type="text" data-bind="basket.recommend.fillTag" class="w120"></div>
+        <div class="row"><label>장바구니에서 바로 담기 <span class="hint">누르면 옵션 고르는 창이 떠요(페이지 이동 없음)</span></label><label class="switch"><input type="checkbox" data-bind="basket.recommend.quickAdd.enabled"><span></span></label></div>
+        <div class="row"><label>바로 담기 손님 화면에도 적용 <span class="hint">끄면 테스트 스킨 주소에서만</span></label><label class="switch"><input type="checkbox" data-bind="basket.recommend.quickAdd.live"><span></span></label></div>
         <p class="help">부족액 이상인 상품을 싼 순서로 먼저, 그다음 부족액보다 싼 상품을 보여줘요. 장바구니에 이미 있는 상품과 품절 상품은 빼요. 누르면 상품 페이지로 가요(옵션 선택이 필요해서).</p>
       </div>
       <div class="card">

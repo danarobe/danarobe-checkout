@@ -1,4 +1,4 @@
-/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-11-12T05:17:03.425Z) */
+/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-11-12T05:42:49.162Z) */
 window.DNRB_PAY_CONFIG = {
   "version": 1,
   "enabled": true,
@@ -114,7 +114,11 @@ window.DNRB_PAY_CONFIG = {
       "cateNo": 27,
       "title": "함께 담으면 무료배송",
       "max": 8,
-      "fillTag": "담으면 무료배송"
+      "fillTag": "담으면 무료배송",
+      "quickAdd": {
+        "enabled": true,
+        "live": false
+      }
     },
     "guestBenefit": {
       "visible": true,

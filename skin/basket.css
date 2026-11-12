@@ -148,3 +148,47 @@ html.dnrb-t-gift #orderFixItem > .dnrb-bbar-inline { order: -1; margin-top: 12px
 /* 전체선택·선택삭제 줄: 상품 목록과 띄우고 조금 낮게 */
 html.dnrb-t-items .xans-order-selectorder { margin: 12px 0 20px !important; }
 html.dnrb-t-items .xans-order-selectorder a.btnNormal { height: 44px !important; line-height: 42px !important; padding-top: 0 !important; padding-bottom: 0 !important; }
+
+/* =====================================================================
+ * 추천 상품 바로 담기 — 옵션 고르는 창 (휴대폰: 아래에서 올라옴 / PC: 가운데)
+ * ===================================================================== */
+html.dnrb-basket .dnrb-reco-add { font-weight: 700; background: #fff; }
+html.dnrb-qa-lock, html.dnrb-qa-lock body { overflow: hidden !important; }
+.dnrb-qa-frame { position: fixed !important; left: -10000px !important; top: 0 !important; width: 390px !important; height: 700px !important; border: 0 !important; opacity: 0 !important; pointer-events: none !important; }
+.dnrb-qa { position: fixed; inset: 0; z-index: 2147483000; display: none; font-family: inherit; }
+.dnrb-qa.is-open { display: block; }
+.dnrb-qa-dim { position: absolute; inset: 0; background: rgba(0,0,0,.45); animation: dnrbQaFade .18s ease-out; }
+.dnrb-qa-panel {
+  position: absolute; left: 0; right: 0; bottom: 0; max-height: 86vh; overflow-y: auto; box-sizing: border-box;
+  background: #fff; border-radius: 18px 18px 0 0; padding: 22px 18px calc(18px + env(safe-area-inset-bottom, 0px));
+  display: flex; flex-direction: column; gap: 12px; color: #171717; animation: dnrbQaUp .22s cubic-bezier(.2,.8,.2,1);
+}
+@media (min-width: 768px) {
+  .dnrb-qa-panel { left: 50%; right: auto; bottom: auto; top: 50%; width: 420px; transform: translate(-50%, -50%); border-radius: 16px; padding: 24px; animation: dnrbQaFade .18s ease-out; }
+}
+@keyframes dnrbQaUp { from { transform: translateY(40px); opacity: .4; } to { transform: none; opacity: 1; } }
+@keyframes dnrbQaFade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .dnrb-qa-dim, .dnrb-qa-panel { animation: none; } }
+.dnrb-qa-x { position: absolute; right: 10px; top: 8px; width: 40px; height: 40px; border: 0; background: none; font-size: 26px; line-height: 1; color: #555; cursor: pointer; }
+.dnrb-qa-head { display: flex; gap: 12px; align-items: center; padding-right: 36px; }
+.dnrb-qa-img { flex: 0 0 64px; width: 64px; height: 80px; border-radius: 8px; overflow: hidden; background: #f7f6f4; }
+.dnrb-qa-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.dnrb-qa-info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.dnrb-qa-name { font-size: 14px; line-height: 1.4; word-break: keep-all; }
+.dnrb-qa-price { font-size: 16px; font-weight: 800; }
+.dnrb-qa-body { display: flex; flex-direction: column; gap: 10px; }
+.dnrb-qa-loading { font-size: 13px; color: #767676; padding: 12px 0; }
+.dnrb-qa-opt { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #555; }
+.dnrb-qa-opt select {
+  width: 100%; height: 46px; padding: 0 12px; border: 1px solid #d9d6d2; border-radius: 10px; background: #fff; font-size: 15px; color: #171717;
+  -webkit-appearance: none; appearance: none; background-image: linear-gradient(45deg, transparent 50%, #777 50%), linear-gradient(135deg, #777 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%; background-size: 5px 5px; background-repeat: no-repeat;
+}
+.dnrb-qa-msg { margin: 0; min-height: 18px; font-size: 13px; color: #555; }
+.dnrb-qa-msg.is-err { color: #c0392b; }
+.dnrb-qa-add {
+  appearance: none; border: 0; border-radius: 10px; height: 52px; font-size: 16px; font-weight: 700; color: #fff; cursor: pointer;
+  background: var(--dnrb-main, #000);
+}
+.dnrb-qa-add:disabled { opacity: .55; cursor: default; }
+.dnrb-qa-more { align-self: center; font-size: 13px; color: #767676 !important; text-decoration: underline !important; padding: 4px; }
