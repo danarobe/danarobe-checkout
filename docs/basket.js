@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-11-12.8';
+  var VER = '2026-11-12.9';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var bc = cfg.basket || {};
   if (cfg.enabled === false || bc.enabled === false) return;
@@ -136,7 +136,8 @@
     }
     bars.forEach(function (b) { $('.dnrb-bbar-btn', b).addEventListener('click', order); });
     doc.documentElement.classList.add('dnrb-bbar-on');
-    if (noteOn && pn.text) doc.documentElement.classList.add('dnrb-pnote'); // 카페24 '할인 적용 금액은 주문서작성…' 안내는 우리 문구와 겹쳐 숨김
+    // 카페24 '할인 적용 금액은 주문서작성…' 안내는 우리 문구와 겹치므로, 우리 문구가 실제로 그려졌을 때만 숨긴다
+    if ($('#orderFixItem .dnrb-bbar-note')) doc.documentElement.classList.add('dnrb-pnote');
   }
   function paintOrderButtons(sum, ship) {
     if (!bars.length) return;
