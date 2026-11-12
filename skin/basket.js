@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-11-12.5';
+  var VER = '2026-11-12.6';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var bc = cfg.basket || {};
   if (cfg.enabled === false || bc.enabled === false) return;
@@ -59,6 +59,9 @@
     var discArea = $('#total_benefit_price_title_area', s);
     var discount = discArea && !discArea.classList.contains('displaynone') ? parseWon(($('#total_product_discount_price_front', s) || {}).textContent) : 0;
     var pay = byTitle(/결제\s*예정\s*금액/);
+    // 이 스킨은 '총 할인금액' 줄을 숨겨 두지만 결제예정금액에는 기간할인 등이 이미 빠져 있다 → 차이로 할인액을 구한다
+    // (예: 상품 74,000 + 배송 3,000 - 결제예정 72,900 = 할인 4,100)
+    if (!discount && pay != null && product != null) discount = Math.max(0, product + (fee || 0) - pay);
     if (pay == null && product != null) pay = Math.max(0, product - discount) + (fee || 0);
     return { product: product, fee: fee, discount: discount, pay: pay };
   }
@@ -153,7 +156,9 @@
     if (sb.visible === false || !threshold || !sum || sum.product == null || !checkedBoxes().length) return null;
     var base = fs.basis === 'product' ? sum.product : Math.max(0, sum.product - (sum.discount || 0));
     var gap = threshold - base;
-    return { threshold: threshold, base: base, gap: gap, done: gap <= 0 || sum.fee === 0, fee: sum.fee };
+    // 배송비는 카페24 계산이 기준: 배송비가 붙어 있는데 우리 계산으로는 넘었다면(조건이 다른 경우) 틀린 안내를 하지 않도록 숨김
+    if (sum.fee > 0 && gap <= 0) return null;
+    return { threshold: threshold, base: base, gap: gap, done: sum.fee === 0 || (sum.fee == null && gap <= 0), fee: sum.fee };
   }
   function buildShipBox() {
     var sb = bc.freeShipBar || {};
