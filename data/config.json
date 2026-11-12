@@ -117,7 +117,7 @@
       "fillTag": "담으면 무료배송",
       "quickAdd": {
         "enabled": true,
-        "live": false
+        "live": true
       }
     },
     "guestBenefit": {
@@ -132,7 +132,7 @@
     },
     "tidy": {
       "enabled": true,
-      "live": false,
+      "live": true,
       "compactTop": true,
       "compactItems": true,
       "optionChange": true,

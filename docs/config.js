@@ -1,4 +1,4 @@
-/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-11-12T05:42:49.162Z) */
+/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-11-12T05:55:00.304Z) */
 window.DNRB_PAY_CONFIG = {
   "version": 1,
   "enabled": true,
@@ -117,7 +117,7 @@ window.DNRB_PAY_CONFIG = {
       "fillTag": "담으면 무료배송",
       "quickAdd": {
         "enabled": true,
-        "live": false
+        "live": true
       }
     },
     "guestBenefit": {
@@ -132,7 +132,7 @@ window.DNRB_PAY_CONFIG = {
     },
     "tidy": {
       "enabled": true,
-      "live": false,
+      "live": true,
       "compactTop": true,
       "compactItems": true,
       "optionChange": true,
