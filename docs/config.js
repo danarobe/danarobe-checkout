@@ -1,4 +1,4 @@
-/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-11-11T09:05:51.763Z) */
+/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-11-12T05:17:03.425Z) */
 window.DNRB_PAY_CONFIG = {
   "version": 1,
   "enabled": true,
@@ -125,6 +125,16 @@ window.DNRB_PAY_CONFIG = {
     "hideButtons": {
       "estimate": true,
       "oversea": true
+    },
+    "tidy": {
+      "enabled": true,
+      "live": false,
+      "compactTop": true,
+      "compactItems": true,
+      "optionChange": true,
+      "autoQuantity": true,
+      "hideGuide": true,
+      "giftBelow": true
     }
   }
 };

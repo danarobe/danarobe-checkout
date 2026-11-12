@@ -70,6 +70,8 @@ export const DEFAULT_CONFIG = {
     recommend: { visible: true, cateNo: 0, title: '함께 담으면 무료배송', max: 8, fillTag: '담으면 무료배송' },
     guestBenefit: { visible: true, title: '로그인하면 회원 할인가로 주문할 수 있어요', body: '', linkText: '로그인' },
     hideButtons: { estimate: true, oversea: true },
+    // 2단계 화면 정리. live=false 이면 테스트 스킨 주소(/skin-…)에서만 켜지고 손님 화면(대표 스킨)은 그대로.
+    tidy: { enabled: true, live: false, compactTop: true, compactItems: true, optionChange: true, autoQuantity: true, hideGuide: true, giftBelow: true },
   },
 };
 

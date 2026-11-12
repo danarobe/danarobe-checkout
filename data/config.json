@@ -125,6 +125,16 @@
     "hideButtons": {
       "estimate": true,
       "oversea": true
+    },
+    "tidy": {
+      "enabled": true,
+      "live": false,
+      "compactTop": true,
+      "compactItems": true,
+      "optionChange": true,
+      "autoQuantity": true,
+      "hideGuide": true,
+      "giftBelow": true
     }
   }
 }

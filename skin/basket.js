@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-11-11.4';
+  var VER = '2026-11-12.1';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var bc = cfg.basket || {};
   if (cfg.enabled === false || bc.enabled === false) return;
@@ -276,6 +276,72 @@
     });
   }
 
+  /* 6) 화면 정리 (2단계) --------------------------------------------------- */
+  // 손님 화면(대표 스킨)에는 tidy.live 를 켜기 전까지 적용하지 않는다. 테스트 스킨 주소(/skin-…)에서만 켜진다.
+  var td = bc.tidy || {};
+  var tidyOn = td.enabled !== false && (!!PREFIX || td.live === true);
+  function tidyFlags() {
+    var html = doc.documentElement;
+    html.classList.add('dnrb-tidy');
+    var map = { compactTop: 'dnrb-t-top', compactItems: 'dnrb-t-items', autoQuantity: 'dnrb-t-qty', hideGuide: 'dnrb-t-guide', giftBelow: 'dnrb-t-gift' };
+    Object.keys(map).forEach(function (k) { if (td[k] !== false) html.classList.add(map[k]); });
+  }
+  // 카페24가 상품 목록을 다시 그릴 때마다(수량 변경 등) 다시 붙인다
+  function tidyItems() {
+    var html = doc.documentElement;
+    // 해외배송 상품이 0개면 "국내/해외배송상품" 탭 숨김
+    if (td.compactTop !== false) {
+      var tab = $('.xans-order-tabinfo');
+      var over = tab && $$('a, li', tab).filter(function (n) { return /해외배송/.test(n.textContent); })[0];
+      html.classList.toggle('dnrb-t-nooversea', !!(over && /\(\s*0\s*\)/.test(over.textContent)));
+    }
+    if (td.compactItems === false) return;
+    // 상품 묶음 아래 "[기본배송]" 만 적힌 회색 칸 숨김 (금액은 스킨이 이미 지워 둠)
+    $$('.xans-order-normnormal > .summary').forEach(function (sm) {
+      if (/^\s*\[[^\]]*\]\s*$/.test(sm.innerText || '')) sm.classList.add('dnrb-t-off');
+    });
+    $$('.prdBox').forEach(function (box) {
+      // "-0원" (할인 없음) 줄 숨김
+      $$('ul.price > li', box).forEach(function (li) {
+        if (/^-\s*0\s*원$/.test(li.textContent.replace(/\s+/g, ''))) li.classList.add('dnrb-t-off');
+      });
+      // 상품 줄의 "배송 : [무료] / 기본배송" 은 실제 배송비와 달라 보일 수 있어 숨김 (배송비는 아래 합계·무료배송 막대가 보여줌), 적립금 "-" 숨김
+      $$('ul.info > li', box).forEach(function (li) {
+        var t = li.textContent.replace(/\s+/g, ' ').trim();
+        if (/^배송\s*:/.test(t) || t === '-' || t === '') li.classList.add('dnrb-t-off');
+      });
+      // 옵션 변경 버튼 보이기 (카페24가 숨겨 둔 것)
+      if (td.optionChange !== false) $$('a[onclick*="showOptionChangeLayer"]', box).forEach(function (a) { a.classList.remove('displaynone'); a.classList.add('dnrb-t-optbtn'); });
+      // 수량이 1개면 "주문금액" 줄은 가격과 같으니 숨김
+      var q = $('input[id^="quantity_id_"]', box);
+      box.classList.toggle('dnrb-t-qty1', !!q && parseInt(q.value, 10) === 1);
+      // 상품별 버튼 글자 줄이기
+      $$('.buttonGroup a', box).forEach(function (a) { if (/^\s*주문하기\s*$/.test(a.textContent)) a.textContent = '바로 주문'; });
+    });
+  }
+  // 수량 +/- 는 카페24가 이미 바로 반영한다(addQuantityShortcut → modifyQuantity).
+  // "변경" 버튼은 숫자를 직접 입력했을 때만 필요하므로, 입력을 마치면(change) 잠시 뒤 대신 누르고 버튼은 숨긴다.
+  function autoQuantity() {
+    if (td.autoQuantity === false) return;
+    var timers = {};
+    function schedule(input) {
+      var m = (input.id || '').match(/^quantity_id_(\d+)$/); if (!m) return;
+      var i = m[1];
+      clearTimeout(timers[i]);
+      timers[i] = setTimeout(function () {
+        var cur = doc.getElementById('quantity_id_' + i); if (!cur) return;
+        var data = (window.aBasketProductData || [])[i];
+        if (data && String(data.quantity) === String(cur.value)) return; // 바뀐 게 없음
+        var q = cur.closest('.quantity') || cur.parentNode.parentNode;
+        var btn = q && $('a[onclick*="modifyQuantity"]', q);
+        if (btn) { log('auto quantity', i, cur.value); btn.click(); }
+      }, 700);
+    }
+    doc.addEventListener('change', function (e) {
+      if (e.target && /^quantity_id_\d+$/.test(e.target.id || '')) schedule(e.target);
+    });
+  }
+
   /* 시작 ----------------------------------------------------------------- */
   function paint() {
     var sum = summary();
@@ -291,6 +357,12 @@
     var t = cfg.theme || {};
     if (safeColor(t.mainColor)) html.style.setProperty('--dnrb-main', t.mainColor);
     if (!boxes().length) return; // 빈 장바구니
+    if (tidyOn) {
+      tidyFlags();
+      tidyItems();
+      autoQuantity();
+      var pk = $('.xans-order-basketpackage'); if (pk) watch(pk, tidyItems);
+    }
     hideButtons();
     buildShipBox();
     buildGuestBenefit();

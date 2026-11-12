@@ -79,3 +79,72 @@ html.dnrb-basket #orderFixItem .dnrb-bbar-inline .dnrb-bbar-ship:empty { display
 
 /* ---------- 쓰지 않는 버튼 숨기기 (견적서출력 · 해외장바구니로 이동) ---------- */
 html.dnrb-basket .dnrb-hide { display: none !important; }
+
+/* =====================================================================
+ * 2단계 화면 정리 — basket.js 가 html 에 dnrb-tidy (+ 항목별 dnrb-t-*) 를 붙였을 때만.
+ * tidy.live 를 켜기 전에는 테스트 스킨 주소(/skin-…)에서만 붙는다.
+ * ===================================================================== */
+html.dnrb-tidy .dnrb-t-off { display: none !important; }
+
+/* ---------- 위쪽 여백 줄이기 ---------- */
+html.dnrb-t-top .xans-order-basketpackage .ec-base-fold > .title { display: none !important; } /* "장바구니 상품" 접기 머리줄 */
+html.dnrb-t-top.dnrb-t-nooversea .xans-order-tabinfo { display: none !important; }            /* 해외배송 0개면 탭 숨김 */
+html.dnrb-t-top .xans-order-normtitle { min-height: 0 !important; height: auto !important; }
+html.dnrb-t-top .xans-order-normtitle h4 { height: auto !important; line-height: 1.4 !important; padding: 10px 14px !important; font-size: 14px !important; }
+@media (max-width: 1199px) {
+  html.dnrb-t-top #contents > .titleArea { padding: 16px 0 6px !important; }
+  html.dnrb-t-top #contents > .titleArea h2 { font-size: 20px !important; }
+  html.dnrb-t-top #contents > .ec-base-step { display: none !important; }                    /* 1.장바구니 › 2.주문서 › 3.완료 */
+  html.dnrb-t-top .xans-order-tabinfo { margin-bottom: 16px !important; }
+  html.dnrb-t-top .cart-product .ec-base-fold > .contents { padding-top: 6px !important; }
+}
+@media (min-width: 1200px) {
+  html.dnrb-t-top #contents > .titleArea { padding: 48px 0 24px !important; }
+  html.dnrb-t-top #contents > .ec-base-step { margin: 8px 0 28px !important; }
+  html.dnrb-t-top .xans-order-tabinfo { margin: 0 0 24px !important; }
+}
+
+/* ---------- 상품 칸 작게 ---------- */
+html.dnrb-t-items .prdBox {
+  display: grid !important; grid-template-columns: 22px 84px minmax(0, 1fr); column-gap: 12px; row-gap: 8px;
+  align-items: start; padding: 18px 0 !important;
+}
+html.dnrb-t-items .prdBox > input.check { grid-column: 1; grid-row: 1; margin: 2px 0 0 !important; }
+html.dnrb-t-items .prdBox > .thumbnail { grid-column: 2; grid-row: 1 / span 5; width: 84px !important; margin: 0 !important; }
+html.dnrb-t-items .prdBox > .thumbnail img { width: 100% !important; height: auto !important; border-radius: 6px; }
+html.dnrb-t-items .prdBox > .description { grid-column: 3; grid-row: 1; padding: 0 40px 0 0 !important; margin: 0 !important; min-width: 0; }
+html.dnrb-t-items .prdBox > .description .prdName { font-size: 14px; line-height: 1.4; margin: 0 0 4px !important; }
+html.dnrb-t-items .prdBox > .description ul.price { margin: 0 !important; }
+html.dnrb-t-items .prdBox > .description ul.info { margin: 2px 0 0 !important; }
+html.dnrb-t-items .prdBox > .optionGroup { grid-column: 3; grid-row: 2; margin: 0 !important; padding: 0 !important; background: none !important; border: 0 !important; font-size: 13px; color: var(--dnrb-muted); }
+html.dnrb-t-items .prdBox > .optionGroup li, html.dnrb-t-items .prdBox > .optionGroup .name { padding: 0 !important; margin: 0 !important; background: none !important; border: 0 !important; }
+html.dnrb-t-items .prdBox > .optionGroup .name { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+html.dnrb-t-items .prdBox > .optionGroup .name::before { display: none !important; }            /* "ㄴ" 표시 */
+html.dnrb-t-items .prdBox .dnrb-t-optbtn {
+  display: inline-block !important; padding: 2px 8px !important; border: 1px solid var(--dnrb-line) !important; border-radius: 4px;
+  font-size: 12px !important; line-height: 1.5 !important; color: var(--dnrb-text) !important; background: #fff !important; text-decoration: none !important; height: auto !important;
+}
+html.dnrb-t-items .prdBox > .quantity { grid-column: 3; grid-row: 3; margin: 2px 0 0 !important; padding: 0 !important; justify-content: flex-start !important; border: 0 !important; }
+html.dnrb-t-items .prdBox > .quantity > .label { display: none !important; }
+html.dnrb-t-items .prdBox > .sumPrice { grid-column: 3; grid-row: 4; margin: 0 !important; padding: 0 !important; border: 0 !important; justify-content: flex-start !important; gap: 8px; font-size: 13px; }
+html.dnrb-t-items .prdBox.dnrb-t-qty1 > .sumPrice { display: none !important; }
+html.dnrb-t-items .prdBox > .buttonGroup { grid-column: 3; grid-row: 5; margin: 2px 0 0 !important; padding: 0 !important; gap: 6px; justify-content: flex-start !important; }
+html.dnrb-t-items .prdBox > .buttonGroup a {
+  flex: 0 0 auto !important; width: auto !important; min-width: 0 !important; height: 32px !important; line-height: 30px !important; padding: 0 12px !important; margin: 0 !important;
+  font-size: 12.5px !important; border-radius: 6px !important; background: #fff !important; color: var(--dnrb-text) !important; border: 1px solid var(--dnrb-line) !important; box-sizing: border-box;
+}
+html.dnrb-t-items .ec-base-prdInfo .btnDelete { top: 16px !important; }
+
+/* 수량: 카페24 모양 그대로, "변경" 버튼은 자동 반영이라 숨김 */
+html.dnrb-t-qty .prdBox .quantity a[onclick*="modifyQuantity"] { display: none !important; }
+
+/* ---------- 이용안내(카페24 기본 문구) 숨김 ---------- */
+html.dnrb-t-guide .xans-order-basketguide { display: none !important; }
+
+/* ---------- 선물하기 등 다른 버튼보다 우리 주문 버튼이 항상 위 ---------- */
+html.dnrb-t-gift #orderFixItem { display: flex !important; flex-direction: column; }
+html.dnrb-t-gift #orderFixItem > .dnrb-bbar-inline { order: -1; margin-top: 12px; }
+
+/* 전체선택·선택삭제 줄: 상품 목록과 띄우고 조금 낮게 */
+html.dnrb-t-items .xans-order-selectorder { margin: 12px 0 20px !important; }
+html.dnrb-t-items .xans-order-selectorder a.btnNormal { height: 44px !important; line-height: 42px !important; padding-top: 0 !important; padding-bottom: 0 !important; }
