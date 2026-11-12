@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-11-12.7';
+  var VER = '2026-11-12.8';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var bc = cfg.basket || {};
   if (cfg.enabled === false || bc.enabled === false) return;
@@ -136,6 +136,7 @@
     }
     bars.forEach(function (b) { $('.dnrb-bbar-btn', b).addEventListener('click', order); });
     doc.documentElement.classList.add('dnrb-bbar-on');
+    if (noteOn && pn.text) doc.documentElement.classList.add('dnrb-pnote'); // 카페24 '할인 적용 금액은 주문서작성…' 안내는 우리 문구와 겹쳐 숨김
   }
   function paintOrderButtons(sum, ship) {
     if (!bars.length) return;

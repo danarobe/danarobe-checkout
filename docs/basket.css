@@ -196,3 +196,4 @@ html.dnrb-qa-lock, html.dnrb-qa-lock body { overflow: hidden !important; }
 /* ---------- 금액 안내 문구 · 할인 금액 줄 ---------- */
 html.dnrb-basket #orderFixItem .dnrb-bbar-inline .dnrb-bbar-note { margin: 2px 0 0; font-size: 12px; line-height: 1.5; color: var(--dnrb-muted); text-align: center; word-break: keep-all; }
 html.dnrb-basket .xans-order-totalsummary .dnrb-disc .data strong { color: #c0392b; }
+html.dnrb-basket.dnrb-pnote .xans-order-basketpriceinfoguide { display: none !important; }
