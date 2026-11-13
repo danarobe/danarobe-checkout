@@ -21,7 +21,7 @@ export function buildDocs(cfg) {
   const js = `/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (${new Date().toISOString()}) */\nwindow.DNRB_PAY_CONFIG = ${JSON.stringify(pub, null, 2)};\n`;
   fs.writeFileSync(path.join(DOCS, 'config.js'), js);
   fs.writeFileSync(path.join(DOCS, 'config.json'), JSON.stringify(pub, null, 2));
-  for (const f of ['checkout.css', 'checkout.js', 'basket.css', 'basket.js']) fs.copyFileSync(path.join(SKIN, f), path.join(DOCS, f));
+  for (const f of ['checkout.css', 'checkout.js', 'basket.css', 'basket.js', 'track.js']) fs.copyFileSync(path.join(SKIN, f), path.join(DOCS, f));
   fs.writeFileSync(path.join(DOCS, 'orderform.html'), fs.readFileSync(path.join(SKIN, 'orderform.html'), 'utf8').replace(/__DNRB_BASE__/g, SITE_BASE));
   if (!fs.existsSync(path.join(DOCS, '.nojekyll'))) fs.writeFileSync(path.join(DOCS, '.nojekyll'), '');
   if (!fs.existsSync(path.join(DOCS, 'index.html'))) {

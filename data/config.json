@@ -147,5 +147,11 @@
       "discountLine": true,
       "discountLabel": "할인 금액"
     }
+  },
+  "tracking": {
+    "enabled": true,
+    "live": false,
+    "url": "https://eeffmbusaqaadeojjlnc.supabase.co/rest/v1/rpc/shop_track",
+    "key": "sb_publishable_zZJYLFpy063PlkXbYAtlwA_UWVh9WWN"
   }
 }

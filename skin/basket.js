@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-11-12.9';
+  var VER = '2026-11-13.2';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var bc = cfg.basket || {};
   if (cfg.enabled === false || bc.enabled === false) return;
@@ -40,6 +40,28 @@
   function setHtml(node, html) { if (node.innerHTML !== html) node.innerHTML = html; }
   // 테스트 스킨(/skin-skin15/...) 에서 열면 링크도 그 스킨 안에서 움직이도록 앞부분을 붙인다
   var PREFIX = (location.pathname.match(/^\/skin-[^/]+/) || [''])[0];
+
+  /* 사용 기록(track.js): 설정 tracking 이 켜져 있을 때만 비동기로 불러온다. 결제·화면 동작에는 관여하지 않는다 */
+  var TK = cfg.tracking || {};
+  var TRACK_ON = TK.enabled !== false && !!TK.url && !!TK.key && (/^\/skin-[^/]+/.test(location.pathname) || TK.live === true);
+  function track(name, data, now) {
+    try {
+      if (!TRACK_ON) return;
+      if (window.__dnrbTrack) window.__dnrbTrack(name, data || {}, now);
+      else (window.__dnrbQ = window.__dnrbQ || []).push([name, data || {}]);
+    } catch (e) {}
+  }
+  function loadTracker() {
+    try {
+      if (!TRACK_ON || window.__dnrbTrackLoading) return;
+      window.__dnrbTrackLoading = true;
+      var me = [].slice.call(document.scripts).filter(function (s) { return /\/(checkout|basket)\.js(\?|$)/.test(s.src || ''); })[0];
+      var base = me ? me.src.replace(/[^/]*$/, '') : 'https://danarobe.github.io/danarobe-checkout/';
+      var s = document.createElement('script');
+      s.async = true; s.src = base + 'track.js?v=' + encodeURIComponent(VER);
+      (document.head || document.documentElement).appendChild(s);
+    } catch (e) {}
+  }
 
   /* 카페24 장바구니 값 읽기 ---------------------------------------------- */
   function boxes() { return $$('input[id^="basket_chk_id_"]'); }
@@ -108,6 +130,7 @@
     var all = boxes(), on = checkedBoxes();
     if (!on.length) { alert((bc.orderBar || {}).noneText || '주문할 상품을 선택해 주세요.'); return; }
     var link = cafeOrderLink(on.length === all.length ? 'all' : 'select') || cafeOrderLink('all');
+    try { var sm = summary() || {}; track('b_order', { pay: sm.pay, on: on.length, all: all.length }, true); } catch (e) {}
     if (link) link.click();
   }
   var bars = [];
@@ -433,7 +456,7 @@
   function qaSubmit() {
     if (!qaState) return;
     var it = qaState.item;
-    if (qaState.fallback) { location.href = it.href; return; }
+    if (qaState.fallback) { track('b_qa_page', { no: it.no }, true); location.href = it.href; return; }
     if (!qaState.ready) return;
     var w = qaFrame.contentWindow, d = qaFrame.contentDocument;
     var missing = qaSelects(d).filter(function (s) { return !s.disabled && (s.getAttribute('required') === 'true' || s.required) && (!s.value || /^\*/.test(s.value)); });
@@ -449,10 +472,13 @@
     }
     qaState.submitting = true;
     qaBusy(true, '담는 중…'); qaMsg('');
+    track('b_qa_add', { no: it.no, price: it.price }, true);
+    // 담기에 성공하면 카페24가 화면을 바로 새로 열어 기록이 끊길 수 있다 → 다음 장바구니 화면에서 확인해 기록
+    if (TRACK_ON) try { sessionStorage.setItem('dnrb_qa_pending', JSON.stringify({ no: String(it.no), price: it.price, at: Date.now() })); } catch (e) {}
     try { w.product_submit(2, '/exec/front/order/basket/', null); }
     catch (e) { qaState.submitting = false; qaBusy(false); qaMsg('담지 못했어요. 상품 페이지에서 다시 시도해 주세요.', true); return; }
     setTimeout(function () {
-      if (qaState && qaState.submitting && !qaState.done) { qaState.submitting = false; qaBusy(false); if (!$('.dnrb-qa-msg', qaSheet).textContent) qaMsg('응답이 늦어요. 잠시 뒤 다시 눌러 주세요.', true); }
+      if (qaState && qaState.submitting && !qaState.done) { track('b_qa_slow', { no: qaState.item.no }); qaState.submitting = false; qaBusy(false); if (!$('.dnrb-qa-msg', qaSheet).textContent) qaMsg('응답이 늦어요. 잠시 뒤 다시 눌러 주세요.', true); }
     }, 12000);
   }
   function quickAddInit() {
@@ -590,6 +616,36 @@
     // 체크 상자를 직접 누를 때도 버튼 글자(선택 개수)를 바로 바꾼다
     doc.addEventListener('change', function (e) { if (e.target && /^basket_chk_id_/.test(e.target.id || '')) setTimeout(paint, 50); }, true);
     selectAllOnLoad();
+    if (TRACK_ON) {
+      loadTracker();
+      // 추천 상품 누름(바로 담기 여부와 관계없이). 읽기만 한다
+      doc.addEventListener('click', function (e) {
+        try {
+          var a = e.target.closest && e.target.closest('.dnrb-reco-item'); if (!a) return;
+          var no = a.getAttribute('data-no'), it = recoItems[no] || {};
+          track('b_reco', { no: no, price: it.price, q: quickOn ? 1 : 0 }, !quickOn);
+        } catch (x) {}
+      }, { capture: true, passive: true });
+      // 바로 담기 결과: 직전에 담기를 눌렀고(1분 안) 그 상품이 지금 장바구니에 있으면 성공
+      try {
+        var pend = JSON.parse(sessionStorage.getItem('dnrb_qa_pending') || 'null');
+        if (pend) {
+          sessionStorage.removeItem('dnrb_qa_pending');
+          if (Date.now() - pend.at < 60000) {
+            var inCartNow = (window.aBasketProductData || []).some(function (x) { return String(x.product_no) === String(pend.no); });
+            track(inCartNow ? 'b_qa_ok' : 'b_qa_miss', { no: pend.no, price: pend.price, s: Math.round((Date.now() - pend.at) / 1000) });
+          }
+        }
+      } catch (x) {}
+      // 전체 선택·합계 계산이 끝난 뒤 한 번: 장바구니 상태
+      setTimeout(function () {
+        try {
+          var sm = summary() || {}, st = freeShipState(sm);
+          track('b_view', { pay: sm.pay, prod: sm.product, fee: sm.fee, disc: sm.discount, n: boxes().length, on: checkedBoxes().length,
+            gap: st ? st.gap : null, reco: $$('.dnrb-reco-item').length, mem: isMember() ? 1 : 0 });
+        } catch (x) {}
+      }, 2500);
+    }
     log('ready', VER);
   }
   window.DNRB_BASKET_VER = VER;

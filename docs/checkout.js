@@ -6,13 +6,35 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-11-02.4';
+  var VER = '2026-11-13.1';
   var cfg = window.DNRB_PAY_CONFIG || {};
   // 카페24 공용 스크립트(앱 할인 계산)는 전역 sPage 로 '지금이 주문서인지'를 보는데, v1 조각으로 만든 우리 주문서 껍데기에는
   // 이 값이 없어 할인코드가 서버에서 통과해도 화면 반영 단계에서 오류로 멈춘다(아무 반응 없음). 비상 스위치로 꺼도 필요하므로 맨 앞에서 채운다.
   if (typeof window.sPage === 'undefined' && /\/order\/orderform/.test(location.pathname)) window.sPage = 'ORDER_ORDERFORM';
   var doc = document;
   var log = function () { if (cfg.debug) try { console.log.apply(console, ['[DNRB]'].concat([].slice.call(arguments))); } catch (e) {} };
+
+  /* 사용 기록(track.js): 설정 tracking 이 켜져 있을 때만 비동기로 불러온다. 결제·화면 동작에는 관여하지 않는다 */
+  var TK = cfg.tracking || {};
+  var TRACK_ON = TK.enabled !== false && !!TK.url && !!TK.key && (/^\/skin-[^/]+/.test(location.pathname) || TK.live === true);
+  function track(name, data, now) {
+    try {
+      if (!TRACK_ON) return;
+      if (window.__dnrbTrack) window.__dnrbTrack(name, data || {}, now);
+      else (window.__dnrbQ = window.__dnrbQ || []).push([name, data || {}]);
+    } catch (e) {}
+  }
+  function loadTracker() {
+    try {
+      if (!TRACK_ON || window.__dnrbTrackLoading) return;
+      window.__dnrbTrackLoading = true;
+      var me = [].slice.call(document.scripts).filter(function (s) { return /\/(checkout|basket)\.js(\?|$)/.test(s.src || ''); })[0];
+      var base = me ? me.src.replace(/[^/]*$/, '') : 'https://danarobe.github.io/danarobe-checkout/';
+      var s = document.createElement('script');
+      s.async = true; s.src = base + 'track.js?v=' + encodeURIComponent(VER);
+      (document.head || document.documentElement).appendChild(s);
+    } catch (e) {}
+  }
 
   var SIMPLE = { naverpay: 1, kakaopay: 1, tosspay: 1, payco: 1, smilepay: 1, samsungpay: 1, applepay: 1, kpay: 1, paynow: 1, cafe24pay: 1, ssgpay: 1, lpay: 1, chaipay: 1 };
   var LABELS = { card: '신용카드', tcash: '계좌이체', cash: '무통장입금', icash: '가상계좌', cell: '휴대폰 결제', deferpay: '후불결제',
@@ -1146,6 +1168,7 @@
     var steps = [renderLogo, styleAgreement, setupAgreementLayer, renderShippingCard, renderGuestInfo, wrapSide, renderPaymethods, renderBenefitMsgs, renderInstallment, renderNotices, renderPromotion, renderCoupon, collapseDiscountCode, renderMileageMaxText, renderPointsSummary, renderFreeShipping, renderTimer, renderGuestNudge];
     steps.forEach(function (fn) { try { fn(); } catch (e) { log(fn.name, e); } });
     doc.documentElement.classList.add('dnrb-ready');
+    if (/\/order\/orderform/.test(location.pathname)) loadTracker();
     log('ready', VER);
   }
   if (cfg.enabled === false) { log('disabled by config'); window.DNRB_PAY = { version: VER, config: cfg, disabled: true }; return; }

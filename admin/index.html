@@ -368,6 +368,11 @@
         <p class="help">완전히 원래(결제슉) 모습으로 되돌리려면 카페24 스킨 편집기에서 <code>order/orderform.html</code> 을 설치 전 백업본으로 다시 붙여넣으면 됩니다. 백업본은 설치할 때 <code>backup/</code> 폴더에 보관합니다.</p>
       </div>
       <div class="card">
+        <h3>사용 기록 <span class="hint">장바구니·주문서에서 누른 버튼과 금액만 기록(개인정보 없음). 결제 동작에는 관여하지 않아요.</span></h3>
+        <div class="row"><label>켜기</label><label class="switch"><input type="checkbox" data-bind="tracking.enabled"><span></span></label></div>
+        <div class="row"><label>손님 화면에도 적용 <span class="hint">끄면 테스트 스킨 주소에서만</span></label><label class="switch"><input type="checkbox" data-bind="tracking.live"><span></span></label></div>
+      </div>
+      <div class="card">
         <h3>지금 상태</h3>
         <div id="statusBox" class="status">불러오는 중…</div>
         <button id="btnRefreshStatus" class="btn small">새로고침</button>

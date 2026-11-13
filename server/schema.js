@@ -61,6 +61,8 @@ export const DEFAULT_CONFIG = {
   guestNudge: { visible: true, title: '네이버 · 카카오로 3초 만에 로그인', body: '로그인하면 쿠폰과 적립금을 쓸 수 있고, 주문조회 비밀번호를 만들 필요가 없어요.', linkText: '로그인하고 주문하기' },
   freeShipping: { visible: false, threshold: 70000, basis: 'after', gapUnder: 30000, linkToCart: true,
     text: '{gap}원만 더 담으면 배송비 {fee}이 무료예요', doneText: '무료배송 적용됨', linkText: '장바구니' },
+  // 사용 기록(track.js): 장바구니·주문서에서 누른 버튼·금액을 Supabase shop_events 에 쌓는다. live=false 면 테스트 스킨 주소에서만
+  tracking: { enabled: true, live: false, url: 'https://eeffmbusaqaadeojjlnc.supabase.co/rest/v1/rpc/shop_track', key: '' },
   // 장바구니 (basket.js). 무료배송 기준 금액·계산 방식·안내 상한(gapUnder)은 위 freeShipping 값을 같이 쓴다.
   basket: {
     enabled: true,
