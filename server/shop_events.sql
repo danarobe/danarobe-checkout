@@ -34,6 +34,7 @@ begin
   -- 전체 상한(묶음 번호를 바꿔 가며 보내는 장난 대비): 1분 2,000건을 넘으면 받지 않는다(평소 1분 수십 건).
   -- 넘치면 그 1분 동안 기록만 빠지고, 손님의 장바구니·결제에는 영향 없음
   if (select count(*) from public.shop_events where ts > now() - interval '1 minute') > 2000 then return; end if;
+  if (select count(*) from public.shop_events where ts > now() - interval '1 hour') > 30000 then return; end if;
   for e in select value from jsonb_array_elements(b->'ev') loop
     n := n + 1; exit when n > 40;
     continue when jsonb_typeof(e) <> 'object' or coalesce(e->>'e', '') !~ '^[a-z_]{2,24}$';
@@ -46,5 +47,5 @@ end $$;
 revoke all on function public.shop_track(text) from public;
 grant execute on function public.shop_track(text) to anon;
 
--- 180일 지난 기록은 매일 새벽 3시 17분(KST)에 지운다
+-- 180일 지난 기록은 매일 새벽 3시 17분(KST)에 지운다 (2026-11-13 등록함 — cron.job 'shop-events-cleanup'. 다시 설치할 때만 아래 줄 실행)
 -- select cron.schedule('shop-events-cleanup', '17 18 * * *', $$delete from public.shop_events where ts < now() - interval '180 days'$$);

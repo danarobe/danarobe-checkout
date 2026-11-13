@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-11-13.2';
+  var VER = '2026-11-13.3';
   var cfg = window.DNRB_PAY_CONFIG || {};
   var bc = cfg.basket || {};
   if (cfg.enabled === false || bc.enabled === false) return;
