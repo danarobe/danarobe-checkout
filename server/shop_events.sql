@@ -31,11 +31,13 @@ begin
   if jsonb_typeof(b->'ev') is distinct from 'array' then return; end if;
   -- 한 방문 묶음이 1시간에 400건을 넘기면 더 받지 않는다(오작동·장난 방지)
   if (select count(*) from public.shop_events where sid = s and ts > now() - interval '1 hour') > 400 then return; end if;
-  -- 전체 상한(묶음 번호를 바꿔 가며 보내는 장난 대비, 평소 1분 수십 건): 1분 2,000건 또는 1시간 30,000건을 넘으면
-  -- 다 막지 않고 방문 묶음 10개 중 1개만 계속 받는다(누가 쏟아부어도 기록이 0이 되지 않게). 손님의 장바구니·결제에는 영향 없음
+  -- 전체 상한(장난 대비, 평소 1분 수십 건). 손님의 장바구니·결제에는 영향 없음
+  --  · 1시간 100,000건 넘으면 무조건 받지 않음(절대 상한)
+  --  · 1분 2,000건 또는 1시간 30,000건 넘으면 서버가 무작위로 10건 중 1건만 받음(보내는 쪽이 고를 수 없음, 기록이 0이 되지 않게)
+  if (select count(*) from public.shop_events where ts > now() - interval '1 hour') > 100000 then return; end if;
   if ((select count(*) from public.shop_events where ts > now() - interval '1 minute') > 2000
       or (select count(*) from public.shop_events where ts > now() - interval '1 hour') > 30000)
-     and abs(hashtext(s)) % 10 <> 0 then return; end if;
+     and random() >= 0.1 then return; end if;
   for e in select value from jsonb_array_elements(b->'ev') loop
     n := n + 1; exit when n > 40;
     continue when jsonb_typeof(e) <> 'object' or coalesce(e->>'e', '') !~ '^[a-z_]{2,24}$';
