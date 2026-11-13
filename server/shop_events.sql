@@ -31,12 +31,13 @@ begin
   if jsonb_typeof(b->'ev') is distinct from 'array' then return; end if;
   -- 한 방문 묶음이 1시간에 400건을 넘기면 더 받지 않는다(오작동·장난 방지)
   if (select count(*) from public.shop_events where sid = s and ts > now() - interval '1 hour') > 400 then return; end if;
-  -- 전체 상한(묶음 번호를 바꿔 가며 보내는 장난 대비): 1분 2,000건 · 하루 300,000건 넘으면 받지 않는다
+  -- 전체 상한(묶음 번호를 바꿔 가며 보내는 장난 대비): 1분 2,000건을 넘으면 받지 않는다(평소 1분 수십 건).
+  -- 넘치면 그 1분 동안 기록만 빠지고, 손님의 장바구니·결제에는 영향 없음
   if (select count(*) from public.shop_events where ts > now() - interval '1 minute') > 2000 then return; end if;
-  if (select count(*) from public.shop_events where ts > now() - interval '1 day') > 300000 then return; end if;
   for e in select value from jsonb_array_elements(b->'ev') loop
     n := n + 1; exit when n > 40;
     continue when jsonb_typeof(e) <> 'object' or coalesce(e->>'e', '') !~ '^[a-z_]{2,24}$';
+    continue when e->>'e' = 'o_alert' and coalesce(e->'d'->>'t', '') !~ '^[a-z]{2,8}(_[a-z]{2,6})?$';
     d := case when jsonb_typeof(e->'d') = 'object' and length((e->'d')::text) <= 1500 then e->'d' else '{}'::jsonb end;
     insert into public.shop_events (sid, page, ev, data, ver, dev, ia, live)
     values (s, pg, e->>'e', d, left(b->>'v', 20), left(b->>'dv', 8), left(b->>'ia', 8), (b->>'lv') = '1');

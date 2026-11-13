@@ -11,7 +11,7 @@
 (function () {
   'use strict';
   try {
-    var VER = '2026-11-13.2';
+    var VER = '2026-11-13.3';
     var cfg = (window.DNRB_PAY_CONFIG || {}).tracking || {};
     if (!cfg.url || !cfg.key || window.__dnrbTrackOn) return;
     window.__dnrbTrackOn = true;
@@ -147,9 +147,10 @@
       if (typeof origAlert === 'function' && !origAlert.__dnrb) {
         var wrapped = function (msg) {
           try {
-            // 개인정보가 섞이지 않게: 숫자·이메일·영문 단어를 지우고, 카페24 입력 확인 문구 모양일 때만 앞 50자
-            var t = String(msg == null ? '' : msg).replace(/\S+@\S+/g, '').replace(/[0-9A-Za-z]+/g, '').replace(/\s+/g, ' ').trim().slice(0, 50);
-            if (!/필수|입력|선택|동의|확인|올바|형식|불가|초과|부족|없습니다|주세요|하세요|실패|오류/.test(t)) t = '(기타)';
+            // 문구는 보내지 않고 정해진 분류 코드만 보낸다(개인정보가 섞일 여지 없음)
+            var m = String(msg == null ? '' : msg), kind = /동의/.test(m) ? 'agree' : /필수|입력해|입력하|입력값/.test(m) ? 'req' : /선택해|선택하/.test(m) ? 'select' : /형식|올바르/.test(m) ? 'format' : /쿠폰|적립금|예치금/.test(m) ? 'benefit' : /재고|품절|구매\s*불가|판매/.test(m) ? 'stock' : 'other';
+            var field = /성명|이름/.test(m) ? 'name' : /휴대|전화|연락처/.test(m) ? 'phone' : /이메일|메일/.test(m) ? 'email' : /주소|우편/.test(m) ? 'addr' : /비밀번호/.test(m) ? 'pw' : /결제\s*수단|결제방법/.test(m) ? 'pay' : /약관|개인정보/.test(m) ? 'terms' : '';
+            var t = kind + (field ? '_' + field : '');
             ev('o_alert', { t: t }); flushNow();
           } catch (e) {}
           return origAlert.apply(this, arguments);
