@@ -141,7 +141,7 @@
         if (t.closest('.dnrb-guest-link')) { ev('o_guest_login', {}); flushNow(); return; }
       } catch (x) {}
     }, { capture: true, passive: true });
-    // 카페24 가 띄우는 경고(필수 입력 누락 등)는 결제 실패 원인을 알려준다: 글자만 앞부분 기록, 동작은 그대로
+    // 카페24 가 띄우는 경고(필수 입력 누락 등)는 결제 실패 원인을 알려준다: 분류 코드만 기록, 경고 동작은 그대로
     try {
       var origAlert = window.alert;
       if (typeof origAlert === 'function' && !origAlert.__dnrb) {
