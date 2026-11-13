@@ -46,7 +46,8 @@ export const DEFAULT_CONFIG = {
   enabled: true,
   theme: { mainColor: '#000000', subColor: '#000000', round: true },
   logo: { visible: false, url: '', heightPc: 24, heightMo: 24 },
-  paymethod: { mode: 'mixed', order: 'simple_first' },
+  // fillPayer: 계좌이체 예금주명·무통장 입금자명을 받는 분 이름으로 미리 채움. fillPayerLive=false 면 테스트 스킨에서만
+  paymethod: { mode: 'mixed', order: 'simple_first', fillPayer: true, fillPayerLive: false },
   badges: [],
   benefitMsgs: [],
   installment: { visible: false, title: '무이자 할부 안내', items: [] },

@@ -1,4 +1,4 @@
-/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-11-13T12:59:00.894Z) */
+/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-11-13T15:03:16.644Z) */
 window.DNRB_PAY_CONFIG = {
   "version": 1,
   "enabled": true,
@@ -15,7 +15,9 @@ window.DNRB_PAY_CONFIG = {
   },
   "paymethod": {
     "mode": "mixed",
-    "order": "simple_first"
+    "order": "simple_first",
+    "fillPayer": true,
+    "fillPayerLive": false
   },
   "badges": [
     {
@@ -91,12 +93,6 @@ window.DNRB_PAY_CONFIG = {
     "doneText": "무료배송 적용됨",
     "linkText": "장바구니"
   },
-  "tracking": {
-    "enabled": true,
-    "live": true,
-    "url": "https://eeffmbusaqaadeojjlnc.supabase.co/rest/v1/rpc/shop_track",
-    "key": "sb_publishable_zZJYLFpy063PlkXbYAtlwA_UWVh9WWN"
-  },
   "basket": {
     "enabled": true,
     "selectAll": true,
@@ -136,13 +132,6 @@ window.DNRB_PAY_CONFIG = {
       "estimate": true,
       "oversea": true
     },
-    "priceNote": {
-      "visible": true,
-      "live": true,
-      "text": "쿠폰/적립금 적용 시 결제 금액은 상이할 수 있습니다",
-      "discountLine": true,
-      "discountLabel": "할인 금액"
-    },
     "tidy": {
       "enabled": true,
       "live": true,
@@ -152,6 +141,19 @@ window.DNRB_PAY_CONFIG = {
       "autoQuantity": true,
       "hideGuide": true,
       "giftBelow": true
+    },
+    "priceNote": {
+      "visible": true,
+      "live": true,
+      "text": "쿠폰/적립금 적용 시 결제 금액은 상이할 수 있습니다",
+      "discountLine": true,
+      "discountLabel": "할인 금액"
     }
+  },
+  "tracking": {
+    "enabled": true,
+    "live": true,
+    "url": "https://eeffmbusaqaadeojjlnc.supabase.co/rest/v1/rpc/shop_track",
+    "key": "sb_publishable_zZJYLFpy063PlkXbYAtlwA_UWVh9WWN"
   }
 };

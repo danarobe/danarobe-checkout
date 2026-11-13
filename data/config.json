@@ -14,7 +14,9 @@
   },
   "paymethod": {
     "mode": "mixed",
-    "order": "simple_first"
+    "order": "simple_first",
+    "fillPayer": true,
+    "fillPayerLive": false
   },
   "badges": [
     {

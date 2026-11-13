@@ -93,6 +93,11 @@
         </div>
         <p class="help">개별 결제수단의 순서와 이름은 카페24 관리자 → 쇼핑몰 설정 → 결제 설정 → 결제 방식 설정에서 바꿔요. 여기 설정은 그 결과 위에 "간편/일반 묶음" 순서만 정합니다.</p>
       </div>
+      <div class="card">
+        <h3>예금주명·입금자명 미리 채우기 <span class="hint">계좌이체·무통장입금을 고르면 받는 분 이름을 넣어 둬요. 손님이 고친 이름은 그대로 둬요.</span></h3>
+        <div class="row"><label>켜기</label><label class="switch"><input type="checkbox" data-bind="paymethod.fillPayer"><span></span></label></div>
+        <div class="row"><label>손님 화면에도 적용 <span class="hint">끄면 테스트 스킨 주소에서만</span></label><label class="switch"><input type="checkbox" data-bind="paymethod.fillPayerLive"><span></span></label></div>
+      </div>
     </section>
 
     <!-- 결제수단 꾸미기 -->

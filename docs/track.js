@@ -11,7 +11,7 @@
 (function () {
   'use strict';
   try {
-    var VER = '2026-11-13.3';
+    var VER = '2026-11-14.1';
     var cfg = (window.DNRB_PAY_CONFIG || {}).tracking || {};
     if (!cfg.url || !cfg.key || window.__dnrbTrackOn) return;
     window.__dnrbTrackOn = true;
@@ -79,7 +79,8 @@
     function $(s, r) { return (r || doc).querySelector(s); }
     function $$(s, r) { return [].slice.call((r || doc).querySelectorAll(s)); }
     function won(t) { var m = String(t || '').replace(/[^\d-]/g, ''); return m ? parseInt(m, 10) : null; }
-    function member() { return $('a[href*="logout"], a[href*="Logout"]') ? 1 : 0; }
+    // 주문서: 비회원만 주문조회 비밀번호 칸이 있다
+    function member() { return PAGE === 'orderform' ? (doc.getElementById('order_password') ? 0 : 1) : ($('a[href*="logout"], a[href*="Logout"]') ? 1 : 0); }
 
     /* 장바구니: 카페24 원래 주문 버튼을 직접 누른 경우만 여기서(나머지는 basket.js 가 기록) */
     if (PAGE === 'basket') {
@@ -120,6 +121,9 @@
     function snapshot(extra) {
       var o = amounts(); o.m = payMethod(); o.mem = member();
       var g = freeShipGap(); if (g != null) o.fs = g;
+      // 계좌이체·무통장: 예금주/입금자 칸 상태만(이름은 보내지 않음) e=비어 있음 a=자동으로 채운 그대로 u=손님이 입력
+      var pf = o.m === 'tcash' ? doc.getElementById('allat_account_nm') : o.m === 'cash' ? doc.getElementById('pname') : null;
+      if (pf) o.pn = !pf.value ? 'e' : (pf.getAttribute('data-dnrb-auto') === pf.value ? 'a' : 'u');
       if (extra) for (var k in extra) o[k] = extra[k];
       return o;
     }
@@ -149,7 +153,7 @@
           try {
             // 문구는 보내지 않고 정해진 분류 코드만 보낸다(개인정보가 섞일 여지 없음)
             var m = String(msg == null ? '' : msg), kind = /동의/.test(m) ? 'agree' : /필수|입력해|입력하|입력값/.test(m) ? 'req' : /선택해|선택하/.test(m) ? 'select' : /형식|올바르/.test(m) ? 'format' : /쿠폰|적립금|예치금/.test(m) ? 'benefit' : /재고|품절|구매\s*불가|판매/.test(m) ? 'stock' : 'other';
-            var field = /성명|이름/.test(m) ? 'name' : /휴대|전화|연락처/.test(m) ? 'phone' : /이메일|메일/.test(m) ? 'email' : /주소|우편/.test(m) ? 'addr' : /비밀번호/.test(m) ? 'pw' : /결제\s*수단|결제방법/.test(m) ? 'pay' : /약관|개인정보/.test(m) ? 'terms' : '';
+            var field = /예금주|입금자/.test(m) ? 'payer' : /입금\s*은행|은행/.test(m) ? 'bank' : /성명|이름/.test(m) ? 'name' : /휴대|전화|연락처/.test(m) ? 'phone' : /이메일|메일/.test(m) ? 'email' : /주소|우편/.test(m) ? 'addr' : /비밀번호/.test(m) ? 'pw' : /결제\s*수단|결제방법/.test(m) ? 'pay' : /약관|개인정보/.test(m) ? 'terms' : '';
             var t = kind + (field ? '_' + field : '');
             ev('o_alert', { t: t }); flushNow();
           } catch (e) {}

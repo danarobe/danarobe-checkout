@@ -14,7 +14,9 @@
   },
   "paymethod": {
     "mode": "mixed",
-    "order": "simple_first"
+    "order": "simple_first",
+    "fillPayer": true,
+    "fillPayerLive": false
   },
   "badges": [
     {
@@ -90,12 +92,6 @@
     "doneText": "무료배송 적용됨",
     "linkText": "장바구니"
   },
-  "tracking": {
-    "enabled": true,
-    "live": true,
-    "url": "https://eeffmbusaqaadeojjlnc.supabase.co/rest/v1/rpc/shop_track",
-    "key": "sb_publishable_zZJYLFpy063PlkXbYAtlwA_UWVh9WWN"
-  },
   "basket": {
     "enabled": true,
     "selectAll": true,
@@ -135,13 +131,6 @@
       "estimate": true,
       "oversea": true
     },
-    "priceNote": {
-      "visible": true,
-      "live": true,
-      "text": "쿠폰/적립금 적용 시 결제 금액은 상이할 수 있습니다",
-      "discountLine": true,
-      "discountLabel": "할인 금액"
-    },
     "tidy": {
       "enabled": true,
       "live": true,
@@ -151,6 +140,19 @@
       "autoQuantity": true,
       "hideGuide": true,
       "giftBelow": true
+    },
+    "priceNote": {
+      "visible": true,
+      "live": true,
+      "text": "쿠폰/적립금 적용 시 결제 금액은 상이할 수 있습니다",
+      "discountLine": true,
+      "discountLabel": "할인 금액"
     }
+  },
+  "tracking": {
+    "enabled": true,
+    "live": true,
+    "url": "https://eeffmbusaqaadeojjlnc.supabase.co/rest/v1/rpc/shop_track",
+    "key": "sb_publishable_zZJYLFpy063PlkXbYAtlwA_UWVh9WWN"
   }
 }

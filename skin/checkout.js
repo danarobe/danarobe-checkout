@@ -6,7 +6,7 @@
  * ===================================================================== */
 (function () {
   'use strict';
-  var VER = '2026-11-13.3';
+  var VER = '2026-11-14.1';
   var cfg = window.DNRB_PAY_CONFIG || {};
   // 카페24 공용 스크립트(앱 할인 계산)는 전역 sPage 로 '지금이 주문서인지'를 보는데, v1 조각으로 만든 우리 주문서 껍데기에는
   // 이 값이 없어 할인코드가 서버에서 통과해도 화면 반영 단계에서 오류로 멈춘다(아무 반응 없음). 비상 스위치로 꺼도 필요하므로 맨 앞에서 채운다.
@@ -197,6 +197,47 @@
     }
     syncChecked();
     area.addEventListener('change', syncChecked);
+  }
+
+  /* 3-1) 계좌이체 예금주명·무통장 입금자명 미리 채우기 ------------------------------
+   * 카페24는 이 칸을 비워 두어 손님이 이름을 한 번 더 써야 한다 → 비어 있으면 받는 분 이름을 넣어 둔다.
+   * 손님이 직접 고친 값은 절대 덮어쓰지 않는다. 받는 분 이름이 없으면 아무것도 하지 않는다. */
+  function fillPayerName() {
+    var pm = cfg.paymethod || {};
+    // 기본은 테스트 스킨(/skin-…) 주소에서만. 손님 화면은 관리 화면에서 '손님 화면에도 적용'을 켜야 동작
+    if (pm.fillPayer === false || !(/^\/skin-[^/]+/.test(location.pathname) || pm.fillPayerLive === true)) return;
+    var IDS = ['allat_account_nm', 'pname'];
+    function fill() {
+      try {
+        var r = doc.querySelector('[name="rname"]');
+        var name = r ? String(r.value || '').replace(/\s+/g, ' ').trim() : '';
+        if (!name) return;
+        IDS.forEach(function (id) {
+          var f = doc.getElementById(id);
+          if (!f || f.getAttribute('data-dnrb-user')) return;
+          // 우리가 넣은 값이 아닌데 이미 값이 있으면(카페24·손님이 넣음) 그대로 둔다
+          if (f.value && f.getAttribute('data-dnrb-auto') !== f.value) return;
+          var v = name.slice(0, parseInt(f.getAttribute('maxlength'), 10) || 20);
+          if (f.value !== v) { f.value = v; f.setAttribute('data-dnrb-auto', v); }
+        });
+      } catch (e) {}
+    }
+    // 손님이 이 칸에 직접 입력하면 그 뒤로는 손대지 않는다
+    doc.addEventListener('input', function (e) {
+      try {
+        var t = e.target; if (!t || !e.isTrusted) return;
+        if (IDS.indexOf(t.id) >= 0) t.setAttribute('data-dnrb-user', '1');
+        else if (t.name === 'rname') fill();
+      } catch (x) {}
+    }, true);
+    doc.addEventListener('change', function (e) {
+      try { var t = e.target; if (t && (t.name === 'addr_paymethod' || t.name === 'rname')) setTimeout(fill, 0); } catch (x) {}
+    }, true);
+    // 결제 버튼을 누르는 순간에도 한 번 (배송지 목록에서 고르면 카페24가 이름을 조용히 바꾸므로). 막지 않고 채우기만 한다
+    doc.addEventListener('click', function (e) {
+      try { var t = e.target; if (t && t.closest && (t.closest('#btn_payment') || t.closest('#ec-jigsaw-area-paymethod'))) fill(); } catch (x) {}
+    }, true);
+    fill();
   }
 
   /* 4) 결제혜택 문구 ----------------------------------------------------- */
@@ -1165,7 +1206,7 @@
 
   function init() {
     try { applyTheme(); } catch (e) { log(e); }
-    var steps = [renderLogo, styleAgreement, setupAgreementLayer, renderShippingCard, renderGuestInfo, wrapSide, renderPaymethods, renderBenefitMsgs, renderInstallment, renderNotices, renderPromotion, renderCoupon, collapseDiscountCode, renderMileageMaxText, renderPointsSummary, renderFreeShipping, renderTimer, renderGuestNudge];
+    var steps = [renderLogo, styleAgreement, setupAgreementLayer, renderShippingCard, renderGuestInfo, wrapSide, renderPaymethods, fillPayerName, renderBenefitMsgs, renderInstallment, renderNotices, renderPromotion, renderCoupon, collapseDiscountCode, renderMileageMaxText, renderPointsSummary, renderFreeShipping, renderTimer, renderGuestNudge];
     steps.forEach(function (fn) { try { fn(); } catch (e) { log(fn.name, e); } });
     doc.documentElement.classList.add('dnrb-ready');
     if (/\/order\/orderform/.test(location.pathname)) loadTracker();
