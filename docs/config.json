@@ -92,7 +92,7 @@
   },
   "tracking": {
     "enabled": true,
-    "live": false,
+    "live": true,
     "url": "https://eeffmbusaqaadeojjlnc.supabase.co/rest/v1/rpc/shop_track",
     "key": "sb_publishable_zZJYLFpy063PlkXbYAtlwA_UWVh9WWN"
   },

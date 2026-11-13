@@ -11,7 +11,7 @@
 (function () {
   'use strict';
   try {
-    var VER = '2026-11-13.1';
+    var VER = '2026-11-13.2';
     var cfg = (window.DNRB_PAY_CONFIG || {}).tracking || {};
     if (!cfg.url || !cfg.key || window.__dnrbTrackOn) return;
     window.__dnrbTrackOn = true;
@@ -146,7 +146,12 @@
       var origAlert = window.alert;
       if (typeof origAlert === 'function' && !origAlert.__dnrb) {
         var wrapped = function (msg) {
-          try { ev('o_alert', { t: String(msg == null ? '' : msg).replace(/\s+/g, ' ').slice(0, 80) }); flushNow(); } catch (e) {}
+          try {
+            // 개인정보가 섞이지 않게: 숫자·이메일·영문 단어를 지우고, 카페24 입력 확인 문구 모양일 때만 앞 50자
+            var t = String(msg == null ? '' : msg).replace(/\S+@\S+/g, '').replace(/[0-9A-Za-z]+/g, '').replace(/\s+/g, ' ').trim().slice(0, 50);
+            if (!/필수|입력|선택|동의|확인|올바|형식|불가|초과|부족|없습니다|주세요|하세요|실패|오류/.test(t)) t = '(기타)';
+            ev('o_alert', { t: t }); flushNow();
+          } catch (e) {}
           return origAlert.apply(this, arguments);
         };
         wrapped.__dnrb = true;

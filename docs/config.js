@@ -1,4 +1,4 @@
-/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-11-13T12:46:29.100Z) */
+/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-11-13T12:51:25.711Z) */
 window.DNRB_PAY_CONFIG = {
   "version": 1,
   "enabled": true,
@@ -93,7 +93,7 @@ window.DNRB_PAY_CONFIG = {
   },
   "tracking": {
     "enabled": true,
-    "live": false,
+    "live": true,
     "url": "https://eeffmbusaqaadeojjlnc.supabase.co/rest/v1/rpc/shop_track",
     "key": "sb_publishable_zZJYLFpy063PlkXbYAtlwA_UWVh9WWN"
   },
