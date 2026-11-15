@@ -63,7 +63,7 @@
     "images": []
   },
   "deliveryTimer": {
-    "visible": true,
+    "visible": false,
     "cutoff": "15:00",
     "holidays": [],
     "showNextDay": true,
@@ -92,7 +92,6 @@
     "doneText": "무료배송 적용됨",
     "linkText": "장바구니"
   },
-  "updatedAt": "2026-11-02T01:08:35.920Z",
   "basket": {
     "enabled": true,
     "selectAll": true,
@@ -132,6 +131,13 @@
       "estimate": true,
       "oversea": true
     },
+    "priceNote": {
+      "visible": true,
+      "live": true,
+      "text": "쿠폰/적립금 적용 시 결제 금액은 상이할 수 있습니다",
+      "discountLine": true,
+      "discountLabel": "할인 금액"
+    },
     "tidy": {
       "enabled": true,
       "live": true,
@@ -141,15 +147,9 @@
       "autoQuantity": true,
       "hideGuide": true,
       "giftBelow": true
-    },
-    "priceNote": {
-      "visible": true,
-      "live": true,
-      "text": "쿠폰/적립금 적용 시 결제 금액은 상이할 수 있습니다",
-      "discountLine": true,
-      "discountLabel": "할인 금액"
     }
   },
+  "updatedAt": "2026-11-15T01:35:22.608Z",
   "tracking": {
     "enabled": true,
     "live": true,
