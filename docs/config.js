@@ -1,4 +1,4 @@
-/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-11-13T15:03:16.644Z) */
+/* 다나로브 주문서 설정 — 관리 화면에서 생성됨 (2026-11-15T01:22:17.871Z) */
 window.DNRB_PAY_CONFIG = {
   "version": 1,
   "enabled": true,
@@ -17,7 +17,7 @@ window.DNRB_PAY_CONFIG = {
     "mode": "mixed",
     "order": "simple_first",
     "fillPayer": true,
-    "fillPayerLive": false
+    "fillPayerLive": true
   },
   "badges": [
     {

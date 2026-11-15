@@ -16,7 +16,7 @@
     "mode": "mixed",
     "order": "simple_first",
     "fillPayer": true,
-    "fillPayerLive": false
+    "fillPayerLive": true
   },
   "badges": [
     {
