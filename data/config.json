@@ -14,7 +14,7 @@
   },
   "paymethod": {
     "mode": "mixed",
-    "order": "simple_first",
+    "order": "normal_first",
     "fillPayer": true,
     "fillPayerLive": true
   },
@@ -149,7 +149,7 @@
       "giftBelow": true
     }
   },
-  "updatedAt": "2026-11-15T01:35:22.608Z",
+  "updatedAt": "2026-11-19T04:49:43.605Z",
   "tracking": {
     "enabled": true,
     "live": true,

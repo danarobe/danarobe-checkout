@@ -14,7 +14,7 @@
   },
   "paymethod": {
     "mode": "mixed",
-    "order": "simple_first",
+    "order": "normal_first",
     "fillPayer": true,
     "fillPayerLive": true
   },
